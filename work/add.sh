@@ -27,12 +27,24 @@ for f in $(cat ../index); do
     tzcode*)
       rm -f $old_tzcode
       old_tzcode="$(tar tf ../tarballs/$f)"
+      mkfile=mktzcode.sh
       ;;
     tzdata*)
       rm -f $old_tzcode
       old_tzcode="$(tar tf ../tarballs/$f)"
+      mkfile=mktzdata.sh
       ;;
   esac
+
+  # Remove existing $mkfile.
+  if [[ -f $mkfile ]]; then
+    git config --unset user.name
+    git config --unset user.email
+    git rm $mkfile
+    git commit -m "Removing $mkfile for new version."
+  fi
+
+  # Add the new version.
   tar xf ../tarballs/$f
   git config user.name "$name"
   git config user.email "$email"
@@ -41,4 +53,18 @@ for f in $(cat ../index); do
     | git commit --allow-empty -F- --date "$date"
   # TODO: annotated tag?
   git tag -a -m 'Generated tag reflecting release on elsie' ${f%.tar}
+
+  # Make and checkin script to build tarball.
+  cat > $mkfile << EOF
+#!/bin/bash
+
+tar zcf $f.gz $(echo $old_tzcode)
+EOF
+  chmod 755 $mkfile
+  git config --unset user.name
+  git config --unset user.email
+  git add $mkfile
+  git commit -m "Script to build $f.gz"
+  git tag -a -m "Script to build $f.gz" $f.gz
+
 done
