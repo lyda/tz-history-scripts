@@ -1,6 +1,12 @@
+Contents: what, why, how, decisions
+
+== What? ==
+
 This is a collection of scripts and data which can be used to construct
 a metadata preserving git repository of all the zoneinfo releases
 since 1986.
+
+== Why? ==
 
 On that note let me say a huge thank you to the combined half a century
 of work that Paul and Arthur and everyone else has contributed here.
@@ -12,6 +18,16 @@ http://blog.jonudell.net/2009/10/23/a-literary-appreciation-of-the-olsonzoneinfo
 and was hugely impressed by the quiet work we all take for granted.
 So hearing about the current issues the maintainers are having I didn't
 want the history to be lost.
+
+== How? ==
+
+* See the */FETCH_DATA files and gather the required data.
+* See work-usenix/ directory for how to generate the original git.settz
+  repository.
+* Continue on in the work/ directory (there's a script there to copy
+  the git.settz repository.
+
+== Decisions ==
 
 These scripts make a number of decisions people could debate.  I have
 listed them here so that others could review.
