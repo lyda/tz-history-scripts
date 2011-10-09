@@ -1,0 +1,10 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 13 Mar 95 14:08:33 -0500
+tzcode95c.tar.gz
+Message-ID: <9503131908.AA29392@elsie.nci.nih.gov>
+
+tzcode95c.tar.gz includes the one-line fix for sign extension problems in
+detzcode; it is available from elsie.nci.nih.gov by anonymous ftp.
+
+				--ado

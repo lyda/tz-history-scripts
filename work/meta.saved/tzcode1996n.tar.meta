@@ -1,0 +1,12 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 16 Dec 96 10:22:10 -0500
+tzcode1996n.tar.gz
+Message-ID: <9612161522.AA15921@elsie.nci.nih.gov>
+
+The file
+	ftp://elsie.nci.nih.gov/pub/tzcode1996n.tar.gz
+is now available; it incorporates the link snapping fix from Bruce Evans
+(via Garrett Wollman).
+
+				--ado

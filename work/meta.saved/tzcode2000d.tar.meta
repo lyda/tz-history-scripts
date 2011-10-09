@@ -1,0 +1,17 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 20 Apr 2000 15:53:21 -0400
+tzcode2000d.tar.gz
+Message-ID: <43E124CC389ED111B18D00805FEA1E63067E13C4@nihexchange2.nih.gov>
+
+The file
+	ftp://elsie.nci.nih.gov/pub/tzcode2000d.tar.gz
+is now available; tzdata2000d.tar.gz is unchanged. Included are changes to
+the documentation and code of strftime
+for C99 conformance, and a bug fix for date.c. These are based on (though
+modified from) the changes circulated on the time zone mailing list by Paul
+Eggert.
+
+I'll wait on changes to Argentina until the smoke clears.
+
+				--ado

@@ -1,0 +1,13 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Wed, 10 Jan 96 20:48:00 -0500
+tzcode96b.tar.gz
+Message-ID: <9601110148.AA08693@elsie.nci.nih.gov>
+
+The file tzcode96b.tar.gz is available for anonymous ftp from the ~ftp/pub
+directory of elsie.nci.nih.gov (165.112.73.1):
+	-rw-r--r--  1 ado         73347 Jan 10 20:43 tzcode96b.tar.gz
+It contains fixes and enhancements from Paul Eggert, including code that
+emulates the behavior of recent versions of the SunOS "date" command.
+
+				--ado

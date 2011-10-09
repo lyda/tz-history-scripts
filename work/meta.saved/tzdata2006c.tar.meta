@@ -362,5 +362,3 @@ and elimination of the P (paramater) macro.
   	register struct tm *	tmp;
   
 --- 541,547 ----
-
-

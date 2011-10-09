@@ -1,0 +1,34 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Tue, 30 Jul 96 13:23:37 -0400
+bug report - timezone incorrectly set [forwarded with permission]
+Message-ID: <9607301723.AA10063@elsie.nci.nih.gov>
+
+I'm forwarding the attached bug report with permisison from Timothy Patrick
+Murphy; an updated version of the time zone code--
+	ftp://elsie.nci.nih.gov/pub/tzcode96j.tar.gz
+--is now available which sets sp->typecnt as suggested.
+
+				--ado
+
+> ...
+> Date: Mon, 29 Jul 1996 10:24:18 -0400
+> ...
+> To: ado at elsie.nci.nih.gov
+> Subject: bug report - timezone incorrectly set
+> ...
+> 
+> I believe I have discovered a bug in the tzparse() function and would
+> like you to review this.  When the value of the TZ environment
+> variable is of the form JKL3:10PNM4:40 the section of code between
+> lines 947 and 1031 in localtime.c are executed.  It seems that at the
+> end of this block the value of sp->typecnt should be set to 2.  If
+> this is not done and there are at least 2 entries in the ttis array
+> such that tt_isdst is false then the value of the global timezone
+> variable is corrupted on line 234 in the settzname() function.
+> 
+> tpm
+> 
+> Timothy Patrick Murphy		tpm at hi.com 	Voice: (617) 890-0444	
+> Hitachi Computer Products                 	  Fax: (617) 890-4998
+> 1601 Trapelo Rd., Waltham, MA 02154, USA

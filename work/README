@@ -33,6 +33,15 @@ directory that I have already processed.  However if you have new
 tzdata/tzcode tarballs or if you have some ideas on how to get better
 data, the mkmeta.sh script can generate the files.
 
+To generate them from scratch, use the ./mkmeta.sh scripts.  Once that
+is run you will need to hand edit the files.  See the note in mkmeta.sh
+script for what to do next.  Once you've done those, these other scripts
+will help - read them to see how they work:
+
+  fixdates.sh
+  chkmeta.sh
+  shave.sh
+
 Once the index file and the tarballs/ and meta/ directories are created
 and populated just run the add.sh script:
 

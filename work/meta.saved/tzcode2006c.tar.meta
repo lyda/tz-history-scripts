@@ -1,0 +1,20 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 3 Apr 2006 10:14:30 -0400
+Tzcode2006c.tar.gz and tzdata2006c.tar.gz
+Message-ID: <B410D30A78C6404C9DABEA31B54A28130666A1@nihcesmlbx10.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2006c.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2006c.tar.gz
+...are now available. These reflect the two sets of data changes
+circulated late last month on the time zone mailing list by Paul Eggert;
+they also reflect a fencepost error fix in zic.c and changes to zic.c
+and the "europe" file to minimize differences between output produced by
+the old 32-bit zic and the new 64-bit version.
+
+The old 32-bit code remains available as
+ftp://elsie.nci.nih.gov/pub/old-tzcode-32-bit-output.tar.gz
+
+				--ado

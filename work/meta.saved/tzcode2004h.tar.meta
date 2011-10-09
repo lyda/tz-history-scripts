@@ -1,0 +1,14 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Tue, 7 Dec 2004 11:46:17 -0500 
+Tzcode2004h.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C7402FE@nihexchange2.nih.gov>
+
+The file...
+	ftp://elsie.nci.nih.gov/pub/tzcode200h.tar.gz
+...is now available; this incorporates the 64-bit-time_t changes (most
+importantly to zdump.c) circulated last week on the time zone mailing list.
+
+Our long time_t nightmare is (almost) over.
+
+				--ado

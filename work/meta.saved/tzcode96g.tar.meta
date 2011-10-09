@@ -1,0 +1,14 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 16 May 96 14:02:45 -0400
+tzcode96g.tar.gz
+Message-ID: <9605161802.AA19061@elsie.nci.nih.gov>
+
+The file tzcode96g.tar.gz is now available by anonymous ftp from
+elsie.nci.nih.gov (165.112.73.1) in the ~ftp/pub directory:
+
+	-rw-r--r--  1 ado         74838 May 16 14:00 tzcode96g.tar.gz
+
+This incorporates the fix for the simultaneous-DST-and-zone-change challenge.
+
+				--ado

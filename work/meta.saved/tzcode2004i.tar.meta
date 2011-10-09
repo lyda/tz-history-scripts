@@ -1,0 +1,12 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Tue, 14 Dec 2004 13:46:42 -0500
+Tzcode2004i.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C74030A@nihexchange2.nih.gov>
+
+The file...
+	ftp://elsie.nci.nih.gov/pub/tzcode2004i.tar.gz
+...is now available; this incorporates the changes circulated last week to
+deal with systems where time_t is unsigned.
+
+				--ado

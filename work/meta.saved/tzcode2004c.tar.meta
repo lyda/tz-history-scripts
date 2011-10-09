@@ -1,0 +1,14 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Wed, 11 Aug 2004 12:13:11 -0400
+Tzcode2004c.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C7402A6@nihexchange2.nih.gov>
+
+The file...
+	ftp://elsie.nci.nih.gov/tzcode2004c.tar.gz
+...is now available; this includes the asctime-related changes circulated on
+the time zone mailing list last week as well as (variants of) some of the
+documentation changes suggested by Paul Eggert. No new data tarball has been
+made available since none of the data tarball components have changed.
+
+				--ado

@@ -1,0 +1,81 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 10 Feb 94 08:56:58 -0500
+zic.c:mkdirs broken
+Message-ID: <9402101356.AA19044@elsie.nci.nih.gov>
+
+> The fix I sent before for this never made it into 94b.  I don't know how
+> this fails to break everyone else.  mkdirs is broken unless you compile
+> with -fwritable-strings (which is generally losing to do).
+> ...
+
+Thanks for the fix; it (and only it) is incorporated into tzcode94c.tar.gz
+on elsie.nci.nih.gov.  The relevant diff is attached below.
+
+				--ado
+				
+SCCS/s.zic.c: 7.21 vs. 7.22
+*** 7.21/zic.c	Thu Feb 10 08:54:03 1994
+--- 7.22/zic.c	Thu Feb 10 08:54:04 1994
+***************
+*** 1,6 ****
+  #ifndef lint
+  #ifndef NOID
+! static char	elsieid[] = "@(#)zic.c	7.21";
+  #endif /* !defined NOID */
+  #endif /* !defined lint */
+  
+--- 1,6 ----
+  #ifndef lint
+  #ifndef NOID
+! static char	elsieid[] = "@(#)zic.c	7.22";
+  #endif /* !defined NOID */
+  #endif /* !defined lint */
+  
+***************
+*** 1878,1890 ****
+  }
+  
+  static int
+! mkdirs(name)
+! char * const	name;
+  {
+  	register char *	cp;
+  
+! 	if ((cp = name) == NULL || *cp == '\0')
+  		return 0;
+  	while ((cp = strchr(cp + 1, '/')) != 0) {
+  		*cp = '\0';
+  #ifndef unix
+--- 1878,1892 ----
+  }
+  
+  static int
+! mkdirs(argname)
+! char * const	argname;
+  {
++ 	register char *	name;
+  	register char *	cp;
+  
+! 	if (argname == NULL || *argname == '\0')
+  		return 0;
++ 	cp = name = ecpyalloc(argname);
+  	while ((cp = strchr(cp + 1, '/')) != 0) {
+  		*cp = '\0';
+  #ifndef unix
+***************
+*** 1906,1916 ****
+--- 1908,1920 ----
+  					"%s: Can't create directory ",
+  					progname);
+  				(void) perror(name);
++ 				ifree(name);
+  				return -1;
+  			}
+  		}
+  		*cp = '/';
+  	}
++ 	ifree(name);
+  	return 0;
+  }
+  

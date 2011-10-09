@@ -1,0 +1,16 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 24 Feb 94 15:47:22 -0500
+tzcode94d.tar.gz and tzdata94d.tar.gz
+Message-ID: <9402242047.AA13676@elsie.nci.nih.gov>
+
+The files
+	tzcode94d.tar.gz
+and
+	tzdata94d.tar.gz
+are now available for anonymous ftp from the ~ftp/pub directory on
+elsie.nci.nih.gov (128.231.16.1).  These files incorporate the changes
+to avoid clashes with POSIX semantics for zones such as GMT+4; some other
+very minor housekeeping is also present.
+
+				--ado

@@ -1,0 +1,15 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 13 Sep 2004 14:53:22 -0400
+Tzcode2004d.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C0D47BB40@nihexchange2.nih.gov>
+
+The file...
+	ftp://elsie.nci.nih.gov/pub/tzcode2004d.tar.gz
+...is now available; this includes the changes circulated last week that
+avoid overflow problems when TM_YEAR_BASE is added to an integer.
+Since there are no data changes, there's no new tzdata file.
+
+Note that strftime will be revisited to deal with two-digit-output formats.
+
+				--ado

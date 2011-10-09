@@ -1,0 +1,15 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Wed, 5 Jun 96 08:07:49 -0400
+tzcode96h.tar.gz
+Message-ID: <9606051207.AA08535@elsie.nci.nih.gov>
+
+tzcode96h.tar.gz is now available for anonymous ftp from elsie.nci.nih.gov
+(165.112.73.1) in the ~ftp/pub directory:
+
+	-rw-r--r--  1 ado         75300 Jun  5 08:02 tzcode96h.tar.gz
+
+The above includes the fix for handling transitions specified in Universal
+Time; some "public domain" notices have also been added.
+
+				--ado

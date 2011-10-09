@@ -1,0 +1,13 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 7 Aug 2006 12:34:30 -0400
+Tzcode2006i.tar.gz
+Message-ID: <B410D30A78C6404C9DABEA31B54A2813997B02@nihcesmlbx10.nih.gov>
+
+The file...
+	ftp://elsie.nci.nih.gov/pub/tzcode2006i.tar.gz
+...is now available; this incorporates the localtime.c fixes circulated
+last week on the time zone mailing list and also adds Ken Pizzini's
+conversion script.
+
+				--ado

@@ -1,0 +1,11 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Fri, 13 Oct 95 13:26:24 -0400
+tzcode95e.tar.gz
+Message-ID: <9510131726.AA25546@elsie.nci.nih.gov>
+
+The mktime change to scan from future to past when trying to find time zone
+offsets has been incorporated into tzcode95e.tar.gz, available from
+elsie.nci.nih.gov (165.112.73.1) in the ~ftp/pub directory.
+
+				--ado

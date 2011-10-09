@@ -1,0 +1,19 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 30 Jan 2006 09:08:52 -0500 (-0500)
+tzcode2006a.tar.gz and tzdata2006a.tar.gz
+Message-ID: <200601301408.k0UE8qAU001529@elsie.nci.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode2006a.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata2006a.tar.gz
+are now available. These reflect the changes circulated on the time zone
+mailing list on 2006-01-20 by Paul Eggert (in particular, Indiana time zone
+moves); they also reflect an addition to the zic manual page to describe how
+special-case transitions are handled.
+
+The versions above do NOT reflect 64-bit changes; the current (unchanged) plan
+is for those changes to show up on U. S. Presidents' Day (2006-02-20).
+
+				--ado

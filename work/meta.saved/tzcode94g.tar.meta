@@ -1,0 +1,10 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 5 May 94 13:05:31 -0400
+oops--tzcode94g.tar.gz
+Message-ID: <9405051705.AA09252@elsie.nci.nih.gov>
+
+The file tzcode94f.tar.gz was missing "optind.c" and a reference to it in the
+Makefile; tzcode94g.tar.gz remedies the problem.
+
+				--ado

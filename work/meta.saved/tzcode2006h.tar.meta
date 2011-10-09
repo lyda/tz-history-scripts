@@ -1,0 +1,16 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 24 Jul 2006 09:26:33 -0400
+Tzcode2006h.tar.gz
+Message-ID: <B410D30A78C6404C9DABEA31B54A2813997AC1@nihcesmlbx10.nih.gov>
+
+The file...
+	ftp://elsie.nci.nih.gov/pub/tzcode2006h.tar.gz
+...is now available; this adds public domain notices to four files,
+includes a fix for transition times being off by a second, and adds a
+new recording to the "arts" file (information courtesy Colin Bowern).
+
+No "tzdata" files were affected, so we're still at tzdata2006g.tar.gz.
+
+				--ado
+	

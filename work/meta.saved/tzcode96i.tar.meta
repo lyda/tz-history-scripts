@@ -1,0 +1,36 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Sat, 27 Jul 96 20:19:05 -0400
+tz strftime %V week numbers are incompatible with Solaris, GNU
+Message-ID: <9607280019.AA29589@elsie.nci.nih.gov>
+
+> > The current strftime code is supposed to deliver up ISO 8601 week
+> > numbers when "%V" is used
+> 
+> I assume that this is for a new or draft standard...
+
+If the full name is any indication, it dates from 1988.
+
+> Is a copy available online?
+
+The situation is akin to that of the C standard; it's copyrighted by the
+issuing body. A summary is available; I've put a (recompressed) copy of it
+in the ~ftp/pub directory on elsie.nci.nih.gov (165.112.73.1); see
+	ftp://elsie.nci.nih.gov/pub/iso8601.ps.gz
+
+> OK, then I think I see the problem.  Solaris 2.5.1 and the GNU C
+> library both use XPG4_1994_04_09 behavior; but tz's strftime.c does
+> not emulate this behavior correctly.  (I'm guessing a bit, because I
+> do not have the XPG4 spec.)
+>  
+> The following patch fixes tz with XPG4_1994_04_09 so that it emulates
+> the Solaris / GNU behavior precisely; I've tested it on all dates from
+> 1901-12-14 through 2038-01-18.
+
+It's dicey as to what the right thing to do is.
+As long as we're deliberately making an error, we might as well err in
+the same way as other major implementers. Paul's suggested patch is
+incorporated into
+	ftp://elsie.nci.nih.gov/pub/tzcode96i.tar.gz
+
+				--ado

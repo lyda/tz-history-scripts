@@ -1,0 +1,19 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 31 Jan 2005 09:28:50 -0500
+Tzcode2004d.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C740355@nihexchange2.nih.gov>
+
+The file...
+	ftp://elsie.nci.nih.gov/pub/tzcode2004d.tar.gz
+...is now available. This incorporates the (now slightly modified) changes
+circulated last week on the time zone mailing list to: make zic complain
+about links to links if the -v flag is used; have "make public" do more code
+checking; and add an include to "localtime.c" for the benefit of gcc
+systems.
+
+Note that there are no data changes.
+
+Expect one more batch of delinting changes for the code.
+
+				--ado

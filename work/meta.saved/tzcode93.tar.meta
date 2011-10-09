@@ -1,0 +1,21 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Fri, 8 Jan 93 07:09:38 -0500
+tzcode93.tar.Z and tzdata93.tar.Z
+Message-ID: <9301081209.AA00888@elsie.nci.nih.gov>
+
+A new version of the time zone stuff is available for anonymous ftp from
+elsie.nci.nih.gov (128.231.16.1), in the ~ftp/pub directory:
+
+	-r--r--r--  1 ado         91953 Jan  8 07:01 tzcode93.tar.Z
+	-r--r--r--  1 ado         44313 Jan  8 07:01 tzdata93.tar.Z
+
+At kre's suggestion, the package has been split in two--a code piece (which
+also includes documentation) that's only of use to folks who want to recompile
+things and a data piece useful to anyone who can run "zic".
+
+The new version has a few changes to the data files, a few portability changes,
+and an off-by-one fix (with thanks to Tom-Karzes at deshaw.com for providing a
+description and a solution).
+
+				--ado
