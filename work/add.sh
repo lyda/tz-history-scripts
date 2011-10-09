@@ -15,6 +15,13 @@ old_tzdata="africa antarctica asia australasia etcetera europe factory
 # ../work-usenet/git.settz
 cd git.tz || exit
 
+rm_deleted() {
+  local doomed=$(echo $* | tr ' ' '\n' | sort | uniq -u)
+  if [[ -n "$doomed" ]]; then
+    git rm $doomed
+  fi
+}
+
 for f in $(cat ../index); do
   email="$(sed -n 1p ../meta/$f.meta)"
   name="$(sed -n 2p ../meta/$f.meta)"
@@ -28,12 +35,16 @@ for f in $(cat ../index); do
   case "$f" in
     tzcode*)
       rm -f $old_tzcode
-      old_tzcode="$(tar tf ../tarballs/$f)"
+      tzcode="$(tar tf ../tarballs/$f)"
+      rm_deleted $tzcode $tzcode $old_tzcode
+      old_tzcode="$tzcode"
       mkfile=mktzcode.sh
       ;;
     tzdata*)
       rm -f $old_tzdata
-      old_tzdata="$(tar tf ../tarballs/$f)"
+      tzdata="$(tar tf ../tarballs/$f)"
+      rm_deleted $tzdata $tzdata $old_tzdata
+      old_tzdata="$tzdata"
       mkfile=mktzdata.sh
       ;;
   esac
