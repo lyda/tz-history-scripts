@@ -3,13 +3,13 @@
 genscript=$1
 
 # These are the files as they exist in the ../work-usenet/git.settz
-old_tzdata="africa antarctica asia australasia etcetera europe factory
-            leapseconds northamerica pacificnew solar87 solar88 solar89
-            southamerica systemv"
 old_tzcode="Theory usno1988 usno1989 README asctime.c date.1 date.c
             difftime.c emkdir.c getopt.c ialloc.c localtime.c logwtmp.c
             Makefile newctime.3 Patchlevel.h private.h scheck.c strftime.c
             tzfile.5 tzfile.h zdump.8 zdump.c zic.8 zic.c"
+old_tzdata="africa antarctica asia australasia etcetera europe factory
+            leapseconds northamerica pacificnew solar87 solar88 solar89
+            southamerica systemv"
 
 # Assumes git.tz has already been created - probably from
 # ../work-usenet/git.settz
@@ -32,8 +32,8 @@ for f in $(cat ../index); do
       mkfile=mktzcode.sh
       ;;
     tzdata*)
-      rm -f $old_tzcode
-      old_tzcode="$(tar tf ../tarballs/$f)"
+      rm -f $old_tzdata
+      old_tzdata="$(tar tf ../tarballs/$f)"
       mkfile=mktzdata.sh
       ;;
   esac
