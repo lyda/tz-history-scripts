@@ -1,0 +1,17 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 21 Feb 2000 12:28:00 -0500
+tzcode2000b.tar.gz and tzdata2000b.tar.gz
+Message-ID: <43E124CC389ED111B18D00805FEA1E63067E1365@nihexchange2.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode2000b.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata2000b.tar.gz
+are now available. These incorporate changes circulated on the time zone mailing
+list by Paul Eggert and Joseph Myers, as well as modest tweaks to the tz-art.htm
+and tz-link.htm files.
+
+				--ado
+
+

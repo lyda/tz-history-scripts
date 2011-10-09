@@ -1,0 +1,19 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 17 Jun 93 23:38:52 -0400
+tz93c botches time zone transitions in Brazil
+Message-ID: <9306180338.AA27333@elsie.nci.nih.gov>
+
+Thanks for this new fix.  Both it and the new data on Israel are now
+incorporated in
+	~ftp/pub/tzcode93d.tar.Z
+and
+	~ftp/pub/tzdata93d.tar.Z
+on elsie.nci.nih.gov (128.231.16.1).
+
+(And I think the woes of elsie's transition from being a Sun 3 to being a
+Sun 4 are over.)
+
+				--ado
+
+

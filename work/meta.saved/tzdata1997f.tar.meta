@@ -1,0 +1,19 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Sat, 3 May 97 19:01:10 -0400
+new versions of tzcode and tzdata
+Message-ID: <9705032301.AA06861@elsie.nci.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode1997e.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata1997f.tar.gz
+are now available. These incorporate the fixes to zic's error handling that
+were recently circulated on the tz list, as well as changes inspired by the
+item circulated on Slovenia. The description of Web resources has been
+htmlified for browsing convenience, and a new piece of tz-related music has
+been added to the "Music" file.
+
+				--ado
+
+

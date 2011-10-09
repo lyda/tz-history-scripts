@@ -1,0 +1,36 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 3 Feb 94 09:04:18 -0500
+tzdata94a.tar.gz
+Message-ID: <9402031404.AA26306@elsie.nci.nih.gov>
+
+tzdata94a.tar.gz is now available on elsie.nci.nih.gov; it simply incorporates
+the recently announced leap second into the "leapseconds" file.  For those who
+want to forego a trip to the ftp well, a diff from the previous version is
+attached.
+
+				--ado
+
+SCCS/s.leapseconds: 7.6 vs. 7.7
+*** 7.6/leapseconds	Thu Feb  3 09:02:22 1994
+--- 7.7/leapseconds	Thu Feb  3 09:02:22 1994
+***************
+*** 1,4 ****
+! # @(#)leapseconds	7.6
+  
+  # Allowance for leapseconds added to each timezone file.
+  
+--- 1,4 ----
+! # @(#)leapseconds	7.7
+  
+  # Allowance for leapseconds added to each timezone file.
+  
+***************
+*** 38,40 ****
+--- 38,41 ----
+  Leap	1990	Dec	31	23:59:60	+	S
+  Leap	1992	Jun	30	23:59:60	+	S
+  Leap	1993	Jun	30	23:59:60	+	S
++ Leap	1994	Jun	30	23:59:60	+	S
+
+

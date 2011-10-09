@@ -1,0 +1,20 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 24 Mar 2008 08:37:25 -0400
+tzdata2008b.tar.gz
+Message-ID: <B410D30A78C6404C9DABEA31B54A2813016CEA66@nihcesmlbx10.nih.gov>
+
+The file...	
+	ftp://elsie.nci.nih.gov/pub/tzdata2008b.tar.gz
+...is now available; this reflects the changes circulated last week on
+the time zone mailing list (including renaming Asia/Calcutta to
+Asia/Kolkata, with a backward link provided).
+
+It's the season for changes, and I'm still hoping to get good
+documentation on what happened in Venezuela earlier this year, so expect
+a tzdata2008c.tar.gz fairly soon.
+
+				--ado
+
+
+

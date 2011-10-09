@@ -1,0 +1,12 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Fri, 1 Sep 95 17:29:14 -0400
+Bug in yearistype.sh
+Message-ID: <9509012129.AA29251@elsie.nci.nih.gov>
+
+The file tzdata95g.tar.gz on in the ~ftp/pub directory on elsie.nci.nih.gov
+(165.112.73.1) has been updated to incorporate the "yearistype" correction.
+
+				--ado
+
+

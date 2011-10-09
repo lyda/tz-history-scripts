@@ -1,0 +1,19 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 29 Nov 93 15:18:37 -0500
+tzcode93g.tar.gz and tzdata93g.tar.gz
+Message-ID: <9311292018.AA11579@elsie.nci.nih.gov>
+
+The files
+	tzcode93g.tar.gz
+and
+	tzdata93g.tar.gz
+are now available for anonymous ftp from the ~ftp/pub directory on
+elsie.nci.nih.gov (128.231.16.1).  Paul Eggert has provided a good
+deal of historic information (based on Shanks), and there are some
+code changes to deal with the buglets that crawled out in dealing with
+the new information.
+
+				--ado
+
+

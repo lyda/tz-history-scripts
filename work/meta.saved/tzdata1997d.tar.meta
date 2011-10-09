@@ -1,0 +1,16 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Fri, 7 Mar 97 20:49:21 -0500
+tzcode1997c.tar.gz and tzdata1997d.tar.gz
+Message-ID: <9703080149.AA12006@elsie.nci.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode1997c.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata1997d.tar.gz
+are now available. Included are changes to "zic.c" to correct performance of
+the "-s" option, and a new file "usno1997".
+
+				--ado
+
+

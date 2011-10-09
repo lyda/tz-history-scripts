@@ -1,0 +1,26 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Tue, 13 Dec 2005 09:33:54 -0500
+Tzcode2005q.tar.gz and tzdata2005q.tar.gz
+Message-ID: <B410D30A78C6404C9DABEA31B54A2813066545@nihcesmlbx10.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2005q.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata200tq.tar.gz
+...are now available. Nothing earth-shaking here; as circulated on the
+time zone mailing list:
+	1.  Electronic mail addresses have been removed.
+	2.  Casts of the return value of exit have been removed.
+	3.  Casts of the argument of is.* macros have been added.
+	4.  Indentation in one section of zic.c has been fixed.
+	5.  References to dead URLs in the data files have been dealt
+with.
+
+Note that 2005r can be expected before the end of the year with more
+minor tweaks.
+
+				--ado
+
+
+

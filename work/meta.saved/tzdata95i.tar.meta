@@ -1,0 +1,19 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 23 Oct 95 13:36:09 -0400
+Irish timezone error?
+Message-ID: <9510231736.AA10712@elsie.nci.nih.gov>
+
+> In Ireland, we change from BST to GMT on the 4th Sunday in October...
+> Is there a...version of these timezone files available, or a program
+> which would generate them properly?  (I'm using Linux 1.3)
+
+The files available from anonymous ftp from elsie.nci.nih.gov
+(165.112.73.1) in the ~ftp/pub directory...
+	-rw-r--r--  1 ado         65805 Oct 13 13:24 tzcode95e.tar.gz
+	-rw-r--r--  1 ado         69404 Sep 26 10:44 tzdata95i.tar.gz
+...reflect a fourth-Sunday-in-October switch in Dublin.
+
+				--ado
+
+

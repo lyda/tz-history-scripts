@@ -1,0 +1,20 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 17 Jan 2005 18:40:05 -0500
+Tzcode2005c.tar.gz and tzdata2005c.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C74033F@nihexchange2.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2005c.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2005c.tar.gz
+...are now available; these incorporate the changes circulated last week on
+the time zone mailing list to get better results when mktime runs on a
+system where time_t is double, along with changes to the data files (most
+importantly to Paraguay).
+
+Next up on the schedule: have zic warn about links to links.
+
+				--ado
+
+

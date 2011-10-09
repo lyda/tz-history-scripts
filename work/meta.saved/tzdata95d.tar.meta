@@ -1,0 +1,15 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 3 Jul 95 13:31:36 -0400
+tzdata95d.tar.gz
+Message-ID: <9507031731.AA18298@elsie.nci.nih.gov>
+
+Paul Eggert's changes have been incorporated into tzdata95d.tar.gz, available
+by anonymous ftp from elsie.nci.nih.gov (165.112.73.1) in the ~ftp/pub
+directory.
+
+I should obviously avoid doing time zone work on a holiday weekend :-)
+
+				--ado
+
+

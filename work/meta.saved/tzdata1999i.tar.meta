@@ -1,0 +1,17 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 8 Nov 1999 15:11:43 -0500 
+New tz code and data
+Message-ID: <43E124CC389ED111B18D00805FEA1E63067E12BC@nihexchange2.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode1999h.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata1999i.tar.gz
+are now available, incorporating the changes circulated on the time zone mailing
+list last week and earlier this week
+(modulo a small awk/nawk change in the Makefile).
+
+				--ado
+
+

@@ -1,0 +1,18 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 31 Jul 2000 09:42:15 -0400
+tzcode2000e.tar.gz and tzdata2000e.tar.gz
+Message-ID: <4E0F9DDCA724D411B2120008C75DB71DD0F3E5@nihexchange2.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode2000e.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata2000e.tar.gz
+are now available. These include the data changes circulated on the time
+zone mailing list last week by Paul Eggert, a change to the default value of
+the defined constant HAVE_STRERROR, and the addition of a Dave Barry quote
+on DST to the tz-arts file.
+
+				--ado
+
+

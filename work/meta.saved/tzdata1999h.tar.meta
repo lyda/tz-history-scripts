@@ -1,0 +1,15 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 7 Oct 1999 04:02:05 -0400 
+tzdata1999h.tar.gz
+Message-ID: <43E124CC389ED111B18D00805FEA1E63067E127A@nihexchange2.nih.gov>
+
+The file
+	ftp://elsie.nci.nih.gov/pub/tzdata1999h.tar.gz
+is now available, incorporating changes circulated by Paul Eggert on the time
+zone mailing list to "europe" (most importantly, fixing Lithuania and Estonia).
+The "tzcode1999g.tar.gz" file remains as it was.
+
+				--ado
+
+

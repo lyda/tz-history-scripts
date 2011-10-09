@@ -1,0 +1,19 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Sat, 6 Jan 96 09:41:45 -0500
+tzcode96a.tar.gz and tzdata96a.tar.gz
+Message-ID: <9601061441.AA23236@elsie.nci.nih.gov>
+
+These files are now available by anonymous ftp from the ~ftp/pub directory
+on elsie.nci.nih.gov (165.112.73.1):
+	-rw-r--r--  1 ado         73078 Jan  6 09:08 tzcode96a.tar.gz
+	-rw-r--r--  1 ado         72790 Jan  6 09:08 tzdata96a.tar.gz
+The "data" file includes the Israel updates recently circulated on the mailing
+list; the "code" file contains fixes to strftime.c for correct ISO 8601 week
+number generation, plus support for two new formats ('G' and 'g') to give
+ISO 8601 year numbers (which are not necessarily the same as calendar year
+numbers).
+
+				--ado
+
+

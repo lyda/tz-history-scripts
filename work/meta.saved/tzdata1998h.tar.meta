@@ -1,0 +1,18 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 24 Sep 1998 10:56:05 -0400
+tzcode1998g.tar.gz and tzdata1998h.tar.gz
+Message-ID: <43E124CC389ED111B18D00805FEA1E63BC4BEB@nihexchange2.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode1998g.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata1998h.tar.gz
+are now available. These files contain the changes circulated by Paul Eggert on
+the time zone mailing list;
+there's also a correction to a define in the "private.h" file.
+
+				--ado
+
+
+

@@ -1,0 +1,29 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 5 Dec 2005 12:08:08 -0500
+Tzcode2005p.tar.gz and tzdata2005p.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C7405C9@nihexchange2.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2005p.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2005p.tar.gz
+...are now available. These reflect the "systemv", "tz-link.htm", and
+"zdump.c" changes circulated last week on the time zone mailing list
+(less the casts of arguments to the is* macros).
+
+My hope is to do a bit more cleanup by the end of the year:
+
+	1.	Reflect on and then incorporate the zdump.c changes from
+Robin Kawabata.
+	2.	Finish off the work on zones such as EST5EDT.
+	3.	Finish the work of purging electronic mail address.
+	4.	Fix (or at least annotate) dead URLs in the data files.
+
+Once 2006 rolls around I'll have another go at getting consensus on
+64-bit changes.
+
+				--ado
+
+
+

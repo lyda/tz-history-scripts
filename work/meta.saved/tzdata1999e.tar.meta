@@ -1,0 +1,25 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Tue, 17 Aug 1999 15:35:41 -0400
+tzcode1999e.tar.gz and tzdata1999e.tar.gz
+Message-ID: <43E124CC389ED111B18D00805FEA1E63067E121E@nihexchange2.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode1999e.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata1999e.tar.gz
+are now available. These files incorporate the changes circulated last week by
+Paul Eggert on the time zone mailing list,
+although the change to handling of DST-specifying time zone names has been
+commented out for now (search for "XXX" in "localtime.c" for details). These
+files also do not make any changes to the start of DST in Brazil.
+
+In addition to Paul's changes, there are updates to "Arts.htm" and cleanups of
+URLs.
+
+I imagine we'll see 1999f shortly with both changes in "localtime.c" and
+"southamerica"; folks can judge whether to await 1999f before downloading.
+
+				--ado
+
+

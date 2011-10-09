@@ -1,0 +1,4 @@
+Populate this directory the the tzdata and tzcode tarballs.
+
+The tarballs can be found in ftp://munnari.oz.au/pub/oldtz (with the
+newest ones in munnari.oz.au:/pub).

@@ -1,0 +1,21 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Sat, 28 Feb 1998 12:52:02 -0500
+tzcode1998c.tar.gz and tzdata1998c.tar.gz
+Message-ID: <9802281752.AA05228@elsie.nci.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode1998c.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzcode1998c.tar.gz
+are now available. These incorporate the proposed changes
+circulated by Paul Eggert on the time zone mailing list a few
+days ago (save the "French correction," on which I'll wait for
+the dust to settle); also included are the symlink changes
+circulated earlier this year and changes and additions to
+Arts.htm.
+
+				--ado
+
+
+

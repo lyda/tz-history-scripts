@@ -1,0 +1,19 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 14 Dec 2000 15:39:28 -0500
+tzcode2000h.tar.gz and tzdata2000h.tar.gz
+Message-ID: <4E0F9DDCA724D411B2120008C75DB71DD0F520@nihexchange2.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode2000h.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata2000h.tar.gz
+are now available. These include the changes circulated by Paul Eggert to
+the time zone mailing last week, along with one typo fix
+in the "art" file.
+
+With providence, this is the last update of the millenium.
+
+				--ado
+
+

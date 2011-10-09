@@ -1,0 +1,18 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 4 Apr 2002 11:59:53 -0500 
+tzcode2002c.tar.gz and tzdata2002c.tar.gz
+Message-ID: <CFC0DFECD5F33B46A67BAD80B618EEA15AA8BC@nihexchange2.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode2002c.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata2002c.tar.gz
+are now available. These include the changes circulated by Paul Eggert last
+week on the time zone mailing list,
+and the change to zic.c to avoid creating symlinks to files that don't
+exist.
+
+				--ado
+
+

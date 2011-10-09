@@ -1,0 +1,28 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 7 Feb 94 12:42:34 -0500
+tzcode94b.tar.gz and tzdata94b.tar.gz
+Message-ID: <9402071742.AA07116@elsie.nci.nih.gov>
+
+Updated time zone code and data is available by anonymous ftp from
+elsie.nci.nih.gov (128.231.16.1) in the "pub" directory; the culprits are
+
+	-rw-r--r--  1 ado         62145 Feb  7 10:04 tzcode94b.tar.gz
+	-rw-r--r--  1 ado         63993 Feb  7 10:04 tzdata94b.tar.gz
+
+The updates are the work by Paul Eggert (eggert at twinsun.com) who notes:
+
+> I found another book of time zone histories by E W Whitman; it's not as
+> extensive as Shanks but has a few goodies of its own.  I used it to
+> update the tables.  I also fixed some more as a result of
+> correspondence with Adam David and Peter Ilieve, and move some stray
+> links from `europe' to `backward'.  I corrected some scanning errors in
+> usno1989.
+> 
+> As far as the code goes, I fixed zic to allow years in the range
+> INT_MIN to INT_MAX; this fixed a few boundary conditions around 1900.
+> And I cleaned up the zic documentation a little bit.
+
+				--ado
+
+

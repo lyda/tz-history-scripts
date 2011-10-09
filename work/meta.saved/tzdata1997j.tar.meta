@@ -1,0 +1,33 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 18 Dec 97 18:03:09 -0500
+tzcode1997h.tar.gz and tzdata1997j.tar.gz
+Message-ID: <9712182303.AA08480@elsie.nci.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode1997h.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata1997j.tar.gz
+are now available. These involve the minor changes to
+put "TZif" at the start of each time zone information
+file; a rule has also been added to the Makefile so you
+can
+	make zones
+to just recompile the zone information files (rather
+than doing a full "make install" with its other effects).
+
+Folks had concerns about the "beta" approach to time
+stamping of files; I expect to see some proposals for
+alternate approaches on the mailing list shortly.
+
+Note that ASCII stamps of the form
+	yyyy-mm-dd hh:mm:ss
+or
+	yyyy-mm-dd hh:mm:ss UCT
+(or whatever variant of "UCT" is standard-compliant these
+days) will "strcmp" correctly, are human readable, and avoid
+2038 problems (though they do, of course, have 9999 problems).
+
+				--ado
+
+

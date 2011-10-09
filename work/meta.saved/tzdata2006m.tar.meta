@@ -1,0 +1,20 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 2 Oct 2006 15:43:20 -0400
+Tzcode2006m.tar.gz and tzdata2006m.tar.gz
+Message-ID: <B410D30A78C6404C9DABEA31B54A2813997BFC@nihcesmlbx10.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2006m.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2006m.tar.gz
+...are now available. These reflect the changes for Uruguay, Palestine,
+and Egypt circulated last week on the time zone mailing list by Paul
+Eggert; they also include the (minimalist) changes to zic.8 to clarify
+"until" information (more changes may follow in this area if there's
+popular demand).
+
+				--ado
+
+
+

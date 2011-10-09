@@ -1,0 +1,41 @@
+ado@elsie.UUCP
+Arthur David Olson
+Sun Apr 12 08:06:30 -0500 1987
+Public Domain (Table Driven) ``localtime''
+mod.sources-v09i021
+
+Description:
+	This is patch #1 for the public domain localtime.
+
+	It fixes the following problems (in decreasing order of severity):
+
+	1) The "timezone" variable, defined when USG_COMPAT is defined
+	   was being set to a value of the wrong sign (not compatible).
+
+	2) asctime() did not guarantee zero filled 2 digit fields when
+	   used with old versions of printf that cannot handle the "%.2d"
+	   format specification.
+
+	3) The STD_INSPIRED functions for converting "struct tm" values
+	   to time_t's would fail when given a "struct tm" value that
+	   was "illegal" (ie: not a possible output from localtime)
+	   and which happen to occur just near the end of one of the
+	   shorter months (the actual requirements are a little stricter
+	   than this), or from timelocal or timeoff where the offset
+	   moves the time from one month to another (where the earlier
+	   month is one of the shorter ones).
+
+	4) Missing rules for East Saskatchewan in Canada.
+
+	5) Typos in the zic(8) manual page.
+
+Fix:
+	From your newsreading program, say "| patch -d DIR" where DIR
+	is the directory where the pd-localtime distribution is saved.
+	Alternatively, change to that directory, and do "patch -d . <newsitem".
+	Recompile and re-install the library routines.  Recompile any
+	programs using the STD_INSPIRED functions.  There is no need to
+	recompile other programs unless the asctime output is incorrect.
+	(nb: Patchlevel.h is a new file).
+
+Link to modified post: http://groups.google.com/group/mod.sources/msg/0a6aa232eff3ce18?dmode=source&output=gplain

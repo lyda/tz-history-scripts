@@ -1,0 +1,20 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 7 May 2007 10:52:21 -0400
+tzcode2007f.tar.gz and tzdata2007f.tar.gz
+Message-ID: <B410D30A78C6404C9DABEA31B54A2813016CE4AC@nihcesmlbx10.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2007f.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2007f.tar.gz
+...are now available. These reflect the data changes circulated last
+week on the time zone mailing list by Paul Eggert (including Haiti,
+Turks and Caicos, and New Zealand). They also reflect changes to zic.c
+to allow hour values greater than 24 (along with Paul's improved time
+value overflow checking).
+
+					--ado
+
+
+

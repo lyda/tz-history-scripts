@@ -1,0 +1,21 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 25 Mar 1999 10:07:28 -0500
+tzcode1999c.tar.gz and tzdata1999c.tar.gz
+Message-ID: <43E124CC389ED111B18D00805FEA1E63BC4CCD@nihexchange2.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode1999c.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata1999c.tar.gz
+are now available. These include the changes circulated by Paul Eggert on the
+time zone mailing list,
+most importantly the change for Chile.
+
+I tried and failed to reproduce the proglem reported by Andreas Jaeger; 
+if anyone has insights please pass them on to both the time zone list and
+Andreas (who's not on the list).
+
+				--ado
+
+

@@ -1,0 +1,16 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 18 Mar 96 20:59:49 -0500
+tzdata96d.tar.gz
+Message-ID: <9603190159.AA08425@elsie.nci.nih.gov>
+
+tzdata96d.tar.gz is now available for anonymous ftp from elsie.nci.nih.gov
+(165.112.73.1) in the ~ftp/pub directory:
+	-rw-r--r--  1 ado         73472 Mar 18 20:53 tzdata96d.tar.gz
+It reflects the proposals recently circulated on the tz list by Paul Eggert,
+in particular the Portugal change that comes into play at the end of this
+month.
+
+				--ado
+
+

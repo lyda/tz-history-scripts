@@ -1,0 +1,17 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 27 Feb 97 18:39:00 -0500
+tzcode1997b.tar.gz and tzdata1997b.tar.gz
+Message-ID: <9702272339.AA17424@elsie.nci.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode1997b.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata1997b.tar.gz
+are now available. The data file incorporates the 1997 leap second;
+the code file incorporates your correspondent's take on the
+zic/multiprocessor/directory-creation situation.
+
+				--ado
+
+

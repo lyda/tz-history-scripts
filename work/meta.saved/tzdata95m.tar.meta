@@ -1,0 +1,16 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 21 Dec 95 12:54:12 -0500
+updated time zone files
+Message-ID: <9512211754.AA27392@elsie.nci.nih.gov>
+
+The files in the ~ftp/pub directory of elsie.nci.nih.gov (165.112.73.1)
+have been updated:
+	-rw-r--r--  1 ado         70806 Dec 21 12:46 tzcode95i.tar.gz
+	-rw-r--r--  1 ado         72634 Dec 21 12:46 tzdata95m.tar.gz
+The latest revisions from Paul Eggert are included, the usno1995 file has
+been updated, and a new file ("WWW") covering useful URLs has been added.
+
+				--ado
+
+

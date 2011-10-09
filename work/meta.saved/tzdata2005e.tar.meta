@@ -1,0 +1,20 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 10 Feb 2005 16:03:20 -0500
+Tzcode2005e.tar.gz and tzdata2005e.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C740375@nihexchange2.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2005e.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2005e.tar.gz
+...are now available; these incorporate the changes circulated last week on
+the time zone mailing list.
+
+My fond hope is the above code is stable for now; it's time for a design
+phase to figure out what else (if anything) to do to cope with 64-bit time_t
+values. Details to follow.
+
+				--ado
+
+

@@ -1,0 +1,17 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 1 Jul 96 18:16:44 -0400
+tzdata96i.tar.gz
+Message-ID: <9607012216.AA18238@elsie.nci.nih.gov>
+
+The file tzdata96i.tar.gz is now available by anonymous ftp from
+elsie.nci.nih.gov (165.112.73.1):
+
+	-rw-r--r--  1 ado         75839 Jul  1 18:13 tzdata96i.tar.gz
+
+This incorporates the "northamerica" and "europe" changes circulated a few
+weeks back by Paul Eggert.
+
+				--ado
+
+

@@ -1,0 +1,366 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Tue, 14 Mar 2006 10:49:13 -0500
+next time zone package update
+Message-ID: <200603141549.k2EFnDNG017795@elsie.nci.nih.gov>
+
+My plan is to wait for Sri Lanka changes (which affect present and future
+rather than historical instants) then update the elsie ftp directory to contain
+	old-tzcode-32-bit-binary-files.tar.gz	(tz32code2006b.tar.gz renamed)
+and
+	tzcode2006c.tar.gz			(not tz64code2006c.tar.gz)
+and
+	tzdata2006c.tar.gz			(not tz64data2006c.tar.gz)
+
+Proposed code changes are at the end of this message; the changes would:
+1.	eliminate conditionalization on __STDC__ by assuming a
+	standard-conforming compiler is in use;
+2.	avoid gcc warnings about format strings in asctime;
+3.	introduce binary search logic in localtime.c.
+
+At least for now, the plan is to forego size_t tweaks,
+changes in default zdump cutoff years,
+and elimination of the P (paramater) macro.
+
+				--ado
+
+------- asctime.c -------
+*** /tmp/geta17330	Tue Mar 14 10:20:10 2006
+--- /tmp/getb17330	Tue Mar 14 10:20:10 2006
+***************
+*** 11,17 ****
+  
+  #ifndef lint
+  #ifndef NOID
+! static char	elsieid[] = "@(#)asctime.c	8.1";
+  #endif /* !defined NOID */
+  #endif /* !defined lint */
+  
+--- 11,17 ----
+  
+  #ifndef lint
+  #ifndef NOID
+! static char	elsieid[] = "@(#)asctime.c	8.2";
+  #endif /* !defined NOID */
+  #endif /* !defined lint */
+  
+***************
+*** 23,29 ****
+  /*
+  ** Some systems only handle "%.2d"; others only handle "%02d";
+  ** "%02.2d" makes (most) everybody happy.
+! ** At least some versions of gcc warn about the %02.2d; ignore the warning.
+  */
+  /*
+  ** All years associated with 32-bit time_t values are exactly four digits long;
+--- 23,30 ----
+  /*
+  ** Some systems only handle "%.2d"; others only handle "%02d";
+  ** "%02.2d" makes (most) everybody happy.
+! ** At least some versions of gcc warn about the %02.2d;
+! ** we conditionalize below to avoid the warning.
+  */
+  /*
+  ** All years associated with 32-bit time_t values are exactly four digits long;
+***************
+*** 37,43 ****
+--- 38,48 ----
+  ** The ISO C 1999 and POSIX 1003.1-2004 standards prohibit padding the year,
+  ** but many implementations pad anyway; most likely the standards are buggy.
+  */
++ #ifdef __GNUC__
++ #define ASCTIME_FMT	"%.3s %.3s%3d %2.2d:%2.2d:%2.2d %-4s\n"
++ #else /* !defined __GNUC__ */
+  #define ASCTIME_FMT	"%.3s %.3s%3d %02.2d:%02.2d:%02.2d %-4s\n"
++ #endif /* !defined __GNUC__ */
+  /*
+  ** For years that are more than four digits we put extra spaces before the year
+  ** so that code trying to overwrite the newline won't end up overwriting
+***************
+*** 44,50 ****
+--- 49,59 ----
+  ** a digit within a year and truncating the year (operating on the assumption
+  ** that no output is better than wrong output).
+  */
++ #ifdef __GNUC__
++ #define ASCTIME_FMT_B	"%.3s %.3s%3d %2.2d:%2.2d:%2.2d     %s\n"
++ #else /* !defined __GNUC__ */
+  #define ASCTIME_FMT_B	"%.3s %.3s%3d %02.2d:%02.2d:%02.2d     %s\n"
++ #endif /* !defined __GNUC__ */
+  
+  #define STD_ASCTIME_BUF_SIZE	26
+  /*
+
+------- date.c -------
+*** /tmp/geta17349	Tue Mar 14 10:20:10 2006
+--- /tmp/getb17349	Tue Mar 14 10:20:10 2006
+***************
+*** 1,6 ****
+  #ifndef lint
+  #ifndef NOID
+! static char	elsieid[] = "@(#)date.c	8.1";
+  /*
+  ** Modified from the UCB version with the SCCS ID appearing below.
+  */
+--- 1,6 ----
+  #ifndef lint
+  #ifndef NOID
+! static char	elsieid[] = "@(#)date.c	8.2";
+  /*
+  ** Modified from the UCB version with the SCCS ID appearing below.
+  */
+***************
+*** 352,364 ****
+  
+  /*ARGSUSED*/
+  static void
+- #if __STDC__
+  reset(const time_t newt, const int nflag)
+- #else /* !__STDC__ */
+- reset(newt, nflag)
+- const time_t	newt;
+- const int	nflag;
+- #endif /* !__STDC__ */
+  {
+  	register int		fid;
+  	time_t			oldt;
+--- 352,358 ----
+***************
+*** 623,636 ****
+  #define ATOI2(ar)	(ar[0] - '0') * 10 + (ar[1] - '0'); ar += 2;
+  
+  static time_t
+- #if __STDC__
+  convert(register const char * const value, const int dousg, const time_t t)
+- #else /* !__STDC__ */
+- convert(value, dousg, t)
+- register const char * const	value;
+- const int			dousg;
+- const time_t			t;
+- #endif /* !__STDC__ */
+  {
+  	register const char *	cp;
+  	register const char *	dotp;
+--- 617,623 ----
+***************
+*** 734,751 ****
+  */
+  
+  static void
+- #if __STDC__
+  checkfinal(const char * const	value,
+  	   const int		didusg,
+  	   const time_t		t,
+  	   const time_t		oldnow)
+- #else /* !__STDC__ */
+- checkfinal(value, didusg, t, oldnow)
+- const char * const	value;
+- const int		didusg;
+- const time_t		t;
+- const time_t		oldnow;
+- #endif /* !__STDC__ */
+  {
+  	time_t		othert;
+  	struct tm	tm;
+--- 721,730 ----
+***************
+*** 804,819 ****
+  }
+  
+  static void
+- #if __STDC__
+  iffy(const time_t thist, const time_t thatt,
+  	const char * const value, const char * const reason)
+- #else /* !__STDC__ */
+- iffy(thist, thatt, value, reason)
+- const time_t		thist;
+- const time_t		thatt;
+- const char * const	value;
+- const char * const	reason;
+- #endif /* !__STDC__ */
+  {
+  	struct tm	tm;
+  
+--- 783,790 ----
+
+------- localtime.c -------
+*** /tmp/geta17444	Tue Mar 14 10:20:12 2006
+--- /tmp/getb17444	Tue Mar 14 10:20:12 2006
+***************
+*** 5,11 ****
+  
+  #ifndef lint
+  #ifndef NOID
+! static char	elsieid[] = "@(#)localtime.c	8.1";
+  #endif /* !defined NOID */
+  #endif /* !defined lint */
+  
+--- 5,11 ----
+  
+  #ifndef lint
+  #ifndef NOID
+! static char	elsieid[] = "@(#)localtime.c	8.3";
+  #endif /* !defined NOID */
+  #endif /* !defined lint */
+  
+***************
+*** 602,614 ****
+  */
+  
+  static const char *
+- #if __STDC__
+  getqzname(register const char *strp, const int delim)
+- #else /* !__STDC__ */
+- getqzname(strp, delim)
+- register const char *	strp;
+- const int		delim;
+- #endif /* !__STDC__ */
+  {
+  	register int	c;
+  
+--- 602,608 ----
+***************
+*** 1263,1272 ****
+  				break;
+  			}
+  	} else {
+! 		for (i = 1; i < sp->timecnt; ++i)
+! 			if (t < sp->ats[i])
+! 				break;
+! 		i = (int) sp->types[i - 1];
+  	}
+  	ttisp = &sp->ttis[i];
+  	/*
+--- 1257,1273 ----
+  				break;
+  			}
+  	} else {
+! 		register int	lo = 1;
+! 		register int	hi = sp->timecnt;
+! 
+! 		while (lo < hi) {
+! 			register int	mid = (lo + hi) >> 1;
+! 
+! 			if (t < sp->ats[mid])
+! 				hi = mid;
+! 			else	lo = mid + 1;
+! 		}
+! 		i = (int) sp->types[lo - 1];
+  	}
+  	ttisp = &sp->ttis[i];
+  	/*
+
+------- private.h -------
+*** /tmp/geta17482	Tue Mar 14 10:20:12 2006
+--- /tmp/getb17482	Tue Mar 14 10:20:12 2006
+***************
+*** 21,27 ****
+  
+  #ifndef lint
+  #ifndef NOID
+! static char	privatehid[] = "@(#)private.h	8.1";
+  #endif /* !defined NOID */
+  #endif /* !defined lint */
+  
+--- 21,27 ----
+  
+  #ifndef lint
+  #ifndef NOID
+! static char	privatehid[] = "@(#)private.h	8.2";
+  #endif /* !defined NOID */
+  #endif /* !defined lint */
+  
+***************
+*** 152,166 ****
+  */
+  
+  /*
+! ** SunOS 4.1.1 cc lacks prototypes.
+  */
+  
+  #ifndef P
+- #if __STDC__
+  #define P(x)	x
+- #else /* !__STDC__ */
+- #define P(x)	()
+- #endif /* ! __STDC__ */
+  #endif /* !defined P */
+  
+  /*
+--- 152,162 ----
+  */
+  
+  /*
+! ** If your compiler lacks prototypes, "#define P(x) ()".
+  */
+  
+  #ifndef P
+  #define P(x)	x
+  #endif /* !defined P */
+  
+  /*
+
+------- zdump.c -------
+*** /tmp/geta17586	Tue Mar 14 10:20:14 2006
+--- /tmp/getb17586	Tue Mar 14 10:20:14 2006
+***************
+*** 1,4 ****
+! static char	elsieid[] = "@(#)zdump.c	8.1";
+  
+  /*
+  ** This code has been made independent of the rest of the time
+--- 1,4 ----
+! static char	elsieid[] = "@(#)zdump.c	8.2";
+  
+  /*
+  ** This code has been made independent of the rest of the time
+***************
+*** 130,140 ****
+  #endif /* !defined TZ_DOMAIN */
+  
+  #ifndef P
+- #if __STDC__
+  #define P(x)	x
+- #else /* !__STDC__ */
+- #define P(x)	()
+- #endif /* !__STDC__ */
+  #endif /* !defined P */
+  
+  extern char **	environ;
+--- 130,136 ----
+***************
+*** 475,488 ****
+  }
+  
+  static time_t
+- #if __STDC__
+  hunt(char *name, time_t lot, time_t hit)
+- #else /* !__STDC__ */
+- hunt(name, lot, hit)
+- char *	name;
+- time_t	lot;
+- time_t	hit;
+- #endif /* !__STDC__ */
+  {
+  	time_t			t;
+  	long			diff;
+--- 471,477 ----
+***************
+*** 552,565 ****
+  }
+  
+  static void
+- #if __STDC__
+  show(char *zone, time_t t, int v)
+- #else /* !__STDC__ */
+- show(zone, t, v)
+- char *	zone;
+- time_t	t;
+- int	v;
+- #endif /* !__STDC__ */
+  {
+  	register struct tm *	tmp;
+  
+--- 541,547 ----
+
+

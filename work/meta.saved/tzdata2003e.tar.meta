@@ -1,0 +1,23 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 15 Dec 2003 09:43:52 -0500
+Tzcode2003e.tar.gz and tzdata2003e.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C7400E0@nihexchange2.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2003e.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2003e.tar.gz
+...are now available. These include the changes I recently circulated on the
+time zone mailing list
+(primarily code changes) as well as the changes circulated by Paul Eggert
+(primarily data changes).
+There are also minor changes to "Makefile" and "northamerica" (in the latter
+case,
+Optimization of the "Toronto" rules).
+
+More on "24:00" and Toronto to follow.
+
+				--ado
+
+

@@ -1,0 +1,1648 @@
+Subject:  v18i111:  Table-driven ctime/time/localtime/date package, Part01/07
+Newsgroups: comp.sources.unix
+Sender: sources
+Approved: rsalz@uunet.UU.NET
+
+Submitted-by:  ado@ncifcrf.gov
+Posting-number: Volume 18, Issue 111
+Archive-name: localtime3/part01
+
+: To unbundle, sh this file
+echo file 'Patchlevel.h' >&2
+cat >'Patchlevel.h' <<'End of Patchlevel.h'
+/* @(#)Patchlevel.h	7.1 */
+
+#define PATCHLEVEL 1
+End of Patchlevel.h
+echo file 'README' >&2
+cat >'README' <<'End of README'
+@(#)README	7.1
+
+"What time is it?" -- Richard Deacon as The King
+"Any time you want it to be." -- Frank Baxter as The Scientist
+					(from the Bell System film on time)
+
+This 1989 update of the time zone package features
+
+*	POSIXization (including interpretation of POSIX-style TZ environment
+	variables, provided by Guy Harris),
+*	ANSIfication (including versions of "mktime" and "difftime"),
+*	SVIDulation (an "altzone" variable)
+*	MACHination (the "gtime" function)
+*	corrections to some time zone data (including corrections to the rules
+	for Great Britain and New Zealand)
+*	reference data from the United States Naval Observatory for folks who
+	want to do additional time zones
+*	and the 1989 data for Saudi Arabia.
+
+(Since this code will be treated as "part of the implementation" in some places
+and as "part of the application" in others, there's no good way to name
+functions, such as timegm, that are not part of the proposed ANSI C standard;
+such functions have kept their old, underscore-free names in this update.)
+
+Support for the tz_abbr variable has been eliminated from this version
+(to forestall "kitchen sink" complaints from certain quarters :-).
+
+Support for Turbo C compilation has also been eliminated; it was present to
+allow checking in an ANSI-style environment, and such checking is now done with
+gcc.
+
+And the "dysize" function has disappeared; it was present to allow compilation
+of the "date" command on old BSD systems, and a version of "date" is now
+provided in the package.  The "date" command is not created when you "make all"
+since it may lack options provided by the version distributed with your
+operating system, or may not interact with the system in the same way the
+native version does.
+
+Since POSIX frowns on correct leap second handling, the default behavior of
+the "zic" command (in the absence of a "-L" option) has been changed to omit
+leap second information from its output files.
+
+Please send comments or information to ado@ncifcrf.gov.
+
+Be sure to read the comments in "Makefile" and make any changes
+needed to make things right for your system.
+
+To use the new functions, use a "-lz" option when compiling or linking.
+
+Historical local time information has been included here not because it
+is particularly useful, but rather to:
+
+*	give an idea of the variety of local time rules that have
+	existed in the past and thus an idea of the variety that may be
+	expected in the future;
+
+*	provide a test of the generality of the local time rule description
+	system.
+
+The information in the time zone data files is by no means authoritative;
+if you know that the rules are different from those in a file, by all means
+feel free to change file (and please send the changed version to
+ado@ncifcrf.gov for use in the future).  Europeans take note!
+
+Thanks to these Timezone Caballeros who've made major contributions to the
+time conversion package:  Keith Bostic; Bob Devine; Robert Elz; Guy Harris;
+Mark Horton; John Mackin; and Bradley White.  Thanks also to Michael Bloom,
+Art Neilson, Stephen Prince, John Sovereign, and Frank Wales for testing work.
+None of them are responsible for remaining errors.
+End of README
+echo file 'Theory' >&2
+cat >'Theory' <<'End of Theory'
+@(#)Theory	7.1
+
+These time and date functions are much like the System V Release 2.0 (SVR2)
+time and date functions; there are a few additions and changes to extend
+the usefulness of the SVR2 functions:
+
+*	In SVR2, time display in a process is controlled by the environment
+	variable TZ, which "must be a three-letter time zone name, followed
+	by a number representing the difference between local time and
+	Greenwich Mean Time in hours, followed by an optional three-letter
+	name for a daylight time zone;" when the optional daylight time zone is
+	present, "standard U.S.A. Daylight Savings Time conversion is applied."
+	This means that SVR2 can't deal with other (for example, Australian)
+	daylight savings time rules, or situations where more than two
+	time zone abbreviations are used in an area.
+
+*	In SVR2, time conversion information is compiled into each program
+	that does time conversion.  This means that when time conversion
+	rules change (as in the United States in 1987), all programs that
+	do time conversion must be recompiled to ensure proper results.
+
+*	In SVR2, time conversion fails for near-minimum or near-maximum
+	time_t values when doing conversions for places that don't use GMT.
+
+*	In SVR2, there's no tamper-proof way for a process to learn the
+	system's best idea of local wall clock.  (This is important for
+	applications that an administrator wants used only at certain times--
+	without regard to whether the user has fiddled the "TZ" environment
+	variable.  While an administrator can "do everything in GMT" to get
+	around the problem, doing so is inconvenient and precludes handling
+	daylight savings time shifts--as might be required to limit phone
+	calls to off-peak hours.)
+
+*	These functions can account for leap seconds, thanks to Bradley White
+	(bww@k.cs.cmu.edu).
+
+These are the changes that have been made to the SVR2 functions:
+
+*	The "TZ" environment variable is used in generating the name of a file
+	from which time zone information is read (or is interpreted a la
+	POSIX); "TZ" is no longer constrained to be a three-letter time zone
+	name followed by a number of hours and an optional three-letter
+	daylight time zone name.  The daylight saving time rules to be used
+	for a particular time zone are encoded in the time zone file;
+	the format of the file allows U.S., Australian, and other rules to be
+	encoded, and allows for situations where more than two time zone
+	abbreviations are used.
+
+	It was recognized that allowing the "TZ" environment variable to
+	take on values such as "US/Eastern" might cause "old" programs
+	(that expect "TZ" to have a certain form) to operate incorrectly;
+	consideration was given to using some other environment variable
+	(for example, "TIMEZONE") to hold the string used to generate the
+	time zone information file name.  In the end, however, it was decided
+	to continue using "TZ":  it is widely used for time zone purposes;
+	separately maintaining both "TZ" and "TIMEZONE" seemed a nuisance;
+	and systems where "new" forms of "TZ" might cause problems can simply
+	use TZ values such as "EST5EDT" which can be used both by
+	"new" programs (a la POSIX) and "old" programs (as zone names and
+	offsets).
+
+*	To handle places where more than two time zone abbreviations are used,
+	the functions "localtime" and "gmtime" set tzname[tmp->tm_isdst]
+	(where "tmp" is the value the function returns) to the time zone
+	abbreviation to be used.  This differs from SVR2, where the elements
+	of tzname are only changed as a result of calls to tzset.
+
+*	Since the "TZ" environment variable can now be used to control time
+	conversion, the "daylight" and "timezone" variables are no longer
+	needed or supported.  (You can use a compile-time option to cause
+	these variables to be defined and to be set by "tzset"; however, their
+	values will not be used by "localtime.")
+
+*	The "localtime" function has been set up to deliver correct results
+	for near-minimum or near-maximum time_t values.  (A comment in the
+	source code tells how to get compatibly wrong results).
+
+*	A function "tzsetwall" has been added to arrange for the system's
+	best approximation to local wall clock time to be delivered by
+	subsequent calls to "localtime."  Source code for portable
+	applications that "must" run on local wall clock time should call
+	"tzsetwall();" if such code is moved to "old" systems that don't provide
+	tzsetwall, you won't be able to generate an executable program.
+	(These time zone functions also arrange for local wall clock time to be
+	used if tzset is called--directly or indirectly--and there's no "TZ"
+	environment variable; portable applications should not, however, rely
+	on this behavior since it's not the way SVR2 systems behave.)
+
+Points of interest to folks with Version 7 or BSD systems:
+
+*	The BSD "timezone" function is not present in this package;
+	it's impossible to reliably map timezone's arguments (a "minutes west
+	of GMT" value and a "daylight saving time in effect" flag) to a
+	time zone abbreviation, and we refuse to guess.
+	Programs that in the past used the timezone function may now examine
+	tzname[localtime(&clock)->tm_isdst] to learn the correct time
+	zone abbreviation to use.  Alternatively, use localtime(&clock)->tm_zone
+	if this has been enabled.
+
+*	The BSD gettimeofday function is not used in this package;
+	this lets users control the time zone used in doing time conversions.
+	Users who don't try to control things (that is, users who do not set
+	the environment variable TZ) get the time conversion specified in the
+	file "/etc/zoneinfo/localtime"; see the time zone compiler writeup for
+	information on how to initialize this file.
+
+The functions that are conditionally compiled if STD_INSPIRED is defined should,
+at this point, be looked on primarily as food for thought.  They are not in
+any sense "standard compatible"--some are not, in fact, specified in *any*
+standard.  They do, however, represent responses of various authors to
+standardization proposals.
+
+Other time conversion proposals, in particular the one developed by folks at
+Hewlett Packard, offer a wider selection of functions that provide capabilities
+beyond those provided here.  The absence of such functions from this package
+is not meant to discourage the development, standardization, or use of such
+functions.  Rather, their absence reflects the decision to make this package
+close to SVR2 (with the exceptions outlined above) to ensure its broad
+acceptability.  If more powerful time conversion functions can be standardized,
+so much the better.
+End of Theory
+echo file 'newctime.3' >&2
+cat >'newctime.3' <<'End of newctime.3'
+.TH NEWCTIME 3
+.SH NAME
+asctime, ctime, difftime, gmtime, localtime, mktime, tzset \- convert date and time to ASCII
+.SH SYNOPSIS
+.nf
+.B extern char *tzname[2];
+.PP
+.B void tzset()
+.PP
+.B #include <sys/types.h>
+.PP
+.B char *ctime(clock)
+.B time_t *clock;
+.PP
+.B double difftime(time1, time0)
+.B time_t time1;
+.B time_t time0;
+.PP
+.B #include <time.h>
+.PP
+.B char *asctime(tm)
+.B struct tm *tm;
+.PP
+.B struct tm *localtime(clock)
+.B long *clock;
+.PP
+.B struct tm *gmtime(clock)
+.B long *clock;
+.PP
+.B time_t mktime(tm)
+.B struct tm *tm;
+.PP
+.B cc ... -lz
+.fi
+.SH DESCRIPTION
+.I Tzset
+uses the value of the environment variable
+.B TZ
+to set time conversion information used by
+.IR localtime .
+If
+.B TZ
+does not appear in the environment,
+the best available approximation to local wall clock time, as specified
+by the
+.IR tzfile (5)-format
+file
+.B localtime
+in the system time conversion information directory, is used by
+.IR localtime .
+If
+.B TZ
+appears in the environment but its value is a null string,
+Coordinated Universal Time (UTC) is used (without leap second
+correction).  If
+.B TZ
+appears in the environment and its value is not a null string:
+.IP
+if the value begins with a colon, it is used as a pathname of a file
+from which to read the time conversion information;
+.IP
+if the value does not begin with a colon, it is first used as the
+pathname of a file from which to read the time conversion information,
+and, if that file cannot be read, is used directly as a specification of
+the time conversion information.
+.PP
+When
+.B TZ
+is used as a pathname, if it begins with a slash,
+it is used as an absolute pathname; otherwise,
+it is used as a pathname relative to a system time conversion information
+directory.
+The file must be in the format specified in
+.IR tzfile (5).
+.PP
+When
+.B TZ
+is used directly as a specification of the time conversion information,
+it must have the following syntax (spaces inserted for clarity):
+.IP
+\fIstd\|offset\fR[\fIdst\fR[\fIoffset\fR][\fB,\fIrule\fR]]
+.PP
+Where:
+.RS
+.TP 15
+.IR std " and " dst
+Three or more bytes that are the designation for the standard
+.RI ( std )
+or summer
+.RI ( dst )
+time zone.  Only
+.I std
+is required; if
+.I dst
+is missing, then summer time does not apply in this locale.
+Upper- and lowercase letters are explicitly allowed.  Any characters
+except a leading colon
+.RB ( : ),
+digits, comma
+.RB ( , ),
+minus
+.RB ( \(mi ),
+plus
+.RB ( \(pl ),
+and ASCII NUL are allowed.
+.TP
+.I offset
+Indicates the value one must add to the local time to arrive at
+Coordinated Universal Time.  The
+.I offset
+has the form:
+.RS
+.IP
+\fIhh\fR[\fB:\fImm\fR[\fB:\fIss\fR]]
+.RE
+.IP
+The minutes
+.RI ( mm )
+and seconds
+.RI ( ss )
+are optional.  The hour
+.RI ( hh )
+is required and may be a single digit.  The
+.I offset
+following
+.I std
+is required.  If no
+.I offset
+follows
+.IR dst ,
+summer time is assumed to be one hour ahead of standard time.  One or
+more digits may be used; the value is always interpreted as a decimal
+number.  The hour must be between zero and 24, and the minutes (and
+seconds) \(em if present \(em between zero and 59.  If preceded by a
+.RB `` \(mi '',
+the time zone shall be east of the Prime Meridian; otherwise it shall be
+west (which may be indicated by an optional preceding
+.RB `` \(pl '').
+.TP
+.I rule
+Indicates when to change to and back from summer time.  The
+.I rule
+has the form:
+.RS
+.IP
+\fIdate\fB/\fItime\fB,\fIdate\fB/\fItime\fR
+.RE
+.IP
+where the first
+.I date
+describes when the change from standard to summer time occurs and the
+second
+.I date
+describes when the change back happens.  Each
+.I time
+field describes when, in current local time, the change to the other
+time is made.
+.IP
+The format of
+.I date
+is one of the following:
+.RS
+.TP 10
+.BI J n
+The Julian day
+.I n
+.RI "(1\ \(<=" "\ n\ " "\(<=\ 365).
+Leap days are not counted; that is, in all years \(em including leap
+years \(em February 28 is day 59 and March 1 is day 60.  It is
+impossible to explicitly refer to the occasional February 29.
+.TP
+.I n
+The zero-based Julian day
+.RI "(0\ \(<=" "\ n\ " "\(<=\ 365).
+Leap days are counted, and it is possible to refer to February 29.
+.TP
+.BI M m . n . d
+The
+.IR d' th
+day
+.RI "(0\ \(<=" "\ d\ " "\(<=\ 6)
+of week
+.I n
+of month
+.I m
+of the year
+.RI "(1\ \(<=" "\ n\ " "\(<=\ 5,
+.RI "1\ \(<=" "\ m\ " "\(<=\ 12,
+where week 5 means ``the last
+.I d
+day in month
+.IR m ''
+which may occur in either the fourth or the fifth week).  Week 1 is the
+first week in which the
+.IR d' th
+day occurs.  Day zero is Sunday.
+.RE
+.IP "" 15
+The
+.I time
+has the same format as
+.I offset
+except that no leading sign
+.RB (`` \(mi ''
+or
+.RB `` \(pl '')
+is allowed.  The default, if
+.I time
+is not given, is
+.BR 02:00:00 .
+.RE
+.LP
+If no
+.I rule
+is present in
+.BR TZ ,
+the rules specified
+by the
+.IR tzfile (5)-format
+file
+.B posixrules
+in the system time conversion information directory are used, with the
+standard and summer time offsets from UTC replaced by those specified by
+the
+.I offset
+values in
+.BR TZ .
+.PP
+For compatibility with System V Release 3.1, a semicolon
+.RB ( ; )
+may be used to separate the
+.I rule
+from the rest of the specification.
+.PP
+If the
+.B TZ
+environment variable does not specify a
+.IR tzfile (5)-format
+and cannot be interpreted as a direct specification,
+UTC is used with the standard time abbreviation set to
+the value of the
+.B TZ
+environment variable
+(or to the leading characters of its value if it is lengthy).
+.PP
+.I Ctime\^
+converts a long integer, pointed to by
+.IR clock ,
+representing the time in seconds since
+00:00:00 UTC, January 1, 1970,
+and returns a pointer to a
+26-character string
+of the form
+.br
+.ce
+.eo
+Thu Nov 24 18:22:48 1986\n\0
+.ec
+.br
+All the fields have constant width.
+.PP
+.IR Localtime\^
+and
+.I gmtime\^
+return pointers to ``tm'' structures, described below.
+.I Localtime\^
+corrects for the time zone and any time zone adjustments
+(such as Daylight Saving Time in the U.S.A.).
+Before doing so,
+.I localtime\^
+calls
+.I tzset\^
+(if
+.I tzset\^
+has not been called in the current process).
+After filling in the ``tm'' structure,
+.I localtime
+sets the
+.BR tm_isdst 'th
+element of
+.B tzname
+to a pointer to an
+ASCII string that's the time zone abbreviation to be used with
+.IR localtime 's
+return value.
+.PP
+.I Gmtime\^
+converts to Coordinated Universal Time.
+.PP
+.I Asctime\^
+converts a time value contained in a
+``tm'' structure to a 26-character string,
+as shown in the above example,
+and returns a pointer
+to the string.
+.PP
+.I Mktime\^
+converts the broken-down time,
+expressed as local time,
+in the structure pointed to by
+.I tm
+into a calendar time value with the same encoding as that of the values
+returned by the
+.I time
+function.
+The original values of the
+.B tm_wday
+and
+.B tm_yday
+components of the structure are ignored,
+and the original values of the other components are not restricted
+to their normal ranges.
+(A positive or zero value for
+.B tm_isdst
+causes
+.I mktime
+to presume initially that summer time (for example, Daylight Saving Time
+in the U.S.A.)
+respectively,
+is or is not in effect for the specified time.
+A negative value for
+.B tm_isdst
+causes the
+.I mktime
+function to attempt to divine whether summer time is in effect
+for the specified time.)
+On successful completion, the values of the
+.B tm_wday
+and
+.B tm_yday
+components of the structure are set appropriately,
+and the other components are set to represent the specified calendar time,
+but with their values forced to their normal ranges; the final value of
+.B tm_mday
+is not set until
+.B tm_mon
+and
+.B tm_year
+are determined.
+.I Mktime\^
+returns the specified calendar time;
+If the calendar time cannot be represented,
+it returns
+.BR -1 .
+.PP
+.I Difftime\^
+returns the difference between two calendar times,
+.I time1
+-
+.IR time0,
+expressed in seconds.
+.PP
+Declarations of all the functions and externals, and the ``tm'' structure,
+are in the
+.B <time.h>\^
+header file.
+The structure (of type)
+.B struct tm
+includes the following fields:
+.RS
+.PP
+.nf
+.ta .5i +\w'long tm_gmtoff;\0\0'u
+	int tm_sec;	/\(** seconds (0 - 60) \(**/
+	int tm_min;	/\(** minutes (0 - 59) \(**/
+	int tm_hour;	/\(** hours (0 - 23) \(**/
+	int tm_mday;	/\(** day of month (1 - 31) \(**/
+	int tm_mon;	/\(** month of year (0 - 11) \(**/
+	int tm_year;	/\(** year \- 1900 \(**/
+	int tm_wday;	/\(** day of week (Sunday = 0) \(**/
+	int tm_yday;	/\(** day of year (0 - 365) \(**/
+	int tm_isdst;	/\(** is summer time in effect? \(**/
+	char \(**tm_zone;	/\(** abbreviation of timezone name \(**/
+	long tm_gmtoff;	/\(** offset from UTC in seconds \(**/
+.fi
+.RE
+.PP
+The
+.I tm_zone
+and
+.I tm_gmtoff
+fields exist, and are filled in, only if arrangements to do
+so were made when the library containing these functions was
+created.
+There is no guarantee that these fields will continue to exist
+in this form in future releases of this code.
+.PP
+.I Tm_isdst\^
+is non-zero if summer time is in effect.
+.PP
+.I Tm_gmtoff
+is the offset (in seconds) of the time represented
+from UTC, with positive values indicating east
+of the Prime Meridian.
+.SH FILES
+.ta \w'/usr/local/etc/zoneinfo/posixrules\0\0'u
+/usr/local/etc/zoneinfo	time zone information directory
+.br
+/usr/local/etc/zoneinfo/localtime	local time zone file
+.br
+/usr/local/etc/zoneinfo/posixrules	used with POSIX-style TZ's
+.br
+/usr/local/etc/zoneinfo/GMT	for UTC leap seconds
+.sp
+If
+.B /usr/local/etc/zoneinfo/GMT
+is absent,
+UTC leap seconds are loaded from
+.BR /usr/local/etc/zoneinfo/posixrules .
+.SH SEE ALSO
+tzfile(5),
+getenv(3),
+time(2)
+.SH NOTES
+The return values point to static data
+whose content is overwritten by each call.
+The
+.B tm_zone
+field of a returned
+.B "struct tm"
+points to a static array of characters, which
+will also be overwritten at the next call
+(and by calls to
+.IR tzset ).
+.PP
+Avoid using out-of-range values with
+.I mktime
+when setting up lunch with promptness sticklers in Riyadh.
+.. @(#)newctime.3	7.1
+End of newctime.3
+echo file 'tzfile.5' >&2
+cat >'tzfile.5' <<'End of tzfile.5'
+.TH TZFILE 5
+.SH NAME
+tzfile \- time zone information
+.SH SYNOPSIS
+.B
+#include <tzfile.h>
+.SH DESCRIPTION
+The time zone information files used by
+.IR tzset (3)
+begin with bytes reserved for future use,
+followed by four four-byte values of type
+.BR long ,
+written in a ``standard'' byte order
+(the high-order byte of the value is written first).
+These values are,
+in order:
+.TP
+.I tzh_ttisstdcnt
+The number of standard/wall indicators stored in the file.
+.TP
+.I tzh_leapcnt
+The number of leap seconds for which data is stored in the file.
+.TP
+.I tzh_timecnt
+The number of "transition times" for which data is stored
+in the file.
+.TP
+.I tzh_typecnt
+The number of "local time types" for which data is stored
+in the file (must not be zero).
+.TP
+.I tzh_charcnt
+The number of characters of "time zone abbreviation strings"
+stored in the file.
+.PP
+The above header is followed by
+.I tzh_timecnt
+four-byte values of type
+.BR long ,
+sorted in ascending order.
+These values are written in ``standard'' byte order.
+Each is used as a transition time (as returned by
+.IR time (2))
+at which the rules for computing local time change.
+Next come
+.I tzh_timecnt
+one-byte values of type
+.BR "unsigned char" ;
+each one tells which of the different types of ``local time'' types
+described in the file is associated with the same-indexed transition time.
+These values serve as indices into an array of
+.I ttinfo
+structures that appears next in the file;
+these structures are defined as follows:
+.in +.5i
+.sp
+.nf
+.ta .5i +\w'unsigned int\0\0'u
+struct ttinfo {
+	long	tt_gmtoff;
+	int	tt_isdst;
+	unsigned int	tt_abbrind;
+};
+.in -.5i
+.fi
+.sp
+Each structure is written as a four-byte value for
+.I tt_gmtoff
+of type
+.BR long ,
+in a standard byte order, followed by a one-byte value for
+.I tt_isdst
+and a one-byte value for
+.IR tt_abbrind .
+In each structure,
+.I tt_gmtoff
+gives the number of seconds to be added to GMT,
+.I tt_isdst
+tells whether
+.I tm_isdst
+should be set by
+.I localtime (3)
+and
+.I tt_abbrind
+serves as an index into the array of time zone abbreviation characters
+that follow the
+.I ttinfo
+structure(s) in the file.
+.PP
+Then there are
+.I tzh_leapcnt
+pairs of four-byte values, written in standard byte order;
+the first value of each pair gives the time
+(as returned by
+.IR time(2))
+at which a leap second occurs;
+the second gives the
+.I total
+number of leap seconds to be applied after the given time.
+The pairs of values are sorted in ascending order by time.
+.PP
+Finally there are
+.I tzh_ttisstdcnt
+standard/wall indicators, each stored as a one-byte value;
+they tell whether the transition times associated with local time types
+were specified as standard time or wall clock time,
+and are used when a time zone file is used in handling POSIX-style
+time zone environment variables.
+.PP
+.I Localtime
+uses the first standard-time
+.I ttinfo
+structure in the file
+(or simply the first
+.I ttinfo
+structure in the absence of a standard-time structure)
+if either
+.I tzh_timecnt
+is zero or the time argument is less than the first transition time recorded
+in the file.
+.SH SEE ALSO
+newctime(3)
+.. @(#)tzfile.5	7.1
+End of tzfile.5
+echo file 'zic.8' >&2
+cat >'zic.8' <<'End of zic.8'
+.TH ZIC 8
+.SH NAME
+zic \- time zone compiler
+.SH SYNOPSIS
+.B zic
+[
+.B \-v
+] [
+.B \-d
+.I directory
+] [
+.B \-l
+.I localtime
+] [
+.B \-p
+.I posixrules
+] [
+.B \-L
+.I leapsecondfilename
+] [
+.B \-s
+] [
+.I filename
+\&... ]
+.SH DESCRIPTION
+.if t .ds lq ``
+.if t .ds rq ''
+.if n .ds lq \&"\"
+.if n .ds rq \&"\"
+.de q
+\\$3\*(lq\\$1\*(rq\\$2
+..
+.I Zic
+reads text from the file(s) named on the command line
+and creates the time conversion information files specified in this input.
+If a
+.I filename
+is
+.BR \- ,
+the standard input is read.
+.PP
+These options are available:
+.TP
+.BI "\-d " directory
+Create time conversion information files in the named directory rather than
+in the standard directory named below.
+.TP
+.BI "\-l " timezone
+Use the given time zone as local time.
+.I Zic
+will act as if the input contained a link line of the form
+.sp
+.ti +.5i
+Link	\fItimezone\fP		localtime
+.TP
+.BI "\-p " timezone
+Use the given time zone's rules when handling POSIX-format
+time zone environment variables.
+.I Zic
+will act as if the input contained a link line of the form
+.sp
+.ti +.5i
+Link	\fItimezone\fP		posixrules
+.TP
+.BI "\-L " leapsecondfilename
+Read leap second information from the file with the given name.
+If this option is not used,
+no leap second information appears in output files.
+.TP
+.B \-v
+Complain if a year that appears in a data file is outside the range
+of years representable by
+.IR time (2)
+values.
+.TP
+.B \-s
+Limit time values stored in output files to values that are the same
+whether they're taken to be signed or unsigned.
+You can use this option to generate SVVS-compatible files.
+.sp
+Input lines are made up of fields.
+Fields are separated from one another by any number of white space characters.
+Leading and trailing white space on input lines is ignored.
+An unquoted sharp character (#) in the input introduces a comment which extends
+to the end of the line the sharp character appears on.
+White space characters and sharp characters may be enclosed in double quotes
+(") if they're to be used as part of a field.
+Any line that is blank (after comment stripping) is ignored.
+Non-blank lines are expected to be of one of three types:
+rule lines, zone lines, and link lines.
+.PP
+A rule line has the form
+.nf
+.B
+.ti +.5i
+.ta \w'Rule\0\0'u +\w'NAME\0\0'u +\w'FROM\0\0'u +\w'1973\0\0'u +\w'TYPE\0\0'u +\w'Apr\0\0'u +\w'lastSun\0\0'u +\w'2:00\0\0'u +\w'SAVE\0\0'u
+.sp
+Rule	NAME	FROM	TO	TYPE	IN	ON	AT	SAVE	LETTER/S
+.sp
+For example:
+.ti +.5i
+.sp
+Rule	USA	1969	1973	\-	Apr	lastSun	2:00	1:00	D
+.sp
+.fi
+The fields that make up a rule line are:
+.TP "\w'LETTER/S'u"
+.B NAME
+Gives the (arbitrary) name of the set of rules this rule is part of.
+.TP
+.B FROM
+Gives the first year in which the rule applies.
+The word
+.B minimum
+(or an abbreviation) means the minimum year with a representable time value.
+The word
+.B maximum
+(or an abbreviation) means the maximum year with a representable time value.
+.TP
+.B TO
+Gives the final year in which the rule applies.
+In addition to
+.B minimum
+and
+.B maximum
+(as above),
+the word
+.B only
+(or an abbreviation)
+may be used to repeat the value of the
+.B FROM
+field.
+.TP
+.B TYPE
+Gives the type of year in which the rule applies.
+If
+.B TYPE
+is
+.B \-
+then the rule applies in all years between
+.B FROM
+and
+.B TO
+inclusive;
+if
+.B TYPE
+is
+.BR uspres ,
+the rule applies in U.S. Presidential election years;
+if
+.B TYPE
+is
+.BR nonpres ,
+the rule applies in years other than U.S. Presidential election years.
+If
+.B TYPE
+is something else, then
+.I zic
+executes the command
+.ti +.5i
+\fByearistype\fP \fIyear\fP \fItype\fP
+.br
+to check the type of a year:
+an exit status of zero is taken to mean that the year is of the given type;
+an exit status of one is taken to mean that the year is not of the given type.
+.TP
+.B IN
+Names the month in which the rule takes effect.
+Month names may be abbreviated.
+.TP
+.B ON
+Gives the day on which the rule takes effect.
+Recognized forms include:
+.nf
+.in +.5i
+.sp
+.ta \w'Sun<=25\0\0'u
+5	the fifth of the month
+lastSun	the last Sunday in the month
+lastMon	the last Monday in the month
+Sun>=8	first Sunday on or after the eighth
+Sun<=25	last Sunday on or before the 25th
+.fi
+.in -.5i
+.sp
+Names of days of the week may be abbreviated or spelled out in full.
+Note that there must be no spaces within the
+.B ON
+field.
+.TP
+.B AT
+Gives the time of day at which the rule takes effect.
+Recognized forms include:
+.nf
+.in +.5i
+.sp
+.ta \w'1:28:13\0\0'u
+2	time in hours
+2:00	time in hours and minutes
+15:00	24-hour format time (for times after noon)
+1:28:14	time in hours, minutes, and seconds
+.fi
+.in -.5i
+.sp
+Any of these forms may be followed by the letter
+.B w
+if the given time is local
+.q "wall clock"
+time or
+.B s
+if the given time is local
+.q standard
+time; in the absence of
+.B w
+or
+.BR s ,
+wall clock time is assumed.
+.TP
+.B SAVE
+Gives the amount of time to be added to local standard time when the rule is in
+effect.
+This field has the same format as the
+.B AT
+field
+(although, of course, the
+.B w
+and
+.B s
+suffixes are not used).
+.TP
+.B LETTER/S
+Gives the
+.q "variable part"
+(for example, the
+.q S
+or
+.q D
+in
+.q EST
+or
+.q EDT )
+of time zone abbreviations to be used when this rule is in effect.
+If this field is
+.BR \- ,
+the variable part is null.
+.PP
+A zone line has the form
+.sp
+.nf
+.ti +.5i
+.ta \w'Zone\0\0'u +\w'Australia/South\-west\0\0'u +\w'GMTOFF\0\0'u +\w'RULES/SAVE\0\0'u +\w'FORMAT\0\0'u
+Zone	NAME	GMTOFF	RULES/SAVE	FORMAT	[UNTIL]
+.sp
+For example:
+.sp
+.ti +.5i
+Zone	Australia/South\-west	9:30	Aus	CST	1987 Mar 15 2:00
+.sp
+.fi
+The fields that make up a zone line are:
+.TP "\w'GMTOFF'u"
+.B NAME
+The name of the time zone.
+This is the name used in creating the time conversion information file for the
+zone.
+.TP
+.B GMTOFF
+The amount of time to add to GMT to get standard time in this zone.
+This field has the same format as the
+.B AT
+and
+.B SAVE
+fields of rule lines;
+begin the field with a minus sign if time must be subtracted from GMT.
+.TP
+.B RULES/SAVE
+The name of the rule(s) that apply in the time zone or,
+alternately, an amount of time to add to local standard time.
+If this field is
+.B \-
+then standard time always applies in the time zone.
+.TP
+.B FORMAT
+The format for time zone abbreviations in this time zone.
+The pair of characters
+.B %s
+is used to show where the
+.q "variable part"
+of the time zone abbreviation goes.
+.TP
+.B UNTIL
+The time at which the GMT offset or the rule(s) change for a location.
+It is specified as a year, a month, a day, and a time of day.
+If this is specified,
+the time zone information is generated from the given GMT offset
+and rule change until the time specified.
+.IP
+The next line must be a
+.q continuation
+line; this has the same form as a zone line except that the
+string
+.q Zone
+and the name are omitted, as the continuation line will
+place information starting at the time specified as the
+.B UNTIL
+field in the previous line in the file used by the previous line.
+Continuation lines may contain an
+.B UNTIL
+field, just as zone lines do, indicating that the next line is a further
+continuation.
+.PP
+A link line has the form
+.sp
+.nf
+.ti +.5i
+.if t .ta \w'Link\0\0'u +\w'LINK-FROM\0\0'u
+.if n .ta \w'Link\0\0'u +\w'US/Eastern\0\0'u
+Link	LINK-FROM	LINK-TO
+.sp
+For example:
+.sp
+.ti +.5i
+Link	US/Eastern	EST5EDT
+.sp
+.fi
+The
+.B LINK-FROM
+field should appear as the
+.B NAME
+field in some zone line;
+the
+.B LINK-TO
+field is used as an alternate name for that zone.
+.PP
+Except for continuation lines,
+lines may appear in any order in the input.
+.PP
+Lines in the file that describes leap seconds have the following form:
+.nf
+.B
+.ti +.5i
+.ta \w'Leap\0\0'u +\w'YEAR\0\0'u +\w'MONTH\0\0'u +\w'DAY\0\0'u +\w'HH:MM:SS\0\0'u +\w'CORR\0\0'u
+Leap	YEAR	MONTH	DAY	HH:MM:SS	CORR	R/S
+.sp
+For example:
+.ti +.5i
+.sp
+Leap	1974	Dec	31	23:59:60	+	S
+.sp
+.fi
+The
+.BR YEAR ,
+.BR MONTH ,
+.BR DAY ,
+and
+.B HH:MM:SS
+fields tell when the leap second happened.
+The
+.B CORR
+field
+should be
+.q +
+if a second was added
+or
+.q -
+if a second was skipped.
+The
+.B R/S
+field
+should be (an abbreviation of)
+.q Stationary
+if the leap second time given by the other fields should be interpreted as GMT
+or
+(an abbreviation of)
+.q Rolling
+if the leap second time given by the other fields should be interpreted as
+local wall clock time.
+.SH NOTE
+For areas with more than two types of local time,
+you may need to use local standard time in the
+.B AT
+field of the earliest transition time's rule to ensure that
+the earliest transition time recorded in the compiled file is correct.
+.SH FILE
+/usr/local/etc/zoneinfo	standard directory used for created files
+.SH "SEE ALSO"
+newctime(3), tzfile(5), zdump(8)
+.. @(#)zic.8	7.1
+End of zic.8
+echo file 'zdump.8' >&2
+cat >'zdump.8' <<'End of zdump.8'
+.TH ZDUMP 8
+.SH NAME
+zdump \- time zone dumper
+.SH SYNOPSIS
+.B zdump
+[
+.B \-v
+] [
+.B \-c
+cutoffyear ] [ zonename ... ]
+.SH DESCRIPTION
+.I Zdump
+prints the current time in each
+.I zonename
+named on the command line.
+.PP
+These options are available:
+.TP
+.B \-v
+For each
+.I zonename
+on the command line,
+print the current time,
+the time at the lowest possible time value,
+the time one day after the lowest possible time value,
+the times both one second before and exactly at
+each detected time discontinuity,
+the time at one day less than the highest possible time value,
+and the time at the highest possible time value,
+Each line ends with
+.B isdst=1
+if the given time is Daylight Saving Time or
+.B isdst=0
+otherwise.
+.TP
+.BI "\-c " cutoffyear
+Cut off the verbose output near the start of the given year.
+.SH "SEE ALSO"
+newctime(3), tzfile(5), zic(8)
+.. @(#)zdump.8	7.1
+End of zdump.8
+echo file 'date.1' >&2
+cat >'date.1' <<'End of date.1'
+.TH DATE 1
+.SH NAME
+date \- show and set date and time
+.SH SYNOPSIS
+.if n .nh
+.if n .na
+.B date
+[
+.B \-u
+] [
+.B \-c
+] [
+.B \-n
+] [
+.B \-d
+dsttype
+] [
+.B \-t
+minutes-west
+] [
+\fB\-a \fR[\fB+\fR|\fB-]\fIsss\fB.\fIfff\fR
+] [
+.BI + format
+] [
+\fR[\fIyyyy\fR]\fImmddhhmm\fR[\fIyy\fR][\fB.\fIss\fR]
+]
+.SH DESCRIPTION
+.I Date
+without arguments writes the date and time to the standard output in
+the form
+.ce 1
+Wed Mar  8 14:54:40 EST 1989
+.br
+with
+.B EST
+replaced by the local time zone's abbreviation
+(or by the abbreviation for the time zone specified in the
+.B TZ
+environment variable if set).
+.PP
+If a command-line argument starts with a plus sign
+.RB (` + '),
+the rest of the argument is used as a
+.I format
+that controls what appears in the output.
+In the format, when a percent sign
+.RB (` % ')
+appears,
+it and the character after it are not output,
+but rather identify part of the date or time
+to be output in a particular way
+(or identify a special character to output):
+.nf
+.if t .in +.5i
+.if n .in +2
+.ta \w'%M\0\0'u +\w'Wed Mar  8 14:54:40 1989\0\0'u
+	Sample output	Explanation
+%a	Wed	Abbreviated weekday name
+%A	Wednesday	Full weekday name
+%b	Mar	Abbreviated month name
+%B	March	Full month name
+%c	03/08/89 14:54:40	Month/day/year Hour:minute:second
+%C	Wed Mar  8 14:54:40 1989	a la \fIasctime\^\fP(3)
+%d	08	Day of month (always two digits)
+%D	03/08/89	Month/day/year (eight characters)
+%e	 8	Day of month (leading zero blanked)
+%h	Mar	Abbreviated month name
+%H	14	24-hour-clock hour (two digits)
+%I	02	12-hour-clock hour (two digits)
+%j	067	Julian day number (three digits)
+%k	 2	12-hour-clock hour (leading zero blanked)
+%l	14	24-hour-clock hour (leading zero blanked)
+%m	03	Month number (two digits)
+%M	54	Minute (two digits)
+%n	\\n	newline character
+%p	PM	AM/PM designation
+%r	02:54:40 PM	Hour:minute:second AM/PM designation
+%R	14:54	Hour:minute
+%S	40	Second (two digits)
+%t	\\t	tab character
+%T	14:54:40	Hour:minute:second
+%U	10	Sunday-based week number (two digits)
+%w	3	Day number (one digit, Sunday is 0)
+%W	10	Monday-based week number (two digits)
+%x	03/08/89	Month/day/year (eight characters)
+%X	14:54:40	Hour:minute:second
+%y	89	Last two digits of year
+%Y	1989	Year in full
+%Z	EST	Time zone abbreviation
+.if t .in -.5i
+.if n .in -2
+.fi
+If a character other than one of those shown above appears after
+a percent sign in the format,
+that following character is output.
+All other characters in the format are copied unchanged to the output;
+a newline character is always added at the end of the output.
+.PP
+In Sunday-based week numbering,
+the first Sunday of the year begins week 1;
+days preceding it are part of ``week 0.''
+In Monday-based week numbering,
+the first Monday of the year begins week 1.
+.PP
+To set the date, use a command line argument with one of the following forms:
+.nf
+.if t .in +.5i
+.if n .in +2
+.ta \w'198903081454\0'u
+1454	24-hour-clock hours (first two digits) and minutes
+081454	Month day (first two digits), hours, and minutes
+03081454	Month (two digits, January is 01), month day, hours, minutes
+8903081454	Year, month, month day, hours, minutes
+0308145489	Month, month day, hours, minutes, year
+	(on System V-compatible systems)
+030814541989	Month, month day, hours, minutes, four-digit year
+198903081454	Four-digit year, month, month day, hours, minutes
+.if t .in -.5i
+.if n .in -2
+.fi
+If the century, year, month, or month day is not given,
+the current value is used.
+Any of the above forms may be followed by a period and two digits that give
+the seconds part of the new time; if no seconds are given, zero is assumed.
+.PP
+These options are available:
+.TP
+.BR \-u " or " \-c
+Use GMT when setting and showing the date and time.
+.TP
+.B \-n
+Do not notify other networked systems of the time change.
+.TP
+.BI "\-d " dsttype
+Set the kernel-stored Daylight Saving Time type to the given value.
+(The kernel-stored DST type is used mostly by ``old'' binaries.)
+.TP
+.BI "\-t " minutes-west
+Set the kernel-stored ``minutes west of GMT'' value to the one given on the
+command line.
+(The kernel-stored DST type is used mostly by ``old'' binaries.)
+.TP
+.BI "\-a " adjustment
+Change the time forward (or backward) by the number of seconds
+(and fractions thereof) specified in the
+.I adjustment\^
+argument.
+Either the seconds part or the fractions part of the argument (but not both)
+may be omitted.
+On BSD-based systems,
+the adjustment is made by changing the rate at which time advances;
+on System-V-based systems, the adjustment is made by changing the time.
+.. @(#)date.1	7.1
+End of date.1
+echo file 'Makefile' >&2
+cat >'Makefile' <<'End of Makefile'
+# @(#)Makefile	7.1
+
+# Change the line below for your time zone (after finding the zone you want in
+# the time zone files, or adding it to a time zone file).
+# Alternately, if you discover you've got the wrong time zone, you can just
+#	zic -l rightzone
+# to correct things.
+# Use the command
+#	make zonenames
+# to get a list of the values you can use for LOCALTIME.
+
+LOCALTIME=	Factory
+
+# If you want something other than Eastern United States time as a template
+# for handling POSIX-style time zone environment variables,
+# change the line below (after finding the zone you want in the
+# time zone files, or adding it to a time zone file).
+# (When a POSIX-style environment variable is handled, the rules in the template
+# file are used to determine "spring forward" and "fall back" days and
+# times; the environment variable itself specifies GMT offsets of standard and
+# summer time.)
+# Alternately, if you discover you've got the wrong time zone, you can just
+#	zic -p rightzone
+# to correct things.
+# Use the command
+#	make zonenames
+# to get a list of the values you can use for POSIXRULES.
+# If you want POSIX compatibility, use "US/Eastern".
+
+POSIXRULES=	US/Eastern
+
+# Everything gets put in subdirectories of. . .
+
+TOPDIR=		/usr/local
+
+# "Compiled" time zone information is placed in the "TZDIR" directory
+# (and subdirectories).
+# Use an absolute path name for TZDIR unless you're just testing the software.
+
+TZDIR=		$(TOPDIR)/etc/zoneinfo
+
+# The "zic" and "zdump" commands get installed in. . .
+
+ETCDIR=		$(TOPDIR)/etc
+
+# If you "make INSTALL", the "date" command gets installed in. . .
+
+BINDIR=		$(TOPDIR)/bin
+
+# Manual pages go in subdirectories of. . .
+
+MANDIR=		$(TOPDIR)/man
+
+# Library functions are put in an archive in LIBDIR.
+
+LIBDIR=		$(TOPDIR)/lib
+TZLIB=		$(LIBDIR)/libz.a
+
+# If you always want time values interpreted as "seconds since the epoch
+# (not counting leap seconds)", use
+# 	REDO=		posix_only
+# below.  If you always want right time values interpreted as "seconds since
+# the epoch" (counting leap seconds)", use
+#	REDO=		right_only
+# below.  If you want both sets of data available, with leap seconds not
+# counted normally, use
+#	REDO=		posix_right
+# below.  If you want both sets of data available, with leap seconds counted
+# normally, use
+#	REDO=		right_posix
+# below.
+# POSIX mandates that leap seconds not be counted; for compatibility with it,
+# use either "posix_only" or "posix_right".
+
+REDO=		posix_right
+
+# If you're on an AT&T-based system (rather than a BSD-based system), add
+#	-DUSG
+# to the end of the "CFLAGS=" line.
+#
+# If you're on an AT&T-based system and use csh, add
+#	-DSHELL=/bin/sh
+# to the end of the "CFLAGS=" line.
+#
+# If you're running on a system where "strchr" is known as "index"
+# (for example, a 4.[012]BSD system), add
+#	-Dstrchr=index
+# to the end of the "CFLAGS=" line.
+#
+# If you're running on a system with a "mkdir" function, feel free to add
+#	-Demkdir=mkdir
+# to the end of the "CFLAGS=" line
+#
+# If you want to use System V compatibility code, add
+#	-DUSG_COMPAT
+# to the end of the "CFLAGS=" line.  This arrange for "timezone" and "daylight"
+# variables to be kept up-to-date by the time conversion functions.  Neither
+# "timezone" nor "daylight" is described in X3J11's work.
+#
+# If your system has a "GMT offset" field in its "struct tm"s
+# (or if you decide to add such a field in your system's "time.h" file),
+# add the name to a define such as
+#	-DTM_GMTOFF=tm_gmtoff
+# or
+#	-DTM_GMTOFF=_tm_gmtoff
+# to the end of the "CFLAGS=" line.
+# Neither tm_gmtoff nor _tm_gmtoff is described in X3J11's work;
+# in its work, use of "tm_gmtoff" is described as non-conforming.
+# Both UCB and Sun have done the equivalent of defining TM_GMTOFF in
+# their recent releases.
+#
+# If your system has a "zone abbreviation" field in its "struct tm"s
+# (or if you decide to add such a field in your system's "time.h" file),
+# add the name to a define such as
+#	-DTM_ZONE=tm_zone
+# or
+#	-DTM_ZONE=_tm_zone
+# to the end of the "CFLAGS=" line.
+# Neither tm_zone nor _tm_zone is described in X3J11's work;
+# in its work, use of "tm_zone" is described as non-conforming.
+# Both UCB and Sun have done the equivalent of defining TM_ZONE in
+# their recent releases.
+#
+# If you want functions that were inspired by early versions of X3J11's work,
+# add
+#	-DSTD_INSPIRED
+# to the end of the "CFLAGS=" line.  This arranges for the functions
+# "tzsetwall", "offtime", "timelocal", "timegm", and "timeoff"
+# to be added to the time conversion library.
+# "tzsetwall" is like "tzset" except that it arranges for local wall clock
+# time (rather than the time specified in the TZ environment variable)
+# to be used.
+# "offtime" is like "gmtime" except that it accepts a second (long) argument
+# that gives an offset to add to the time_t when converting it.
+# "timelocal" is equivalent to "mktime".
+# "timegm" is like "timelocal" except that it turns a struct tm into
+# a time_t using GMT (rather than local time as "timelocal" does).
+# "timeoff" is like "timegm" except that it accepts a second (long) argument
+# that gives an offset to use when converting to a time_t.
+# None of these functions are described in X3J11's current work.
+# Sun has provided "tzsetwall", "timelocal", and "timegm" in SunOS 4.0.
+# These functions may well disappear in future releases of the time
+# conversion package.
+#
+# If you want Source Code Control System ID's left out of object modules, add
+#	-DNOID
+# to the end of the "CFLAGS=" line.
+#
+# If you'll never want to handle solar-time-based time zones, add
+#	-DNOSOLAR
+# to the end of the "CFLAGS=" line
+# (and comment out the "SDATA=" line below).
+# This reduces (slightly) the run-time data-space requirements of
+# the time conversion functions; it may reduce the acceptability of your system
+# to folks in oil- and cash-rich places.
+#
+# If you want to allocate state structures in localtime, add
+#	-DALL_STATE
+# to the end of the "CFLAGS=" line.  Storage is obtained by calling malloc.
+#
+# If you want an "altzone" variable (a la System V Release 3.1), add
+#	-DALTZONE
+# to the end of the "CFLAGS=" line.
+# This variable is not described in X3J11's work.
+#
+# If you want a "gtime" function (a la MACH), add
+#	-DCMUCS
+# to the end of the "CFLAGS=" line
+# This function is not described in X3J11's work.
+
+CFLAGS=
+
+################################################################################
+
+CC=		cc -DTZDIR=\"$(TZDIR)\"
+
+TZCSRCS=	zic.c localtime.c asctime.c scheck.c ialloc.c emkdir.c getopt.c
+TZCOBJS=	zic.o localtime.o asctime.o scheck.o ialloc.o emkdir.o getopt.o
+TZDSRCS=	zdump.c localtime.c asctime.c ialloc.c getopt.c
+TZDOBJS=	zdump.o localtime.o asctime.o ialloc.o getopt.o
+DATESRCS=	date.c localtime.c getopt.c logwtmp.c strftime.c
+DATEOBJS=	date.o localtime.o getopt.o logwtmp.o strftime.o asctime.o
+LIBSRCS=	localtime.c asctime.c difftime.c
+LIBOBJS=	localtime.o asctime.o difftime.o
+HEADERS=	tzfile.h private.h
+NONLIBSRCS=	zic.c zdump.c scheck.c ialloc.c emkdir.c getopt.c
+NEWUCBSRCS=	date.c logwtmp.c strftime.c
+SOURCES=	$(HEADERS) $(LIBSRCS) $(NONLIBSRCS) $(NEWUCBSRCS)
+MANS=		newctime.3 tzfile.5 zic.8 zdump.8
+DOCS=		Patchlevel.h README Theory $(MANS) date.1 Makefile
+YDATA=		africa antarctica asia australasia \
+		europe northamerica southamerica pacificnew etcetera factory
+NDATA=		systemv
+SDATA=		solar87 solar88 solar89
+TDATA=		$(YDATA) $(NDATA) $(SDATA)
+DATA=		$(YDATA) $(NDATA) $(SDATA) leapseconds
+USNO=		usno1988 usno1989
+ENCHILADA=	$(DOCS) $(SOURCES) $(DATA) $(USNO)
+
+all:		zic zdump $(LIBOBJS)
+
+ALL:		all date
+
+install:	all $(DATA) $(REDO) $(TZLIB) $(MANS)
+		./zic -d $(TZDIR) -l $(LOCALTIME) -p $(POSIXRULES)
+		-mkdir $(TOPDIR) $(ETCDIR)
+		cp zic zdump $(ETCDIR)/.
+		-mkdir $(TOPDIR) $(MANDIR) \
+			$(MANDIR)/man3 $(MANDIR)/man5 $(MANDIR)/man8
+		-rm -f $(MANDIR)/man3/newctime.3 \
+			$(MANDIR)/man5/tzfile.5 \
+			$(MANDIR)/man8/zdump.8 \
+			$(MANDIR)/man8/zic.8
+		cp newctime.3 $(MANDIR)/man3/.
+		cp tzfile.5 $(MANDIR)/man5/.
+		cp zdump.8 zic.8 $(MANDIR)/man8/.
+
+INSTALL:	ALL install date.1
+		-mkdir $(TOPDIR) $(BINDIR)
+		cp date $(BINDIR)/.
+		-mkdir $(TOPDIR) $(MANDIR) $(MANDIR)/man1
+		-rm -f $(MANDIR)/man1/date.1
+		cp date.1 $(MANDIR)/man1/.
+
+zdump:		$(TZDOBJS)
+		$(CC) $(CFLAGS) $(LFLAGS) $(TZDOBJS) -o $@
+
+zic:		$(TZCOBJS)
+		$(CC) $(CFLAGS) $(LFLAGS) $(TZCOBJS) -o $@
+
+posix_only:	zic $(TDATA)
+		./zic -d $(TZDIR) -L /dev/null $(TDATA)
+
+right_only:	zic leapseconds $(TDATA)
+		./zic -d $(TZDIR) -L leapseconds $(TDATA)
+
+other_two:	zic leapseconds $(TDATA)
+		./zic -d $(TZDIR)/posix -L /dev/null $(TDATA)
+		./zic -d $(TZDIR)/right -L leapseconds $(TDATA)
+
+posix_right:	posix_only other_two
+
+right_posix:	right_only other_two
+
+# The "ar d"s below ensure that obsolete object modules
+# (based on source provided with earlier versions of the time conversion stuff)
+# are removed from the library.
+
+$(TZLIB):	$(LIBOBJS)
+		ar ru $@ $(LIBOBJS)
+		if ar t $@ timemk.o 2>/dev/null ; then ar d $@ timemk.o ; fi
+		if ar t $@ ctime.o 2>/dev/null ; then ar d $@ ctime.o ; fi
+		if [ -x /usr/ucb/ranlib -o -x /usr/bin/ranlib ] ; \
+			then ranlib $@ ; fi
+
+# We use the system's logwtmp and strftime in preference to ours if available.
+
+date:		$(DATEOBJS)
+		ar r ,lib.a logwtmp.o strftime.o
+		if [ -x /usr/ucb/ranlib -o -x /usr/bin/ranlib ] ; \
+			then ranlib ,lib.a ; fi
+		$(CC) $(CFLAGS) date.o localtime.o asctime.o getopt.o \
+			-lc ,lib.a -o $@
+		rm -f ,lib.a
+
+clean:
+		rm -f core *.o *.out zdump zic date ,*
+
+names:
+		@echo $(ENCHILADA)
+
+zonenames:	$(TDATA)
+		@awk '/^Zone/ { print $$2 } /^Link/ { print $$3 }' $(TDATA)
+
+asctime.o:	private.h tzfile.h
+date.o:		private.h
+difftime.o:	private.h
+emkdir.o:	private.h
+ialloc.o:	private.h
+localtime.o:	private.h tzfile.h
+scheck.o:	private.h
+strftime.o:	tzfile.h
+zic.o:		private.h tzfile.h
+
+.KEEP_STATE:
+End of Makefile
+exit

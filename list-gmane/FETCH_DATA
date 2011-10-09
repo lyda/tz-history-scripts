@@ -1,0 +1,13 @@
+This is the GMANE archive that has archived the tz list (on elise and now iana) since 2004.  I fetched it by doing the following:
+
+  sudo apt-get install sinntp
+  nntp-pull --server=news.gmane.org 'gmane.comp.time.tz>tz.mbox
+
+Web address: http://dir.gmane.org/gmane.comp.time.tz
+
+To build a complete tzarchive with the ../iana-tz files, just delete
+everything you get up to July of 2011 and after October 2011 and put the
+results in tz.mbox.needed.  Then run:
+
+  cat ../list/tzarchive tz.mbox.needed > ../list/tzarchive-to-october-2011
+

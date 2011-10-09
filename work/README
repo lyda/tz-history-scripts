@@ -1,0 +1,39 @@
+These scripts are used to make the git.tz repository.  The git.tz
+repository should initially be copied from the ../work-usenet/git.settz
+repository.
+
+  cp -a ../work-usenet/git.settz git.tz
+
+Make sure that HEAD is checked out:
+
+  ( cd git.tz && git co master )
+
+If you'd rather ignore the initial history, just do this:
+
+  mkdir git.tz
+  ( cd git.tz && git init )
+
+First copy and uncompress the tarballs (this will require the gunzip
+and uncompress binaries):
+
+  ./mktarballs.sh
+
+The tarballs/ dir now contains the results.  If you want to limit the
+git.tz repository to just code or just data, remove the tarballs you
+don't want at this point.
+
+Next build an index of the files (this sorts them in chronological order):
+
+  ./mkindex.sh
+
+Only the files in ./index will be put into the archive.
+
+Next build the meta files.  You can use the files in the meta.saved/
+directory that I have already processed.  However if you have new
+tzdata/tzcode tarballs or if you have some ideas on how to get better
+data, the mkmeta.sh script can generate the files.
+
+Once the index file and the tarballs/ and meta/ directories are created
+and populated just run the add.sh script:
+
+  ./add.sh

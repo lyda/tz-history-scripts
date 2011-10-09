@@ -1,0 +1,22 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 28 May 1998 09:59:33 -0400
+tzcode1998e.tar.gz and tzdata1998e.tar.gz
+Message-ID: <9805281401.AA24340@elsie.nci.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode1998e.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata1998e.tar.gz
+are now available. The Makefile is changed to produce
+zoneinfo-posix rather than zoneinfo/posix, and to produce
+zoneinfo-leaps rather than zoneinfo/right. The data changes
+recently circulated by Paul Eggert on the time zone mailing list are
+incorporated,
+as are the changes from Guy Harris to provide asctime_r and ctime_r.
+And a usno1998 file (substantially identical to usno1997) has been
+added.
+
+				--ado
+
+

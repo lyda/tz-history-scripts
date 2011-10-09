@@ -1,0 +1,17 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 1 Nov 2007 10:20:46 -0400
+tzdata2007i.tar.gz
+Message-ID: <B410D30A78C6404C9DABEA31B54A2813016CE7B4@nihcesmlbx10.nih.gov>
+
+The file...
+	ftp://elsie.nci.nih.gov/pub/tzdata2007i.tar.gz
+...is now available; this reflects changes for Cuba and Syria circulated
+earlier this week on the time zone mailing list.
+
+There are no code changes, so there's no tzcode2007i; tzcood2007h
+remains current.
+
+				--ado
+
+

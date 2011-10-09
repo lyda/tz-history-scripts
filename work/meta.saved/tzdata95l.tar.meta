@@ -1,0 +1,16 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Tue, 19 Dec 95 18:23:16 -0500
+new tz files
+Message-ID: <9512192323.AA29726@elsie.nci.nih.gov>
+
+Now available on elsie.nci.nih.gov (165.112.73.1) in the ~ftp/pub directory:
+	-rw-r--r--  1 ado         69655 Dec 19 18:15 tzcode95h.tar.gz
+	-rw-r--r--  1 ado         70026 Dec 19 18:15 tzdata95l.tar.gz
+No major changes from the last versions: a simplification of a macro
+definition, a change to data for Sudan, and (for last minute shoppers)
+notes in the "Music" file on the CD "Old Man Time."
+
+				--ado
+
+

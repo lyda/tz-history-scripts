@@ -1,0 +1,41 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 28 Sep 2009 10:07:29 -0400
+tzdata2009m.tar.gz
+Message-ID: <996D816825CFEA469870126E9050D3F05DD783B6@NIHMLBX11.nih.gov>
+
+David is absolutely correct; tzdata2009n.tar.gz is the version that's available now; tzdata2009o.tar.gz is the one to expect in October. Thanks for the catch!
+
+				--ado
+
+-----Original Message-----
+From: David Z?lke [mailto:david.zuelke at bitextender.com] 
+Sent: Monday, September 28, 2009 10:06
+To: tz at elsie.nci.nih.gov
+Cc: Olson, Arthur David (NIH/NCI) [E]
+Subject: Re: tzdata2009m.tar.gz
+
+Shouldn't that be 2009n?
+See http://article.gmane.org/gmane.comp.time.tz/2877
+
+
+On 28.09.2009, at 15:47, Olson, Arthur David (NIH/NCI) [E] wrote:
+
+> The file...
+> 	ftp://elsie.nci.nih.gov/pub/tzdata2009m.tar.gz
+> ...is now available; this reflects the changes circulated last week  
+> on the time zone mailing list (added commentary for Argentina and a  
+> change to the end of DST in 2009 in Pakistan).
+>
+> I'll wait for reports on what actually happens in Bangladesh on  
+> October 1 before making any changes there, but a tzdata2009n can be  
+> expected sometime within a month.
+>
+> 				--ado
+> 	
+>
+>
+
+
+
+

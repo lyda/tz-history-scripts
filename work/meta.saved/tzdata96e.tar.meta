@@ -1,0 +1,17 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Tue, 19 Mar 96 17:41:06 -0500
+patch for Europe/Lisbon bug in tzdata96d
+Message-ID: <9603192241.AA14725@elsie.nci.nih.gov>
+
+The latest change to portugal is incorporated in tzdata96e.tar.gz,
+available for anonymous ftp from elsie.nci.nih.gov (165.112.73.1) in the
+~ftp/pub directory:
+
+	-rw-r--r--  1 ado         73436 Mar 19 17:37 tzdata96e.tar.gz
+
+Timezone caballeros are warned to be braced for our busy April season.
+
+					--ado
+
+

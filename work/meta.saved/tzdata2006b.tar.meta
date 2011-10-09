@@ -1,0 +1,30 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 20 Feb 2006 10:15:29 -0500
+Tzdata2006b.tar.gz, tz32code2006b.tar.gz, and tz64code2006b.tar.gz
+Message-ID: <B410D30A78C6404C9DABEA31B54A28130665E8@nihcesmlbx10.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzdata2006b.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tz32code2006b.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tz64code2006b.tar.gz
+...are now available. The files...
+	ftp://elsie.nci.nih.gov/pub/classictzcode.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/classictzdata.tar.gz
+...have been removed.
+
+The 32-bit code is there for folks who may need it; with providence,
+there will be little or no need to update it. The 64-bit code reflects
+the changes circulated earlier on the time zone mailing list. Both the
+32-bit code and the 64-bit code share the same data.
+
+All SCCS IDs were bumped to "8.1" for this release.
+
+				--ado
+
+
+
+

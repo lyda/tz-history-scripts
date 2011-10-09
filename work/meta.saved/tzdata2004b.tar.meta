@@ -1,0 +1,20 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 19 Jul 2004 14:45:07 -0400
+Tzcode2004b.tar.gz and tzdata2004b.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C740261@nihexchange2.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2004b.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2004b.tar.gz
+...are now available. These contain the data changes circulated last week on
+the time zone mailing list by Paul Eggert--most importantly, they include
+updates for Argentina.
+I wanted to get these out quickly since they effect present-day operations
+down south. I'm holding off (briefly, I hope) on incorporating code changes
+until I can do a more thorough review than I have time for just now.
+
+				--ado
+
+

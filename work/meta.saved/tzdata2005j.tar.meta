@@ -1,0 +1,21 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 13 Jun 2005 14:41:04 -0400
+Tzcode2005j.tar.gz and tzdata2005j.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C740432@nihexchange2.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2005j.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2005j.tar.gz
+...are now available. These reflect changes to limit the length of time zone
+abbreviations and the characters used in those abbreviations.
+There are also changes to handle POSIX-style "quoted" time zone environment
+variables.
+The changes were circulated on the time zone mailing list; the only change
+since then was the removal of a couple of minimum-length of abbreviation
+checks.
+
+				--ado
+
+

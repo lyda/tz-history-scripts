@@ -1,0 +1,977 @@
+Subject: v06i012:  patches for date to use elsie!ado's localtime (datediffs)
+Newsgroups: mod.sources
+Approved:  kre@munnari.OZ
+
+Submitted by: seismo!munnari!kre (Robert Elz)
+Mod.sources: Volume 6, Issue 12
+Archive-name: datediffs
+
+This shell archive (below the line) contains diffs for various
+versions of date.c to make them compatible with Arthur Olson's
+modified localtime(3).  See the READ_ME for more details.
+
+: ---------------------------------------- cut here
+
+echo x - "READ_ME" 2>&1
+sed "s/^X//" >"READ_ME" <<'!The!End!'
+XThis posting contains diffs for 4 popular versions of "date.c"
+Xto enable it to work correctly with Arthur Olson's posted
+Xmodifications to localtime().  (in mod.sources, in March 86).
+X
+XAlmost no programs need to be modified to use that localtime,
+Xhowever "date" is one of those that do (as it "knew" that daylight
+Xsaving means 1 hour added on, and nothing else, and it used a
+Xrather crude mechanism to correct for the local timezone when
+Xsetting the date).
+X
+XThere are 3 changes of substance (and a few minor cleanups).
+X
+X1) If the TZ environment variable is set to something that doesn't
+Xmake sense, prevent the date from being set (its likely to end up
+Xbeing not quite what was intended).
+X
+X2) Correct the time given properly, where its given in local time
+X(in Sys V date there's no alternative).  Handle all variations of
+Xdaylight saving, etc, that Arthur Olson's localtime can handle,
+Xand that's practically everything.
+X
+X3) Print the time-zone name that the new localtime returns (in
+Xthe global tz_abbr), rather than using the old ways of obtaining
+Xtimezone names.
+X
+XAssumption: before these diffs will be useful, you must have installed
+Xthe new localtime() in libc.  To do that you have to merge your
+Xcurrent libc/ctime.c with the new one, changing the name of
+Xnewlocaltime() to localtime() as you do it.  This is not particularly
+Xdifficult.  You should compile it so that TZDIR is /etc/tzdir.
+X
+XProcedure: Select one of the following 4 diffs files.  If you are
+Xa BSD 4.2 4.3 beta or 4.3 site take diffs.4.2, diffs.4.3beta, or
+Xdiffs.4.3 respectively.  AT&T system sites should take diffs.SysV.
+XV7 and BSD4.1 are on their own, sorry.  If you look at all four diffs
+Xfiles you will see how similar they are, you shouldn't find it difficult
+Xto install in any other version of date.  In particular, the major piece
+Xof code is identical (modulo indentation) in all of these versions.
+X
+XThen use "patch" to apply the diffs as
+X
+X	cp /..../date.c .
+X	chmod +w date.c
+X	patch date.c < diffs.XXX
+X
+XThen check what was produced, make sure that it all makes sense.
+XCompile & install the modified "date".
+X
+XRobert Elz		kre%munnari.oz@seismo.css.gov
+X			seismo!munnari!kre
+!The!End!
+
+echo x - "diffs.4.2" 2>&1
+sed "s/^X//" >"diffs.4.2" <<'!The!End!'
+X*** date.c.4.2	Mon Apr 28 02:32:47 1986
+X--- date.c.4.2.new	Mon Apr 28 02:33:37 1986
+X***************
+X*** 12,18
+X  #define WTMP "/usr/adm/wtmp"
+X  
+X  struct	timeval tv;
+X- struct	timezone tz;
+X  char	*ap, *ep, *sp;
+X  int	uflag;
+X  
+X
+X--- 12,17 -----
+X  #define WTMP "/usr/adm/wtmp"
+X  
+X  struct	timeval tv;
+X  char	*ap, *ep, *sp;
+X  int	uflag;
+X  
+X***************
+X*** 16,22
+X  char	*ap, *ep, *sp;
+X  int	uflag;
+X  
+X- char	*timezone();
+X  static	int	dmsize[12] =
+X      { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+X  static char *usage = "usage: date [-u] [yymmddhhmm[.ss]]\n";
+X
+X--- 15,20 -----
+X  char	*ap, *ep, *sp;
+X  int	uflag;
+X  
+X  static	int	dmsize[12] =
+X      { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+X  static char *usage = "usage: date [-u] [yymmddhhmm[.ss]]\n";
+X***************
+X*** 26,31
+X  	{ "{", "", "", 0 }
+X  };
+X  
+X  char	*ctime();
+X  char	*asctime();
+X  struct	tm *localtime();
+X
+X--- 24,30 -----
+X  	{ "{", "", "", 0 }
+X  };
+X  
+X+ char	*getenv();
+X  char	*ctime();
+X  char	*asctime();
+X  struct	tm *localtime();
+X***************
+X*** 30,35
+X  char	*asctime();
+X  struct	tm *localtime();
+X  struct	tm *gmtime();
+X  
+X  main(argc, argv)
+X  	int argc;
+X
+X--- 29,35 -----
+X  char	*asctime();
+X  struct	tm *localtime();
+X  struct	tm *gmtime();
+X+ extern char *tz_abbr;
+X  
+X  main(argc, argv)
+X  	int argc;
+X***************
+X*** 39,45
+X  	int wf, rc;
+X  
+X  	rc = 0;
+X! 	gettimeofday(&tv, &tz);
+X  	if (argc > 1 && strcmp(argv[1], "-u") == 0) {
+X  		argc--;
+X  		argv++;
+X
+X--- 39,45 -----
+X  	int wf, rc;
+X  
+X  	rc = 0;
+X! 	gettimeofday(&tv, (struct timezone *)0);
+X  	if (argc > 1 && strcmp(argv[1], "-u") == 0) {
+X  		argc--;
+X  		argv++;
+X***************
+X*** 46,51
+X  		uflag++;
+X  	}
+X  	if (argc > 1) {
+X  		ap = argv[1];
+X  		wtmp[0].ut_time = tv.tv_sec;
+X  		if (gtime()) {
+X
+X--- 46,56 -----
+X  		uflag++;
+X  	}
+X  	if (argc > 1) {
+X+ 		if (settz(ap = getenv("TZ")) < 0) {
+X+ 			fprintf(stderr, "Unknown timezone \"%s\"\n",
+X+ 			    ap ? ap : "null");
+X+ 			exit(1);
+X+ 		}
+X  		ap = argv[1];
+X  		wtmp[0].ut_time = tv.tv_sec;
+X  		if (gtime()) {
+X***************
+X*** 54,63
+X  		}
+X  		/* convert to GMT assuming local time */
+X  		if (uflag == 0) {
+X! 			tv.tv_sec += (long)tz.tz_minuteswest*60;
+X! 			/* now fix up local daylight time */
+X! 			if (localtime(&tv.tv_sec)->tm_isdst)
+X! 				tv.tv_sec -= 60*60;
+X  		}
+X  		tv.tv_sec = tv.tv_sec;
+X  		if (settimeofday(&tv, (struct timezone *)0) < 0) {
+X
+X--- 59,119 -----
+X  		}
+X  		/* convert to GMT assuming local time */
+X  		if (uflag == 0) {
+X! 			/*
+X! 			 * Do this by determining what the given time
+X! 			 * is when converted to local time, and when
+X! 			 * converted to GMT and taking the difference.
+X! 			 * This works correctly regardless of whether
+X! 			 * local time is DST or not.
+X! 			 * The loop usually runs twice, once to correct the
+X! 			 * time, and once to check the correction was accurate.
+X! 			 * An extra iteration can be caused by setting the time
+X! 			 * just about when DST turns on or off.
+X! 			 * If we iterate more than a couple of times, then
+X! 			 * the idiot root moron has asked to set the time to
+X! 			 * something in the "dead" zone where DST has just
+X! 			 * turned on, and the times don't exist!
+X! 			 * The ugly "if" statements are to handle wierd cases
+X! 			 * that arise setting the time just about midnight on
+X! 			 * Jan 1 after a year that was a leap year.
+X! 			 * How close to midnight it has to be depends on how
+X! 			 * close to Greenwich you are, whether before or after
+X! 			 * midnight depends on whether you are East or West.
+X! 			 */
+X! 			struct tm gmt;
+X! 			struct tm local;
+X! 			register long diff;
+X! 			register int iters = 0;
+X! 	 
+X! 			gmt = *gmtime(&tv.tv_sec);
+X! 			do {
+X! #define	isleap(yr)	((yr) % 4 == 0 && ((yr) % 100 != 0 || (yr) % 400 == 0))
+X! 				local = *localtime(&tv.tv_sec);
+X! 				diff = gmt.tm_year - local.tm_year;
+X! 				diff *= 365;
+X! 				if (gmt.tm_year > local.tm_year) {
+X! 					if (isleap(local.tm_year))
+X! 						diff++;
+X! 				} else if (local.tm_year > gmt.tm_year) {
+X! 					if (isleap(gmt.tm_year))
+X! 						diff--;
+X! 				}
+X! 				diff += gmt.tm_yday - local.tm_yday;
+X! 				diff *= 24;
+X! 				diff += gmt.tm_hour - local.tm_hour;
+X! 				diff *= 60;
+X! 				diff += gmt.tm_min - local.tm_min;
+X! 				diff *= 60;
+X! 				diff += gmt.tm_sec - local.tm_sec;
+X! 				tv.tv_sec += diff;
+X! #undef	isleap
+X! 			} while (diff != 0 && ++iters < 5);
+X! 			if (iters >= 5) {
+X! 				fprintf(stderr,
+X! 				    "date: %.24s is in the time warp!\n",
+X! 				    asctime(&gmt));
+X! 				exit(1);
+X! 			}
+X  		}
+X  		tv.tv_sec = tv.tv_sec;
+X  		if (settimeofday(&tv, (struct timezone *)0) < 0) {
+X***************
+X*** 76,85
+X  		ap = asctime(gmtime(&tv.tv_sec));
+X  		tzn = "GMT";
+X  	} else {
+X! 		struct tm *tp;
+X! 		tp = localtime(&tv.tv_sec);
+X! 		ap = asctime(tp);
+X! 		tzn = timezone(tz.tz_minuteswest, tp->tm_isdst);
+X  	}
+X  	printf("%.20s", ap);
+X  	if (tzn)
+X
+X--- 132,139 -----
+X  		ap = asctime(gmtime(&tv.tv_sec));
+X  		tzn = "GMT";
+X  	} else {
+X! 		ap = ctime(&tv.tv_sec);
+X! 		tzn = tz_abbr;
+X  	}
+X  	printf("%.20s", ap);
+X  	if (tzn)
+X***************
+X*** 83,90
+X  	}
+X  	printf("%.20s", ap);
+X  	if (tzn)
+X! 		printf("%s", tzn);
+X! 	printf("%s", ap+19);
+X  	exit(rc);
+X  }
+X  
+X
+X--- 137,144 -----
+X  	}
+X  	printf("%.20s", ap);
+X  	if (tzn)
+X! 		printf("%s ", tzn);
+X! 	printf("%s", ap+20);
+X  	exit(rc);
+X  }
+X  
+!The!End!
+
+echo x - "diffs.4.3" 2>&1
+sed "s/^X//" >"diffs.4.3" <<'!The!End!'
+X*** date.c.4.3	Sat Jun 21 18:14:04 1986
+X--- date.c.4.3.new	Sat Jun 21 18:14:04 1986
+X***************
+X*** 29,35
+X  #define WTMP	"/usr/adm/wtmp"
+X  
+X  struct	timeval tv, now;
+X- struct	timezone tz;
+X  char	*ap, *ep, *sp;
+X  int	uflag, nflag;
+X  int	retval;
+X
+X--- 29,34 -----
+X  #define WTMP	"/usr/adm/wtmp"
+X  
+X  struct	timeval tv, now;
+X  char	*ap, *ep, *sp;
+X  int	uflag, nflag;
+X  int	retval;
+X***************
+X*** 34,40
+X  int	uflag, nflag;
+X  int	retval;
+X  
+X- char	*timezone();
+X  static	int dmsize[12] =
+X      { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+X  static	char *usage = "usage: date [-n] [-u] [yymmddhhmm[.ss]]\n";
+X
+X--- 33,38 -----
+X  int	uflag, nflag;
+X  int	retval;
+X  
+X  static	int dmsize[12] =
+X      { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+X  static	char *usage = "usage: date [-n] [-u] [yymmddhhmm[.ss]]\n";
+X***************
+X*** 50,55
+X  struct	tm *gmtime();
+X  char	*strcpy(), *strncpy();
+X  char	*username, *getlogin();
+X  long	time();
+X  uid_t	getuid();
+X  
+X
+X--- 48,54 -----
+X  struct	tm *gmtime();
+X  char	*strcpy(), *strncpy();
+X  char	*username, *getlogin();
+X+ char	*getenv();
+X  long	time();
+X  uid_t	getuid();
+X  
+X***************
+X*** 53,58
+X  long	time();
+X  uid_t	getuid();
+X  
+X  main(argc, argv)
+X  	int argc;
+X  	char *argv[];
+X
+X--- 52,59 -----
+X  long	time();
+X  uid_t	getuid();
+X  
+X+ extern char *tz_abbr;
+X+ 
+X  main(argc, argv)
+X  	int argc;
+X  	char *argv[];
+X***************
+X*** 60,66
+X  	register char *tzn;
+X  
+X  	openlog("date", LOG_ODELAY, LOG_AUTH);
+X! 	(void) gettimeofday(&tv, &tz);
+X  	now = tv;
+X  
+X  	while (argc > 1 && argv[1][0] == '-') {
+X
+X--- 61,67 -----
+X  	register char *tzn;
+X  
+X  	openlog("date", LOG_ODELAY, LOG_AUTH);
+X! 	(void) gettimeofday(&tv, (struct timezone *)0);
+X  	now = tv;
+X  
+X  	while (argc > 1 && argv[1][0] == '-') {
+X***************
+X*** 94,99
+X  		retval = 1;
+X  		goto display;
+X  	}
+X  	username = getlogin();
+X  	if (username == NULL || *username == '\0')  /* single-user or no tty */
+X  		username = "root";
+X
+X--- 95,104 -----
+X  		retval = 1;
+X  		goto display;
+X  	}
+X+ 	if (settz(tzn = getenv("TZ")) < 0) {
+X+ 		fprintf(stderr, "Unknown timezone \"%s\"\n", tzn ? tzn : "null");
+X+ 		exit(1);
+X+ 	}
+X  	username = getlogin();
+X  	if (username == NULL || *username == '\0')  /* single-user or no tty */
+X  		username = "root";
+X***************
+X*** 107,116
+X  	}
+X  	/* convert to GMT assuming local time */
+X  	if (uflag == 0) {
+X! 		tv.tv_sec += (long)tz.tz_minuteswest*60;
+X! 		/* now fix up local daylight time */
+X! 		if (localtime((time_t *)&tv.tv_sec)->tm_isdst)
+X! 			tv.tv_sec -= 60*60;
+X  	}
+X  	if (nflag || !settime(tv)) {
+X  		int wf;
+X
+X--- 112,171 -----
+X  	}
+X  	/* convert to GMT assuming local time */
+X  	if (uflag == 0) {
+X! 		/*
+X! 		 * Do this by determining what the given time
+X! 		 * is when converted to local time, and when
+X! 		 * converted to GMT and taking the difference.
+X! 		 * This works correctly regardless of whether
+X! 		 * local time is DST or not.
+X! 		 * The loop usually runs twice, once to correct the
+X! 		 * time, and once to check the correction was accurate.
+X! 		 * An extra iteration can be caused by setting the time
+X! 		 * just about when DST turns on or off.
+X! 		 * If we iterate more than a couple of times, then
+X! 		 * the idiot root moron has asked to set the time to
+X! 		 * something in the "dead" zone where DST has just
+X! 		 * turned on, and the times don't exist!
+X! 		 * The ugly "if" statements are to handle wierd cases
+X! 		 * that arise setting the time just about midnight on
+X! 		 * Jan 1 after a year that was a leap year.
+X! 		 * How close to midnight it has to be depends on how close
+X! 		 * to Greenwich you are, whether before or after midnight
+X! 		 * depends on whether you are East or West.
+X! 		 */
+X! 		struct tm gmt;
+X! 		struct tm local;
+X! 		register long diff;
+X! 		register int iters = 0;
+X! 
+X! 		gmt = *gmtime((time_t *)&tv.tv_sec);
+X! 		do {
+X! #define	isleap(yr)	((yr) % 4 == 0 && ((yr) % 100 != 0 || (yr) % 400 == 0))
+X! 			local = *localtime((time_t *)&tv.tv_sec);
+X! 			diff = gmt.tm_year - local.tm_year;
+X! 			diff *= 365;
+X! 			if (gmt.tm_year > local.tm_year) {
+X! 				if (isleap(local.tm_year))
+X! 					diff++;
+X! 			} else if (local.tm_year > gmt.tm_year) {
+X! 				if (isleap(gmt.tm_year))
+X! 					diff--;
+X! 			}
+X! 			diff += gmt.tm_yday - local.tm_yday;
+X! 			diff *= 24;
+X! 			diff += gmt.tm_hour - local.tm_hour;
+X! 			diff *= 60;
+X! 			diff += gmt.tm_min - local.tm_min;
+X! 			diff *= 60;
+X! 			diff += gmt.tm_sec - local.tm_sec;
+X! 			tv.tv_sec += diff;
+X! #undef	isleap
+X! 		} while (diff != 0 && ++iters < 5);
+X! 		if (iters >= 5) {
+X! 			fprintf(stderr, "date: %.24s is in the time warp!\n",
+X! 			    asctime(&gmt));
+X! 			exit(1);
+X! 		}
+X  	}
+X  	if (nflag || !settime(tv)) {
+X  		int wf;
+X***************
+X*** 134,143
+X  		ap = asctime(gmtime((time_t *)&tv.tv_sec));
+X  		tzn = "GMT";
+X  	} else {
+X! 		struct tm *tp;
+X! 		tp = localtime((time_t *)&tv.tv_sec);
+X! 		ap = asctime(tp);
+X! 		tzn = timezone(tz.tz_minuteswest, tp->tm_isdst);
+X  	}
+X  	printf("%.20s", ap);
+X  	if (tzn)
+X
+X--- 189,196 -----
+X  		ap = asctime(gmtime((time_t *)&tv.tv_sec));
+X  		tzn = "GMT";
+X  	} else {
+X! 		ap = ctime((time_t *)&tv.tv_sec);
+X! 		tzn = tz_abbr;
+X  	}
+X  	printf("%.20s", ap);
+X  	if (tzn)
+X***************
+X*** 141,148
+X  	}
+X  	printf("%.20s", ap);
+X  	if (tzn)
+X! 		printf("%s", tzn);
+X! 	printf("%s", ap+19);
+X  	exit(retval);
+X  }
+X  
+X
+X--- 194,201 -----
+X  	}
+X  	printf("%.20s", ap);
+X  	if (tzn)
+X! 		printf("%s ", tzn);
+X! 	printf("%s", ap+20);
+X  	exit(retval);
+X  }
+X  
+!The!End!
+
+echo x - "diffs.4.3beta" 2>&1
+sed "s/^X//" >"diffs.4.3beta" <<'!The!End!'
+X*** date.c.4.3	Mon Apr 28 02:04:30 1986
+X--- date.c.4.3.new	Mon Apr 28 02:34:09 1986
+X***************
+X*** 25,31
+X  #define WAITDATEACK	5	/* seconds */
+X  
+X  struct	timeval tv, now;
+X- struct	timezone tz;
+X  char	*ap, *ep, *sp;
+X  int	uflag;
+X  
+X
+X--- 25,30 -----
+X  #define WAITDATEACK	5	/* seconds */
+X  
+X  struct	timeval tv, now;
+X  char	*ap, *ep, *sp;
+X  int	uflag;
+X  
+X***************
+X*** 29,35
+X  char	*ap, *ep, *sp;
+X  int	uflag;
+X  
+X- char	*timezone();
+X  static	int	dmsize[12] =
+X      { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+X  static char *usage = "usage: date [-u] [yymmddhhmm[.ss]]\n";
+X
+X--- 28,33 -----
+X  char	*ap, *ep, *sp;
+X  int	uflag;
+X  
+X  static	int	dmsize[12] =
+X      { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+X  static char *usage = "usage: date [-u] [yymmddhhmm[.ss]]\n";
+X***************
+X*** 39,44
+X  	{ "{", "", "", 0 }
+X  };
+X  
+X  char	*ctime();
+X  char	*asctime();
+X  struct	tm *localtime();
+X
+X--- 37,43 -----
+X  	{ "{", "", "", 0 }
+X  };
+X  
+X+ char	*getenv();
+X  char	*ctime();
+X  char	*asctime();
+X  struct	tm *localtime();
+X***************
+X*** 43,48
+X  char	*asctime();
+X  struct	tm *localtime();
+X  struct	tm *gmtime();
+X  
+X  char *strcpy();
+X  char *username, *getlogin();
+X
+X--- 42,48 -----
+X  char	*asctime();
+X  struct	tm *localtime();
+X  struct	tm *gmtime();
+X+ extern char *tz_abbr;
+X  
+X  char *strcpy();
+X  char *username, *getlogin();
+X***************
+X*** 66,72
+X  	extern int errno;
+X  	int bytenetorder(), bytehostorder();
+X  
+X! 	(void) gettimeofday(&tv, &tz);
+X  	now = tv;
+X  
+X  	if (argc > 1 && strcmp(argv[1], "-u") == 0) {
+X
+X--- 66,72 -----
+X  	extern int errno;
+X  	int bytenetorder(), bytehostorder();
+X  
+X! 	(void) gettimeofday(&tv, (struct timezone *)0);
+X  	now = tv;
+X  
+X  	if (argc > 1 && strcmp(argv[1], "-u") == 0) {
+X***************
+X*** 85,90
+X  		printf("You are not superuser: date not set\n");
+X  		goto display;
+X  	}
+X  	username = getlogin();
+X  	if (username == NULL)		/* single-user or no tty */
+X  		username = "root";
+X
+X--- 85,94 -----
+X  		printf("You are not superuser: date not set\n");
+X  		goto display;
+X  	}
+X+ 	if (settz(ap = getenv("TZ")) < 0) {
+X+ 		fprintf(stderr, "Unknown timezone \"%s\"\n", ap ? ap : "null");
+X+ 		exit(1);
+X+ 	}
+X  	username = getlogin();
+X  	if (username == NULL)		/* single-user or no tty */
+X  		username = "root";
+X***************
+X*** 98,107
+X  	}
+X  	/* convert to GMT assuming local time */
+X  	if (uflag == 0) {
+X! 		tv.tv_sec += (long)tz.tz_minuteswest*60;
+X! 		/* now fix up local daylight time */
+X! 		if (localtime((time_t *)&tv.tv_sec)->tm_isdst)
+X! 			tv.tv_sec -= 60*60;
+X  	}
+X  	
+X  /*
+X
+X--- 102,161 -----
+X  	}
+X  	/* convert to GMT assuming local time */
+X  	if (uflag == 0) {
+X! 		/*
+X! 		 * Do this by determining what the given time
+X! 		 * is when converted to local time, and when
+X! 		 * converted to GMT and taking the difference.
+X! 		 * This works correctly regardless of whether
+X! 		 * local time is DST or not.
+X! 		 * The loop usually runs twice, once to correct the
+X! 		 * time, and once to check the correction was accurate.
+X! 		 * An extra iteration can be caused by setting the time
+X! 		 * just about when DST turns on or off.
+X! 		 * If we iterate more than a couple of times, then
+X! 		 * the idiot root moron has asked to set the time to
+X! 		 * something in the "dead" zone where DST has just
+X! 		 * turned on, and the times don't exist!
+X! 		 * The ugly "if" statements are to handle wierd cases
+X! 		 * that arise setting the time just about midnight on
+X! 		 * Jan 1 after a year that was a leap year.
+X! 		 * How close to midnight it has to be depends on how close
+X! 		 * to Greenwich you are, whether before or after midnight
+X! 		 * depends on whether you are East or West.
+X! 		 */
+X! 		struct tm gmt;
+X! 		struct tm local;
+X! 		register long diff;
+X! 		register int iters = 0;
+X! 
+X! 		gmt = *gmtime((time_t *)&tv.tv_sec);
+X! 		do {
+X! #define	isleap(yr)	((yr) % 4 == 0 && ((yr) % 100 != 0 || (yr) % 400 == 0))
+X! 			local = *localtime((time_t *)&tv.tv_sec);
+X! 			diff = gmt.tm_year - local.tm_year;
+X! 			diff *= 365;
+X! 			if (gmt.tm_year > local.tm_year) {
+X! 				if (isleap(local.tm_year))
+X! 					diff++;
+X! 			} else if (local.tm_year > gmt.tm_year) {
+X! 				if (isleap(gmt.tm_year))
+X! 					diff--;
+X! 			}
+X! 			diff += gmt.tm_yday - local.tm_yday;
+X! 			diff *= 24;
+X! 			diff += gmt.tm_hour - local.tm_hour;
+X! 			diff *= 60;
+X! 			diff += gmt.tm_min - local.tm_min;
+X! 			diff *= 60;
+X! 			diff += gmt.tm_sec - local.tm_sec;
+X! 			tv.tv_sec += diff;
+X! #undef	isleap
+X! 		} while (diff != 0 && ++iters < 5);
+X! 		if (iters >= 5) {
+X! 			fprintf(stderr, "date: %.24s is in the time warp!\n",
+X! 			    asctime(&gmt));
+X! 			exit(1);
+X! 		}
+X  	}
+X  	
+X  /*
+X***************
+X*** 215,224
+X  		ap = asctime(gmtime((time_t *)&tv.tv_sec));
+X  		tzn = "GMT";
+X  	} else {
+X! 		struct tm *tp;
+X! 		tp = localtime((time_t *)&tv.tv_sec);
+X! 		ap = asctime(tp);
+X! 		tzn = timezone(tz.tz_minuteswest, tp->tm_isdst);
+X  	}
+X  	printf("%.20s", ap);
+X  	if (tzn)
+X
+X--- 269,276 -----
+X  		ap = asctime(gmtime((time_t *)&tv.tv_sec));
+X  		tzn = "GMT";
+X  	} else {
+X! 		ap = ctime((time_t *)&tv.tv_sec);
+X! 		tzn = tz_abbr;
+X  	}
+X  	printf("%.20s", ap);
+X  	if (tzn)
+X***************
+X*** 222,229
+X  	}
+X  	printf("%.20s", ap);
+X  	if (tzn)
+X! 		printf("%s", tzn);
+X! 	printf("%s", ap+19);
+X  }
+X  
+X  gtime()
+X
+X--- 274,281 -----
+X  	}
+X  	printf("%.20s", ap);
+X  	if (tzn)
+X! 		printf("%s ", tzn);
+X! 	printf("%s", ap+20);
+X  }
+X  
+X  gtime()
+!The!End!
+
+echo x - "diffs.SysV" 2>&1
+sed "s/^X//" >"diffs.SysV" <<'!The!End!'
+X*** date.c.SysV	Tue Apr 29 03:05:41 1986
+X--- date.c.SysV.new	Tue Apr 29 03:05:42 1986
+X***************
+X*** 17,23
+X  #define	JULIAN	itoa(tim->tm_yday+1,cp,3)
+X  #define	WEEKDAY	itoa(tim->tm_wday,cp,1)
+X  #define	MODHOUR	itoa(h,cp,2)
+X! #define	dysize(A) (((A)%4)? 365: 366)
+X  
+X  int dmsize[12]={31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+X  
+X
+X--- 17,24 -----
+X  #define	JULIAN	itoa(tim->tm_yday+1,cp,3)
+X  #define	WEEKDAY	itoa(tim->tm_wday,cp,1)
+X  #define	MODHOUR	itoa(h,cp,2)
+X! #define	isleap(yr) ((yr) % 4 == 0 && ((yr) % 100 != 0 || (yr) % 400 == 0))
+X! #define	dysize(A) (isleap(A)? 366: 365)
+X  
+X  int dmsize[12]={31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+X  
+X***************
+X*** 32,37
+X  	"Thu","Fri","Sat"
+X  };
+X  
+X  char	*itoa();
+X  char	*cbp;
+X  long	timbuf;
+X
+X--- 33,39 -----
+X  	"Thu","Fri","Sat"
+X  };
+X  
+X+ char	*getenv();
+X  char	*itoa();
+X  char	*cbp;
+X  long	timbuf;
+X***************
+X*** 35,40
+X  char	*itoa();
+X  char	*cbp;
+X  long	timbuf;
+X  
+X  struct	utmp	wtmp[2] = { {"","",OTIME_MSG,0,OLD_TIME,0,0,0},
+X  			    {"","",NTIME_MSG,0,NEW_TIME,0,0,0} };
+X
+X--- 37,43 -----
+X  char	*itoa();
+X  char	*cbp;
+X  long	timbuf;
+X+ extern	char *tz_abbr;
+X  
+X  struct	utmp	wtmp[2] = { {"","",OTIME_MSG,0,OLD_TIME,0,0,0},
+X  			    {"","",NTIME_MSG,0,NEW_TIME,0,0,0} };
+X***************
+X*** 48,53
+X  	long	tbuf, time(), lseek();
+X  	struct	tm  *tim;
+X  	char	 buf[200], *tzn;
+X  
+X  	tfailed = 0;
+X  	if(argc > 1) {
+X
+X--- 51,60 -----
+X  	long	tbuf, time(), lseek();
+X  	struct	tm  *tim;
+X  	char	 buf[200], *tzn;
+X+ 	struct	tm gmt;
+X+ 	struct	tm local;
+X+ 	register long diff;
+X+ 	register int iters = 0;
+X  
+X  	tfailed = 0;
+X  	if(argc > 1) {
+X***************
+X*** 153,158
+X  			exit(2);
+X  		}
+X  
+X  		if(gtime()) {
+X  			(void) fprintf(stderr,"date: bad conversion\n");
+X  			exit(2);
+X
+X--- 160,170 -----
+X  			exit(2);
+X  		}
+X  
+X+ 		if (settz(cp = getenv("TZ")) < 0) {
+X+ 			(void) fprintf(stderr,"date: unknown zone \"%s\"\n",cp);
+X+ 			exit(2);
+X+ 		}
+X+ 
+X  		if(gtime()) {
+X  			(void) fprintf(stderr,"date: bad conversion\n");
+X  			exit(2);
+X***************
+X*** 159,165
+X  		}
+X  
+X  	/* convert to Greenwich time, on assumption of Standard time. */
+X! 		timbuf += timezone;
+X  
+X  	/* Now fix up to local daylight time. */
+X  		if (localtime(&timbuf)->tm_isdst)
+X
+X--- 171,225 -----
+X  		}
+X  
+X  	/* convert to Greenwich time, on assumption of Standard time. */
+X! 		/*
+X! 		 * Do this by determining what the given time
+X! 		 * is when converted to local time, and when
+X! 		 * converted to GMT and taking the difference.
+X! 		 * This works correctly regardless of whether
+X! 		 * local time is DST or not.
+X! 		 * The loop usually runs twice, once to correct the
+X! 		 * time, and once to check the correction was accurate.
+X! 		 * An extra iteration can be caused by setting the time
+X! 		 * just about when DST turns on or off.
+X! 		 * If we iterate more than a couple of times, then
+X! 		 * the idiot root moron has asked to set the time to
+X! 		 * something in the "dead" zone where DST has just
+X! 		 * turned on, and the times don't exist!
+X! 		 * The ugly "if" statements are to handle wierd cases
+X! 		 * that arise setting the time just about midnight on
+X! 		 * Jan 1 after a year that was a leap year.
+X! 		 * How close to midnight it has to be depends on how
+X! 		 * close to Greenwich you are, whether before or after
+X! 		 * midnight depends on whether you are East or West.
+X! 		 */
+X!  
+X! 		gmt = *gmtime(&tv.tv_sec);
+X! 		do {
+X! 			local = *localtime(&tv.tv_sec);
+X! 			diff = gmt.tm_year - local.tm_year;
+X! 			diff *= 365;
+X! 			if (gmt.tm_year > local.tm_year) {
+X! 				if (isleap(local.tm_year))
+X! 					diff++;
+X! 			} else if (local.tm_year > gmt.tm_year) {
+X! 				if (isleap(gmt.tm_year))
+X! 					diff--;
+X! 			}
+X! 			diff += gmt.tm_yday - local.tm_yday;
+X! 			diff *= 24;
+X! 			diff += gmt.tm_hour - local.tm_hour;
+X! 			diff *= 60;
+X! 			diff += gmt.tm_min - local.tm_min;
+X! 			diff *= 60;
+X! 			diff += gmt.tm_sec - local.tm_sec;
+X! 			tv.tv_sec += diff;
+X! 		} while (diff != 0 && ++iters < 5);
+X! 		if (iters >= 5) {
+X! 			fprintf(stderr,
+X! 			    "date: %.24s is in the time warp!\n",
+X! 			    asctime(&gmt));
+X! 			exit(1);
+X! 		}
+X  
+X  		(void) time(&wtmp[0].ut_time);
+X  
+X***************
+X*** 161,170
+X  	/* convert to Greenwich time, on assumption of Standard time. */
+X  		timbuf += timezone;
+X  
+X- 	/* Now fix up to local daylight time. */
+X- 		if (localtime(&timbuf)->tm_isdst)
+X- 			timbuf += -1*60*60;
+X- 
+X  		(void) time(&wtmp[0].ut_time);
+X  
+X  		if(stime(&timbuf) < 0) {
+X
+X--- 221,226 -----
+X  			exit(1);
+X  		}
+X  
+X  		(void) time(&wtmp[0].ut_time);
+X  
+X  		if(stime(&timbuf) < 0) {
+X***************
+X*** 188,194
+X  		(void) time(&timbuf);
+X  	cbp = ctime(&timbuf);
+X  	(void) write(1, cbp, 20);
+X! 	tzn = tzname[localtime(&timbuf)->tm_isdst];
+X  	if (tzn)
+X  		(void) write(1, tzn, 3);
+X  	(void) write(1, cbp+19, 6);
+X
+X--- 244,250 -----
+X  		(void) time(&timbuf);
+X  	cbp = ctime(&timbuf);
+X  	(void) write(1, cbp, 20);
+X! 	tzn = tz_abbr;
+X  	if (tzn)
+X  		(void) write(1, tzn, strlen(tzn));
+X  	(void) write(1, cbp+19, 6);
+X***************
+X*** 190,196
+X  	(void) write(1, cbp, 20);
+X  	tzn = tzname[localtime(&timbuf)->tm_isdst];
+X  	if (tzn)
+X! 		(void) write(1, tzn, 3);
+X  	(void) write(1, cbp+19, 6);
+X  	exit(tfailed?2:0);
+X  }
+X
+X--- 246,252 -----
+X  	(void) write(1, cbp, 20);
+X  	tzn = tz_abbr;
+X  	if (tzn)
+X! 		(void) write(1, tzn, strlen(tzn));
+X  	(void) write(1, cbp+19, 6);
+X  	exit(tfailed?2:0);
+X  }
+!The!End!
+exit

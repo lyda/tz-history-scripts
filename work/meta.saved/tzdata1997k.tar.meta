@@ -1,0 +1,17 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 29 Dec 97 10:48:48 -0500
+tzcode1997i.tar.gz and tzdata1997k.tar.gz
+Message-ID: <9712291548.AA07789@elsie.nci.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode1997i.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata1997k.tar.gz
+are now available. These incorporate the changes circulated on the time zone
+list by Paul Eggert, with minor modifications from Arthur David Olson to make
+the files more browser friendly.
+
+				--ado
+
+

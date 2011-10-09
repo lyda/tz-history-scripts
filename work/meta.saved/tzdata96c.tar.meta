@@ -1,0 +1,17 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 12 Feb 96 11:10:50 -0500
+tzcode96d.tar.gz and tzdata96c.tar.gz
+Message-ID: <9602121610.AA06747@elsie.nci.nih.gov>
+
+Updated time zone files are available using anonymous ftp
+from elsie.nci.nih.gov (165.112.73.1) in the ~ftp/pub directory:
+	-rw-r--r--  1 ado         73315 Feb 12 11:05 tzcode96d.tar.gz
+	-rw-r--r--  1 ado         73301 Feb 12 11:05 tzdata96c.tar.gz
+
+The "code" file simply updates Bob Kridle's electronic address;
+the "data" file updates rules for Mexico.
+
+				--ado
+
+

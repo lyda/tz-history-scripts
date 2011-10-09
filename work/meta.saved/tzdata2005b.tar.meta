@@ -1,0 +1,18 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 10 Jan 2005 09:22:39 -0500
+Tzcode2005b.tar.gz and tzdata2005b.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C74032D@nihexchange2.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2005b.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2005b.tar.gz
+...are now available; these reflect the changes circulated on the time zone
+mailing list last week to get localtime and gmtime working on systems with
+exotic time_t types and to update the leap second commentary in the
+"leapseconds" file.
+
+				--ado
+	
+

@@ -1,0 +1,20 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 11 Oct 2004 14:58:13 -0400
+Tzcode2004e.tar.gz and tzdata2004e.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C0DD65E4F@nihexchange2.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/tzcode2004e.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/tzdata2004e.tar.gz
+...are now available. Thesse include the Brazil/Argentina/Israel changes
+circulated last week on the time zone mailing list by Paul Eggert.
+They also include the changes to tz-link.htm circulated by Paul 2004-09-23,
+and one small fix to Makefile.
+I'm holding off on the changes to cope with wide-ranging tm_year values
+until the dust settles.
+
+				--ado
+
+

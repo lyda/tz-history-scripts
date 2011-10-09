@@ -1,0 +1,12 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 6 Mar 95 09:51:26 -0500
+tzcode95b.tar.gz and tzdata95b.tar.gz
+Message-ID: <9503061451.AA24730@elsie.nci.nih.gov>
+
+The files tzcode95b.tar.gz and tzdata95b.tar.gz are now available by anonymous
+ftp from elsie.nci.nih.gov.  Minor changes in both: the "code" file contains
+a workaround for the lack of "unistd.h" in Microsoft C++ version 7; the "data"
+file contains a fixed "Link" for America/Shiprock.
+
+				--ado

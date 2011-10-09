@@ -1,0 +1,19 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Tue, 30 Mar 1999 11:36:02 -0500
+tzcode1999d.tar.gz and tzdata1999d.tar.gz
+Message-ID: <43E124CC389ED111B18D00805FEA1E63BC4CDB@nihexchange2.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode1999d.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata1999d.tar.gz
+are now available. These include the changes circulated this week on the time
+zone mailing list by Paul Eggert;
+the Makefile's "make public" rule has also been changed to do a test compile of
+each individual time zone data file
+(which should help avoid problems such as the one we had with Nicosia).
+
+				--ado
+
+

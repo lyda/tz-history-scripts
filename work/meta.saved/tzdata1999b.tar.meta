@@ -1,0 +1,21 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 1 Feb 1999 18:08:35 -0500 
+tzcode1999b.tar.gz and tzdata1999b.tar.gz
+Message-ID: <43E124CC389ED111B18D00805FEA1E63BC4C89@nihexchange2.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode1999b.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata1999b.tar.gz
+are now available. These include the changes recently circulated on the time
+zone mailing list by Paul Eggert.
+Also included: code changes (suggested by Mani Varadarajan, mani at be.com) for
+correct handling of symbolic links
+when building using a relative directory; code changes to generate correct
+messages for failed links; and updates to
+the URLs in Arts.htm
+
+				--ado
+
+

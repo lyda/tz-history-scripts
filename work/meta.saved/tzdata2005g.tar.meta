@@ -1,0 +1,17 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 14 Mar 2005 10:13:51 -0500
+Tzcode2005g.tar.gz and tzdata2005g.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C7403AE@nihexchange2.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2005g.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2005g.tar.gz
+...are now available; these reflect the changes circulated on the time zone
+mailing list last week by Paul Eggert (a change to current DST rules in
+Uruguay and an update to a link to time zone software).
+
+				--ado
+
+

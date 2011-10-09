@@ -1,0 +1,25 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 3 Dec 2007 09:55:06 -0500
+tzcode2007j.tar.gz and tzdata2007j.tar.gz
+Message-ID: <B410D30A78C6404C9DABEA31B54A2813016CE844@nihcesmlbx10.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2007j.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2007j.tar.gz
+...are now available. These reflect:
+	1. the changes circulated on the time zone mailing list to
+eliminate the "P" (parameter) macro;
+	2. the "noncontroversial" changes circulated on the time zone
+mailing list (less the changes to "logwtmp.c");
+	3. the changes circulated on the time zone mailing list to
+eliminate "too many transition" errors when "min" is used in time zone
+rules;
+	4. and the changes circulated last week on the time zone mailing
+list by Paul Eggert (including updated information for Venezuela).
+
+				--ado
+
+
+

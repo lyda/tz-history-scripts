@@ -1,0 +1,19 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 20 Aug 2007 10:53:18 -0400
+tzcode2007g.tar.gz and tzdata2007g.tar.gz
+Message-ID: <B410D30A78C6404C9DABEA31B54A2813016CE667@nihcesmlbx10.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2007g.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2007g.tar.gz
+...are now available. These reflect the changes circulated on the time
+zone mailing list last week by Paul Eggert; the "leapseconds" file has
+been updated to incorporate the most recent International Earth Rotation
+and Reference Systems Service (IERS) bulletin; and there's an addition
+to tz-art.htm regarding the television show "Medium."
+
+				--ado
+
+

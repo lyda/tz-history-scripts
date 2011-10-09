@@ -1,0 +1,17 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 9 May 96 17:47:45 -0400
+tzdata96h.tar.gz
+Message-ID: <9605092147.AA11053@elsie.nci.nih.gov>
+
+The file tzdata96h.tar.gz is now available by anonymous ftp from
+elsie.nci.nih.gov (165.112.73.1) in the ~ftp/pub directory:
+
+	-rw-r--r--  1 ado         74236 May  9 17:44 tzdata96h.tar.gz
+
+This incorporates the changes that Paul Eggert circulated on the time
+zone mailing list in the last week.
+
+				--ado
+
+

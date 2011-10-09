@@ -1,0 +1,1068 @@
+Path: mirror!adelie!necntc!husc6!seismo!munnari!sources-request
+From: sources-request@munnari.oz
+Newsgroups: mod.sources
+Subject: v08i085:  Public Domain (Table Driven) ``localtime'', Part01/03
+Message-ID: <1435@munnari.oz>
+Date: 28 Feb 87 11:49:08 GMT
+Sender: kre@munnari.oz
+Lines: 1058
+Approved: kre@munnari.oz.au
+
+Submitted by: Arthur David Olson <ado@elsie.UUCP>
+Mod.sources: Volume 8, Issue 85
+Archive-name: pd-localtime/Part01
+
+	[ This is the latest release of the table (file) driven
+	  ctime(3), originally released as "settz" in Vol 4 issue 14.
+
+	  Normally, I don't post mod.sources articles that originate
+	  outside Australia, but this is something of a special case,
+	  in that I've been (slightly) involved in the development.
+
+	  This posting is important in North America (or just the USA?)
+	  now, because of forthcoming changes to the Daylight Saving
+	  Rules.  I suggest that source licensees install these library
+	  functions in libc as soon as possible, then recompile everything
+	  that uses localtime() or ctime().  You should never need to go
+	  through that again!  (Later versions of this code will likely be
+	  available, but they should merely add functionality for new
+	  programs, old ones compiled with this release should continue
+	  to work).
+
+	  If you have only a binary licence, you should insist that your
+	  vendor install this code into its standard release ASAP, and
+	  send you an update distribution.  In the meantime, you could
+	  install this in your libc.a, and have any sources that you
+	  do compile show the time correctly.  This is probably not
+	  a real good idea though.
+
+	  It is possible to install this code in a separate library (in
+	  fact, that's how it is distributed - as the details of exactly
+	  how to update libc.a are too variable to include here), and
+	  then explicitly reference it on all compilations that need
+	  any of the time functions.
+
+	  There are a number of compilation options, described in the
+	  Makefile (be sure to read that before compiling).  I suggest
+	  that you define KRE_COMPAT (yes, that's me..) and STD_INSPIRED.
+	  If you want compatibility with some of the less broken parts of
+	  the time implementations in Sys V, or BSD releases, you can also
+	  define USG_COMPAT or BSD_COMPAT respectively.  Finally, TZA_COMPAT
+	  will give Vol 4 "settz" release timezone name scheme compatability.
+	  You get tzname[] regardless of the setting of USG_COMPAT.  Having
+	  it included this way is an arguable benefit, it might remove itself
+	  into the USG_COMPAT version in later releases.
+
+	  One program that will cause some problems in compiling, is
+	  date(1).  The date patches posted in Vol 6 Issue 12 should help
+	  here (you will need TZA_COMPAT, and BSD_COMPAT on BSD systems).
+	  A new (public domain) version of date(1) is expected soon.
+	  It will use the STD_INSPIRED functions included here, so if
+	  you plan on using that when it appears, define STD_INSPIRED now.
+
+	  Problems: With BSD_COMPAT ctime.c will become an empty file.
+	  Without STD_INSPIRED timemk.c will become an empty file.
+	  In general this is OK (the compiler doesn't mind), however
+	  some versions of ranlib(1) simply can't deal with this.
+	  Defining STD_INSPIRED will will fix timemk.c.  ctime.c on
+	  BSD systems is harder.  If you are going to install this in
+	  libc.a, then best if to remove the #ifndef/#endif that surround
+	  ctime.c, and the duplicate version of ctime (in #ifdef BSD_COMPAT)
+	  in localtime.c.  The problem that is supposed to circumvent
+	  will not occur in that case.  If you want to keep these functions
+	  in libz.a then easiest is probably to add some nonsense declaration
+	  to ctime.c (outside the ifdefs) so that the file is not empty.
+
+	  Finally, you should be aware that this code is designed to work
+	  correctly (without changes) regardless of whether time_t is a
+	  signed or unsigned type, and however many bits it contains
+	  (withing reason), provided only that it is a standard arithmetic
+	  type (not an array or struct).  The compiled timezone files
+	  produced are host independant (except unfortunately assume that
+	  time_t's are 4 bytes long) - the same compiled files can be used
+	  from a SUN or a Vax (assuming some remote file system to access
+	  them).
+
+	  Vendors: you are expected to provide at least binaries of zic
+	  and zdump, as well as the library functions of course, and the
+	  sources of the time data files in any release of this code.
+	  Providing sources of all this would be an entirely reasonable
+	  thing to do.
+
+	  So ends what is probably the longest moderator's note in the
+	  history of mod.sources.			... kre ]
+
+
+echo x - "Theory" 2>&1
+sed "s/^X//" >"Theory" <<'!The!End!'
+X@(#)Theory	3.1
+X
+XThese time and date functions are much like the System V Release 2.0 (SVR2)
+Xtime and date functions; there are a few additions and changes to extend
+Xthe usefulness of the SVR2 functions:
+X
+X*	In SVR2, time display in a process is controlled by the environment
+X	variable TZ, which "must be a three-letter time zone name, followed
+X	by a number representing the difference between local time and
+X	Greenwich Mean Time in hours, followed by an optional three-letter
+X	name for a daylight time zone;" when the optional daylight time zone is
+X	present, "standard U.S.A. Daylight Savings Time conversion is applied."
+X	This means that SVR2 can't deal with other (for example, Australian) 
+X	daylight savings time rules, or situations where more than two
+X	time zone abbreviations are used in an area.
+X
+X*	In SVR2, time conversion information is compiled into each program
+X	that does time conversion.  This means that when time conversion
+X	rules change (as in the United States in 1987), all programs that
+X	do time conversion must be recompiled to ensure proper results.
+X
+X*	In SVR2, time conversion fails for near-minimum or near-maximum
+X	time_t values when doing conversions for places that don't use GMT.
+X
+X*	In SVR2, there's no tamper-proof way for a process to learn the
+X	system's best idea of local wall clock.  (This is important for 
+X	applications that an administrator wants used only at certain times--
+X	without regard to whether the user has fiddled the "TZ" environment
+X	variable.  While an administrator can "do everything in GMT" to get
+X	around the problem, doing so is inconvenient and precludes handling
+X	daylight savings time shifts--as might be required to limit phone
+X	calls to off-peak hours.)
+X
+XThese are the changes that have been made to the SVR2 functions:
+X
+X*	The "TZ" environment variable is used in generating the name of a file
+X	from which time zone information is read; "TZ" is no longer constrained
+X	to be a three-letter time zone name followed by a number of hours and
+X	an optional three-letter daylight time zone name.  The daylight saving
+X	time rules to be used for a particular time zone are encoded in the
+X	time zone file; the format of the file allows U.S., Australian, and
+X	other rules to be encoded, and allows for situations where more than
+X	two time zone abbreviations are used.
+X
+X	It was recognized that allowing the "TZ" environment variable to
+X	take on values such as "US/Eastern" might cause "old" programs
+X	(that expect "TZ" to have a certain form) to operate incorrectly;
+X	consideration was given to using some other environment variable
+X	(for example, "TIMEZONE") to hold the string used to generate the
+X	time zone information file name.  In the end, however, it was decided
+X	to continue using "TZ":  it is widely used for time zone purposes;
+X	separately maintaining both "TZ" and "TIMEZONE" seemed a nuisance;
+X	and systems where "new" forms of "TZ" might cause problems can simply
+X	give time zone files names such as "EST5EDT" which can be used both by
+X	"new" programs (as file names) and "old" programs (as zone names and
+X	offsets).
+X
+X*	To handle places where more than two time zone abbreviations are used,
+X	the functions "localtime" and "gmtime" set tzname[tmp->tm_isdst]
+X	(where "tmp" is the value the function returns) to the time zone
+X	abbreviation to be used.  This differs from SVR2, where the elements
+X	of tzname are only changed as a result of calls to tzset.
+X
+X*	Since the "TZ" environment variable can now be used to control time
+X	conversion, the "daylight" and "timezone" variables are no longer
+X	needed or supported.  (You can use a compile-time option to cause
+X	these variables to be defined and to be set by "tzset"; however, their
+X	values will not be used by "localtime.")
+X
+X*	The "localtime" function has been set up to deliver correct results
+X	for near-minimum or near-maximum time_t values.  (A comment in the
+X	source code tells how to get compatibly wrong results).
+X
+X*	A function "tzsetwall" has been added to arrange for the system's
+X	best approximation to local wall clock time to be delivered by
+X	subsequent calls to "localtime."  Source code for portable
+X	applications that "must" run on local wall clock time should call
+X	"tzsetwall();" if such code is moved to "old" systems that don't provide
+X	tzsetwall, you won't be able to generate an executable program.
+X	(These time zone functions also arrange for local wall clock time to be
+X	used if tzset is called--directly or indirectly--and there's no "TZ"
+X	environment variable; portable applications should not, however, rely
+X	on this behavior since it's not the way SVR2 systems behave.)
+X
+XPoints of interest to folks with Version 7 or BSD systems:
+X
+X*	The BSD "timezone" function is not present in this package;
+X	it's impossible to reliably map timezone's arguments (a "minutes west
+X	of GMT" value and a "daylight saving time in effect" flag) to a
+X	time zone abbreviation, and we refuse to guess. 
+X	Programs that in the past used the timezone function may now examine
+X	tzname[localtime(&clock)->tm_isdst] to learn the correct time
+X	zone abbreviation to use.  Alternatively, use localtime(&clock)->tm_zone
+X	if this has been enabled.
+X
+X*	The BSD gettimeofday function is not used in this package;
+X	this lets users control the time zone used in doing time conversions.
+X	Users who don't try to control things (that is, users who do not set
+X	the environment variable TZ) get the time conversion specified in the
+X	file "/etc/zoneinfo/localtime"; see the time zone compiler writeup for
+X	information on how to initialize this file.
+X
+X*	The BSD "dysize" function is only included if the preprocessor symbol
+X	BSD_COMPAT is defined.  For a year y, the BSD code returns the value
+X	   ((y % 4) == 0) : 366 : 365
+X	while this code returns the value
+X	   (((y) % 4) == 0 && ((y) % 100) != 0 || ((y) % 400) == 0) ? 366 : 365
+X	There's a comment in the code telling how to get the BSD value.
+X
+XThe functions that are conditionally compiled if STD_INSPIRED is defined should,
+Xat this point, be looked on primarily as food for thought.  They are not in
+Xany sense "standard compatible"--some are not, in fact, specified in *any*
+Xstandard.  They do, however, represent responses of various authors to
+Xstandardization proposals.
+X
+XOther time conversion proposals, in particular the one developed by folks at
+XHewlett Packard, offer a wider selection of functions that provide capabilities
+Xbeyond those provided here.  The absence of such functions from this package
+Xis not meant to discourage the development, standardization, or use of such
+Xfunctions.  Rather, their absence reflects the decision to make this package
+Xclose to SVR2 (with the exceptions outlined above) to ensure its broad
+Xacceptability.  If more powerful time conversion functions can be standardized,
+Xso much the better.
+X
+XIt's probably not wise to standardize everything in this package.
+XWhile the command
+X	nroff -man newctime.3
+Xproduces a document that describes this package, the command
+X	nroff -man -rX3J11 newctime.3
+Xproduces a document that describes the "standardizable" parts.
+!The!End!
+
+echo x - "README" 2>&1
+sed "s/^X//" >"README" <<'!The!End!'
+X@(#)README	3.1
+X
+XPlease send comments or information to
+X	seismo!elsie!tz
+Xfor forwarding to folks interested in time zone matters.
+X
+XBe sure to read the comments in "Makefile" and make any changes
+Xneeded to make things right for your system.
+X
+XThis version of the time zone software uses a new format
+X(based on the work of Guy Harris, a.k.a guy@sun.UUCP)
+Xfor the time zone information files.  They are now stored by default in a
+Xdirectory named "/etc/zoneinfo" rather than "/etc/tzdir" or "/etc/timezones"
+Xas before.  If you've already compiled programs with older time zone software,
+Xjust leave the "/etc/tzdir" and/or "/etc/timezones" files around until you
+Xhave a chance to recompile.
+X
+XFor better compatability with other versions of time conversion functions,
+Xthe time zone abbreviation to be used with localtime's return value is now
+Xpointed to by one of the two elements of the (char *) array tzname, rather
+Xthan by the (char *) tz_abbr.  If you have code that uses tz_abbr, add a
+X	-DTZA_COMPAT
+Xto the end of the
+X	CFLAGS=
+Xline in "Makefile".
+X
+XTo use the new functions, use a "-lz" option when compiling or linking.
+X
+XHistorical local time information has been included here not because it
+Xis particularly useful, but rather to:
+X
+X*	give an idea of the variety of local time rules that have
+X	existed in the past and thus an idea of the variety that may be
+X	expected in the future;
+X
+X*	provide a test of the generality of the local time rule description
+X	system.
+X
+XThe information in the time zone data files is by no means authoritative;
+Xif you know that the rules are different from those in a file, by all means
+Xfeel free to change file (and please send the changed version to seismo!elsie!tz
+Xfor use in the future).  Europeans take note!
+!The!End!
+
+echo x - "Makefile" 2>&1
+sed "s/^X//" >"Makefile" <<'!The!End!'
+X# @(#)Makefile	3.1
+X
+X# If you want something other than Eastern United States time used on your
+X# system, change the line below (after finding the zone you want in the
+X# time zone files, or adding it to a time zone file).
+X# Alternately, if you discover you've got the wrong time zone, you can just
+X#	zic -l rightzone
+X
+XLOCALTIME=	US/Eastern
+X
+X# Use an absolute path name for TZDIR unless you're just testing the software.
+X
+XTZDIR=		/etc/zoneinfo
+X
+X# You may want to change this define if you're just testing the software.
+X# Alternatively, you can put these functions in /lib/libc.a, removing
+X# the old "ctime.o" (and "timezone.o" on a BSD system).  This is the
+X# ideal solution if you are able.  Build libz.a, extract the files, and
+X# then add them to libc.a.
+X
+XTZLIB=		/usr/lib/libz.a
+X
+X#
+X# If you're running on a System V-style system and don't want lint grief,
+X# add
+X#	-DUSG
+X# to the end of the "CFLAGS=" line.
+X#
+X# If you're running on a system where "strchr" is known as "index",
+X# (for example, a 4.[012]BSD system), add
+X#	-Dstrchr=index
+X# to the end of the "CFLAGS=" line.
+X#
+X# If you want to use System V compatibility code, add
+X#	-DUSG_COMPAT
+X# to the end of the "CFLAGS=" line.
+X#
+X# If you want BSD compatibility code, add
+X#	-DBSD_COMPAT
+X# to the end of the "CFLAGS=" line.
+X#
+X# If you've used older versions of this software and want "tz_abbr"
+X# compatibility code, add
+X#	-DTZA_COMPAT
+X# to the end of the "CFLAGS=" line.
+X#
+X# If you'd like to use Robert Elz's additions to the "struct tm" structure,
+X# add a
+X#	-DKRE_COMPAT
+X# to the end of the "CFLAGS=" line, and add the structure elements
+X#	long	tm_gmtoff;
+X#	char *	tm_zone;
+X# to the END of the "struct tm" structure defined in "/usr/include/time.h".
+X#
+X# If you want code inspired by certain emerging standards, add
+X#	-DSTD_INSPIRED
+X# to the end of the "CFLAGS=" line.
+X#
+X# If you want Source Code Control System ID's left out of object modules, add
+X#	-DNOID
+X# to the end of the "CFLAGS=" line.
+X#
+X# If you'll never want to handle solar-time-based time zones, add
+X#	-DNOSOLAR
+X# to the end of the "CFLAGS=" line
+X# (and remove solar87 from the DATA= line below).
+X#
+X
+XCFLAGS=
+X
+X# LINTFLAGS is set for 4.[123]BSD systems.
+X# If you're using System V, you'll want to comment out the "LINTFLAGS=" line.
+X
+XLINTFLAGS=	-phbaaxc
+X
+X# BUNDLE was set to "bundle" in the original, "shar" is more universal
+X
+XBUNDLE=		shar
+X
+X################################################################################
+X
+XCC=		cc -DTZDIR=\"$(TZDIR)\"
+X
+XTZCSRCS=	zic.c localtime.c asctime.c scheck.c ialloc.c mkdir.c
+XTZCOBJS=	zic.o localtime.o asctime.o scheck.o ialloc.o mkdir.o
+XTZDSRCS=	zdump.c localtime.c asctime.c ialloc.c
+XTZDOBJS=	zdump.o localtime.o asctime.o ialloc.o
+XLIBSRCS=	localtime.c asctime.c ctime.c dysize.c timemk.c
+XLIBOBJS=	localtime.o asctime.o ctime.o dysize.o timemk.o
+XDOCS=		Theory README Makefile newctime.3 tzfile.5 zic.8 zdump.8
+XSOURCES=	tzfile.h zic.c zdump.c \
+X		localtime.c asctime.c ctime.c dysize.c timemk.c \
+X		scheck.c ialloc.c mkdir.c
+XDATA=		asia australasia europe etcetera northamerica \
+X		pacificnew systemv solar87
+XENCHILADA=	$(DOCS) $(SOURCES) $(DATA)
+X
+Xall:		REDID_BINARIES zdump $(TZLIB)
+X
+XREDID_BINARIES:	zic $(DATA)
+X		PATH=.:$$PATH zic -l $(LOCALTIME) -d $(TZDIR) $(DATA) && > $@
+X
+Xzdump:		$(TZDOBJS)
+X		$(CC) $(CFLAGS) $(LFLAGS) $(TZDOBJS) -o $@
+X
+X$(TZLIB):	$(LIBOBJS)
+X		ar ru $@ $(LIBOBJS)
+X		test -f /usr/bin/ranlib && ranlib $@
+X
+Xzic:		$(TZCOBJS)
+X		$(CC) $(CFLAGS) $(LFLAGS) $(TZCOBJS) -o $@
+X
+XBUNDLES:	BUNDLE1 BUNDLE2 BUNDLE3
+X
+XBUNDLE1:	$(DOCS)
+X		$(BUNDLE) $(DOCS) > $@
+X
+XBUNDLE2:	$(SOURCES)
+X		$(BUNDLE) $(SOURCES) > $@
+X
+XBUNDLE3:	$(DATA)
+X		$(BUNDLE) $(DATA) > $@
+X
+X$(ENCHILADA):
+X		sccs get $(REL) $(REV) $@
+X
+Xsure:		$(TZCSRCS) $(TZDSRCS) tzfile.h
+X		lint $(LINTFLAGS) $(CFLAGS) -DTZDIR=\"$(TZDIR)\" $(TZCSRCS)
+X		lint $(LINTFLAGS) $(CFLAGS) -DTZDIR=\"$(TZDIR)\" $(TZDSRCS)
+X		lint $(LINTFLAGS) $(CFLAGS) -DTZDIR=\"$(TZDIR)\" $(LIBSRCS)
+X
+Xclean:
+X		rm -f core *.o *.out REDID_BINARIES zdump zic BUNDLE* \#*
+X
+XCLEAN:		clean
+X		sccs clean
+X
+Xlisting:	$(ENCHILADA)
+X		pr $(ENCHILADA) | lpr
+X
+Xzdump.o zic.o newctime.o:	tzfile.h
+!The!End!
+
+echo x - "newctime.3" 2>&1
+sed "s/^X//" >"newctime.3" <<'!The!End!'
+X.TH NEWCTIME 3 
+X.SH NAME
+Xctime, localtime, gmtime, asctime, tzset, tzsetwall \- convert date and time to ASCII
+X.SH SYNOPSIS
+X.nf
+X.B extern char *tzname[2];
+X.PP
+X.B void tzset()
+X.PP
+X.B void tzsetwall()
+X.PP
+X.B char *ctime(clock)
+X.B long *clock;
+X.PP
+X.B #include <time.h>
+X.PP
+X.B char *asctime(tm)
+X.B struct tm *tm;
+X.PP
+X.B struct tm *localtime(clock)
+X.B long *clock;
+X.PP
+X.B struct tm *gmtime(clock)
+X.B long *clock;
+X.PP
+Xcc ... -lz
+X.fi
+X.SH DESCRIPTION
+X.I Tzset
+Xuses the value of the environment variable
+X.B TZ
+Xto set time conversion information used by
+X.IR localtime .
+X.if \nX \{\
+XIF
+X.B TZ
+Xis absent from the environment,
+Xthe behavior is implementation defined.
+XIf
+X.B TZ
+Xdoes appear in the environment,
+X.I localtime
+Xwill only work correctly if
+Xits value is one of an
+Ximplementation-defined set of values.
+X\}
+X.if !\nX \{\
+XIf
+X.B TZ
+Xdoes not appear in the environment,
+Xthe best available approximation to local wall clock time is used by
+X.IR localtime .
+XIf
+X.B TZ
+Xappears in the environment but its value is a null string,
+XGreenwich Mean Time is used;
+Xif
+X.B TZ
+Xappears and
+Xbegins with a slash,
+Xit is used as the absolute pathname of the
+X.IR tzfile (5)-format
+Xfile from which to read the time conversion information;
+Xif
+X.B TZ
+Xappears and
+Xbegins with a character other than a slash,
+Xit's used as a pathname relative to a system time conversion information
+Xdirectory.
+X\}
+X.PP
+X.I Tzsetwall
+Xsets things up so that
+X.I localtime
+Xreturns the best available approximation of local wall clock time.
+X.PP
+X.I Ctime\^
+Xconverts a long integer, pointed to by
+X.IR clock ,
+Xrepresenting the time in seconds since
+X00:00:00 GMT, January 1, 1970,
+Xand returns a pointer to a
+X26-character string
+Xof the form
+X.br
+X.ce
+XThu Nov 24 18:22:48 1986\\n\\0
+X.br
+XAll the fields have constant width.
+X.PP
+X.IR Localtime\^
+Xand
+X.I gmtime\^
+Xreturn pointers to ``tm'' structures, described below.
+X.I Localtime\^
+Xcorrects for the time zone and any time zone adjustments
+X(such as Daylight Savings time in the U.S.A.).
+X.if \nX Whether, before doing so,
+X.if !\nX Before doing so,
+X.I localtime\^
+Xcalls
+X.I tzset\^
+X(if
+X.I tzset\^
+Xhas not been called in
+X.if \nX the current process) is implementation defined.
+X.if !\nX the current process).
+X.if !\nX \{\
+XAfter filling in the ``tm'' structure,
+X.I localtime
+Xsets the
+X.BR tm_isdst 'th
+Xelement of
+X.B tzname
+Xto a pointer to an 
+XASCII string that's the time zone abbreviation to be used with
+X.IR localtime 's
+Xreturn value.
+X\}
+X.PP
+X.I Gmtime\^
+Xconverts to Greenwich Mean Time (GMT).
+X.PP
+X.I Asctime\^
+Xconverts a time value contained in a
+X``tm'' structure to a 26-character string,
+Xas shown in the above example,
+Xand returns a pointer
+Xto the string.
+X.PP
+XDeclarations of all the functions and externals, and the ``tm'' structure,
+Xare in the
+X.B <time.h>\^
+Xheader file.
+XThe structure (of type)
+X.B struct tm
+Xincludes the following fields:
+X.RS
+X.PP
+X.nf
+X.ta .5i +\w'long tm_gmtoff;\0\0'u
+X	int tm_sec;	/\(** seconds (0 - 59) \(**/
+X	int tm_min;	/\(** minutes (0 - 59) \(**/
+X	int tm_hour;	/\(** hours (0 - 23) \(**/
+X	int tm_mday;	/\(** day of month (1 - 31) \(**/
+X	int tm_mon;	/\(** month of year (0 - 11) \(**/
+X	int tm_year;	/\(** year \- 1900 \(**/
+X	int tm_wday;	/\(** day of week (Sunday = 0) \(**/
+X	int tm_yday;	/\(** day of year (0 - 365) \(**/
+X	int tm_isdst;	/\(** is DST in effect? \(**/
+X	char \(**tm_zone;	/\(** abbreviation of timezone name \(**/
+X	long tm_gmtoff;	/\(** offset from GMT in seconds \(**/
+X.fi
+X.RE
+X.PP
+XThe
+X.I tm_zone
+Xand
+X.I tm_gmtoff
+Xfields exist, and are filled in, only if arrangements to do
+Xso were made when the library containing these functions was
+Xcreated.
+XThere is no guarantee that these fields will continue to exist
+Xin this form in future releases of this code.
+X.PP
+X.I Tm_isdst\^
+Xis non-zero if a 
+Xtime zone adjustment such as Daylight Savings time
+Xis in effect.
+X.PP
+X.I Tm_gmtoff
+Xis the offset (in seconds) of the time represented
+Xfrom GMT, with positive values indicating East
+Xof Greenwich.
+X.if !\nX \{\
+X.SH FILES
+X.ta \w'/etc/zoneinfo/localtime\0\0'u
+X/etc/zoneinfo	time zone information directory
+X.br
+X/etc/zoneinfo/localtime	local time zone file
+X\}
+X.SH SEE ALSO
+X.if !\nX tzfile(5),
+Xgetenv(3),
+Xtime(2)
+X.SH NOTE
+XThe return values point to static data
+Xwhose content is overwritten by each call.
+XThe
+X.B tm_zone
+Xfield of a returned
+X.B "struct tm"
+Xpoints to a static array of characters, which
+Xwill also be overwritten at the next call
+X(and by calls to
+X.I tzset
+Xor
+X.IR tzsetwall ).
+X.. @(#)newctime.3	3.1
+!The!End!
+
+echo x - "tzfile.5" 2>&1
+sed "s/^X//" >"tzfile.5" <<'!The!End!'
+X.TH TZFILE 5
+X.SH NAME
+Xtzfile \- time zone information
+X.SH SYNOPSIS
+X.B
+X#include <tzfile.h>
+X.SH DESCRIPTION
+XThe time zone information files used by
+X.IR tzset (3)
+Xbegin with bytes reserved for future use,
+Xfollowed by three four-byte values of type
+X.BR long ,
+Xwritten in a ``standard'' byte order
+X(the high-order byte of the value is written first).
+XThese values are,
+Xin order:
+X.TP
+X.I tzh_timecnt
+XThe number of "transition times" for which data is stored
+Xin the file.
+X.TP
+X.I tzh_typecnt
+XThe number of "local time types" for which data is stored
+Xin the file (must not be zero).
+X.TP
+X.I tzh_charcnt
+XThe number of characters of "time zone abbreviation strings"
+Xstored in the file.
+X.PP
+XThe above header is followed by
+X.I tzh_timecnt
+Xfour-byte values of type
+X.BR long ,
+Xsorted in ascending order.
+XThese values are written in ``standard'' byte order.
+XEach is used as a transition time (as returned by
+X.IR time (2))
+Xat which the rules for computing local time change.
+XNext come
+X.I tzh_timecnt
+Xone-byte values of type
+X.BR "unsigned char" ;
+Xeach one tells which of the different types of ``local time'' types
+Xdescribed in the file is associated with the same-indexed transition time.
+XThese values serve as indices into an array of
+X.I ttinfo
+Xstructures that appears next in the file; 
+Xthese structures are defined as follows:
+X.in +.5i
+X.sp
+X.nf
+X.ta .5i +\w'unsigned int\0\0'u
+Xstruct ttinfo {	
+X	long	tt_gmtoff;
+X	int	tt_isdst;
+X	unsigned int	tt_abbrind;
+X};
+X.in -.5i
+X.fi
+X.sp
+XEach structure is written as a four-byte value for
+X.I tt_gmtoff
+Xof type
+X.BR long ,
+Xin a standard byte order, followed by a one-byte value for
+X.I tt_isdst
+Xand a one-byte value for
+X.IR tt_abbrind .
+XIn each structure,
+X.I tt_gmtoff
+Xgives the number of seconds to be added to GMT,
+X.I tt_isdst
+Xtells whether
+X.I tm_isdst
+Xshould be set by
+X.I localtime (3)
+Xand
+X.I tt_abbrind
+Xserves as an index into the array of time zone abbreviation characters
+Xthat follow the
+X.I ttinfo
+Xstructure(s) in the file.
+X.PP
+X.I Localtime
+Xuses the first standard-time
+X.I ttinfo
+Xstructure in the file
+X(or simply the first
+X.I ttinfo
+Xstructure in the absence of a standard-time structure)
+Xif either
+X.I tzh_timecnt
+Xis zero or the time argument is less than the first transition time recorded
+Xin the file.
+X.SH SEE ALSO
+Xnewctime(3)
+X.. @(#)tzfile.5	3.1
+!The!End!
+
+echo x - "zic.8" 2>&1
+sed "s/^X//" >"zic.8" <<'!The!End!'
+X.TH ZIC 8
+X.SH NAME
+Xzic \- time zone compiler
+X.SH SYNOPSIS
+X.B zic
+X[
+X.B \-v
+X] [
+X.B \-d
+X.I directory
+X] [
+X.B \-l
+X.I localtime
+X] [
+X.I filename
+X\&... ]
+X.SH DESCRIPTION
+X.I Zic
+Xreads text from the file(s) named on the command line
+Xand creates the time conversion information files specified in this input.
+XIf a
+X.I filename
+Xis
+X.BR \- ,
+Xthe standard input is read.
+X.PP
+XThese options are available:
+X.TP
+X.BI "\-d " directory
+XCreate time conversion information files in the named directory rather than
+Xin the standard directory named below.
+X.TP
+X.BI "\-l " timezone
+XUse the given time zone as local time.
+X.I Zic
+Xwill act as if the file contained a link line of the form
+X.sp
+X.ti +.5i
+XLink	\fItimezone\fP		localtime
+X.TP
+X.B \-v
+XComplain if a year that appears in a data file is outside the range
+Xof years representable by
+X.IR time (2)
+Xvalues.
+X.sp
+XInput lines are made up of fields.
+XFields are separated from one another by any number of white space characters.
+XLeading and trailing white space on input lines is ignored.
+XAn unquoted sharp character (#) in the input introduces a comment which extends
+Xto the end of the line the sharp character appears on.
+XWhite space characters and sharp characters may be enclosed in double quotes
+X(") if they're to be used as part of a field.
+XAny line that is blank (after comment stripping) is ignored.
+XNon-blank lines are expected to be of one of three types:
+Xrule lines, zone lines, and link lines.
+X.PP
+XA rule line has the form
+X.nf
+X.B
+X.ti +.5i
+X.ta \w'Rule\0\0'u +\w'NAME\0\0'u +\w'FROM\0\0'u +\w'1973\0\0'u +\w'TYPE\0\0'u +\w'Apr\0\0'u +\w'lastSun\0\0'u +\w'2:00\0\0'u +\w'SAVE\0\0'u
+X.sp
+XRule	NAME	FROM	TO	TYPE	IN	ON	AT	SAVE	LETTER/S
+X.sp
+XFor example:
+X.ti +.5i
+X.sp
+XRule	USA	1969	1973	\-	Apr	lastSun	2:00	1:00	D
+X.sp
+X.fi
+XThe fields that make up a rule line are:
+X.TP "\w'LETTER/S'u"
+X.B NAME
+XGives the (arbitrary) name of the set of rules this rule is part of.
+X.TP
+X.B FROM
+XGives the first year in which the rule applies.
+XThe word
+X.B minimum
+X(or an abbreviation) means the minimum year with a representable time value.
+XThe word
+X.B maximum
+X(or an abbreviation) means the maximum year with a representable time value.
+X.TP
+X.B TO
+XGives the final year in which the rule applies.
+XIn addition to
+X.B minimum
+Xand
+X.B maximum
+X(as above),
+Xthe word
+X.B only
+X(or an abbreviation)
+Xmay be used to repeat the value of the
+X.B FROM
+Xfield.
+X.TP
+X.B TYPE
+XGives the type of year in which the year applies.
+XIf
+X.B TYPE
+Xis
+X.B \-
+Xthen the rule applies in all years between
+X.B FROM
+Xand
+X.B TO
+Xinclusive;
+Xif
+X.B TYPE
+Xis
+X.BR uspres ,
+Xthe rule applies in U.S. Presidential election years;
+Xif
+X.B TYPE
+Xis
+X.BR nonpres ,
+Xthe rule applies in years other than U.S. Presidential election years.
+XIf
+X.B TYPE
+Xis something else, then
+X.I zic
+Xexecutes the command
+X.ti +.5i
+X\fByearistype\fP \fIyear\fP \fItype\fP
+X.br
+Xto check the type of a year:
+Xan exit status of zero is taken to mean that the year is of the given type;
+Xan exit status of one is taken to mean that the year is not of the given type.
+X.TP
+X.B IN
+XNames the month in which the rule takes effect.
+XMonth names may be abbreviated.
+X.TP
+X.B ON
+XGives the day on which the rule takes effect.
+XRecognized forms include:
+X.nf
+X.in +.5i
+X.sp
+X.ta \w'Sun<=25\0\0'u
+X5	the fifth of the month
+XlastSun	the last Sunday in the month
+XlastMon	the last Monday in the month
+XSun>=8	first Sunday on or after the eighth
+XSun<=25	last Sunday on or before the 25th
+X.fi
+X.in -.5i
+X.sp
+XNames of days of the week may be abbreviated or spelled out in full.
+XNote that there must be no spaces within the
+X.B ON
+Xfield.
+X.TP
+X.B AT
+XGives the time of day at which the rule takes affect.
+XRecognized forms include:
+X.nf
+X.in +.5i
+X.sp
+X.ta \w'1:28:13\0\0'u
+X2	time in hours
+X2:00	time in hours and minutes
+X15:00	24-hour format time (for times after noon)
+X1:28:14	time in hours, minutes, and seconds
+X.fi
+X.in -.5i
+X.sp
+XAny of these forms may be followed by the letter
+X.B w
+Xif the given time is local ``wall clock'' time or
+X.B s
+Xif the given time is local ``standard'' time; in the absence of
+X.B w
+Xor
+X.BR s ,
+Xwall clock time is assumed.
+X.TP
+X.B SAVE
+XGives the amount of time to be added to local standard time when the rule is in
+Xeffect.
+XThis field has the same format as the
+X.B AT
+Xfield
+X(although, of course, the
+X.B w
+Xand
+X.B s
+Xsuffixes are not used).
+X.TP
+X.B LETTER/S
+XGives the ``variable part'' (for example, the ``S'' or ``D'' in ``EST''
+Xor ``EDT'') of time zone abbreviations to be used when this rule is in effect.
+XIf this field is
+X.BR \- ,
+Xthe variable part is null.
+X.PP
+XA zone line has the form
+X.sp
+X.nf
+X.ti +.5i
+X.ta \w'Zone\0\0'u +\w'Australia/South\-west\0\0'u +\w'GMTOFF\0\0'u +\w'RULES/SAVE\0\0'u +\w'FORMAT\0\0'u
+XZone	NAME	GMTOFF	RULES/SAVE	FORMAT	[UNTIL]
+X.sp
+XFor example:
+X.sp
+X.ti +.5i
+XZone	Australia/South\-west	9:30	Aus	CST	1987 Mar 15 2:00
+X.sp
+X.fi
+XThe fields that make up a zone line are:
+X.TP "\w'GMTOFF'u"
+X.B NAME
+XThe name of the time zone.
+XThis is the name used in creating the time conversion information file for the
+Xzone.
+X.TP
+X.B GMTOFF
+XThe amount of time to add to GMT to get standard time in this zone.
+XThis field has the same format as the
+X.B AT
+Xand
+X.B SAVE
+Xfields of rule lines;
+Xbegin the field with a minus sign if time must be subtracted from GMT.
+X.TP
+X.B RULES/SAVE
+XThe name of the rule(s) that apply in the time zone or,
+Xalternately, an amount of time to add to local standard time.
+XIf this field is
+X.B \-
+Xthen standard time always applies in the time zone.
+X.TP
+X.B FORMAT
+XThe format for time zone abbreviations in this time zone.
+XThe pair of characters
+X.B %s
+Xis used to show where the ``variable part'' of the time zone abbreviation goes.
+X.B UNTIL
+XThe time at which the GMT offset or the rule(s) change for a location.
+XIt is specified as a year, a month, a day, and a time of day.
+XIf this is specified,
+Xthe time zone information is generated from the given GMT offset
+Xand rule change until the time specified.
+X.IP
+XThe next line must be a
+X``continuation'' line; this has the same form as a zone line except that the
+Xstring ``Zone'' and the name are omitted, as the continuation line will
+Xplace information starting at the time specified as the
+X.B UNTIL
+Xfield in the previous line in the file used by the previous line.
+XContinuation lines may contain an
+X.B UNTIL
+Xfield, just as zone lines do, indicating that the next line is a further
+Xcontinuation.
+X.PP
+XA link line has the form
+X.sp
+X.nf
+X.ti +.5i
+X.if t .ta \w'Link\0\0'u +\w'LINK-FROM\0\0'u
+X.if n .ta \w'Link\0\0'u +\w'US/Eastern\0\0'u
+XLink	LINK-FROM	LINK-TO
+X.sp
+XFor example:
+X.sp
+X.ti +.5i
+XLink	US/Eastern	EST5EDT
+X.sp
+X.fi
+XThe
+X.B LINK-FROM
+Xfield should appear as the
+X.B NAME
+Xfield in some zone line;
+Xthe
+X.B LINK-TO
+Xfield is used as an alternate name for that zone.
+X.PP
+XExcept for continuation lines,
+Xlines may appear in any order in the input.
+X.SH NOTE
+XFor areas with more than two types of local time,
+Xyou may need to use local standard time in the
+X.B AT
+Xfield of the earliest transition time's rule to ensure that
+Xthe earliest transition time recorded in the compiled file is correct.
+X.SH FILES
+X/etc/zoneinfo	standard directory used for created files
+X.SH "SEE ALSO"
+Xnewctime(3), tzfile(5), zdump(8)
+X.. @(#)zic.8	3.1
+!The!End!
+
+echo x - "zdump.8" 2>&1
+sed "s/^X//" >"zdump.8" <<'!The!End!'
+X.TH ZDUMP 8
+X.SH NAME
+Xzdump \- time zone dumper
+X.SH SYNOPSIS
+X.B zdump
+X[
+X.B \-v
+X] [
+X.B \-c
+Xcutoffyear ] [ zonename ... ]
+X.SH DESCRIPTION
+X.I Zdump
+Xprints the current time in each
+X.I zonename
+Xnamed on the command line.
+X.PP
+XThese options are available:
+X.TP
+X.B \-v
+XFor each
+X.I zonename
+Xon the command line,
+Xprint the current time,
+Xthe time at the lowest possible time value,
+Xthe time one day after the lowest possible time value,
+Xthe times both one second before and exactly at
+Xeach time at which the rules for computing local time change,
+Xthe time at the highest possible time value,
+Xand the time at one day less than the highest possible time value.
+XEach line ends with
+X.B isdst=1
+Xif the given time is Daylight Saving Time or
+X.B isdst=0
+Xotherwise.
+X.TP
+X.BI "\-c " cutoffyear
+XCut off the verbose output near the start of the given year.
+X.SH FILES
+X/etc/zoneinfo	standard zone information directory
+X.SH "SEE ALSO"
+Xnewctime(3), tzfile(5), zic(8)
+X.. @(#)zdump.8	3.1
+!The!End!
+exit

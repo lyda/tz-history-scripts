@@ -1,0 +1,18 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Tue, 2 Nov 2004 09:10:55 -0500 
+Tzcode2004g.tar.gz and tzdata2004g.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C7402DA@nihexchange2.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode2004g.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata2004g.tar.gz
+are now available. The most important change is the update to Cuba (taking
+effect this weekend); the other changes circulated yesterday by Paul Eggert
+are includes, as well as a correction of the spelling of Oslo and changed
+versions of difftime.c and private.h.
+
+				--ado
+	
+

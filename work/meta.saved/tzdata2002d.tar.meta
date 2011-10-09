@@ -1,0 +1,22 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Tue, 15 Oct 2002 13:20:54 -0400
+tzcode2002d.tar.gz and tzdata2002d.tar.gz
+Message-ID: <CFC0DFECD5F33B46A67BAD80B618EEA15AA9FF@nihexchange2.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode2002d.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata2002d.tar.gz
+are now available. They incorporate the changes circulated last week on the
+time zone mailing list by Paul Eggert,
+less the "Britain (UK)" change in iso3166.tab. There's also a new time zone
+quote in "tz-art.htm."
+
+Note that our lab is due to move from the third to the fourth floor of our
+building this week;
+some outages in the availability of elsie.nci.nih.gov are to be expected.
+Download early.
+
+				--ado
+

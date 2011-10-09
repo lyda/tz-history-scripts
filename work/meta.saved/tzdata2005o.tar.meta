@@ -1,0 +1,20 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 28 Nov 2005 11:01:41 -0500
+Tzcode2005o.tar.gz and tzdata2005o.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C7405BC@nihexchange2.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2005o.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2005o.tar.gz
+...are now available. These incorporate the Georgia, Cuba, Nicaragua,
+and Jordan changes circulated over the past two weeks by Paul Eggert on
+the time zone mailing list. They also incorporate the zdump.c lint fixes
+circulated by yours truly. No changes to backward and systemv at this
+time; stay tuned.
+
+				--ado
+
+
+

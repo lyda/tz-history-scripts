@@ -1,0 +1,21 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 23 Mar 2009 09:47:59 -0400
+tzcode2009d.tar.gz and tzdata2009d.tar.gz
+Message-ID: <B410D30A78C6404C9DABEA31B54A2813029A0564@nihcesmlbx10.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2009d.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2009d.tar.gz
+...are now available; these reflect the Morocco, Tunisia, Argentina, and
+American Astronomical Society changes circulated last week on the time
+zone mailing list.
+
+There may well be an update for Pakistan shortly; folks who want to
+avoid thrashing may want to wait for tzdata2009e.tar.gz.
+
+					--ado
+
+
+

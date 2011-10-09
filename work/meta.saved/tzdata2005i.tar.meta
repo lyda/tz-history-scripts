@@ -1,0 +1,16 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 21 Apr 2005 15:07:01 -0400
+Tzdata2005i.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C7403E4@nihexchange2.nih.gov>
+
+The file...
+	ftp://elsie.nci.nih.gov/pub/tzdata2005i.tar.gz
+...is now available; this reflects the changes (most importantly to
+Nicaragua and Haiti) circulated last week on the time zone mailing list by
+Paul Eggert.
+There are no code changes, so there is no new tzcode file.
+
+				--ado
+
+

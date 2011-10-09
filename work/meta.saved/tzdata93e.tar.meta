@@ -1,0 +1,17 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Sun, 5 Sep 93 21:24:12 -0400
+tzcode93e.tar.Z and tzdata93e.tar.Z
+Message-ID: <9309060124.AA11939@elsie.nci.nih.gov>
+
+Updated versions of the time zone stuff are available by anonymous ftp from
+elsie.nci.nih.gov (128.231.16.1); you'll want the files tzcode93e.tar.Z and
+tzdata93e.tar.Z from the "pub" directory.
+
+There's updated data for Israel, England, and Kwajalein; there's also an
+update to "zdump" to cope with Kwajalein's 24-hour jump.  Thanks to Paul Eggert
+and  Peter Ilieve for the changes.
+
+				--ado
+
+

@@ -1,0 +1,19 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 12 Feb 2007 09:39:53 -0500
+Tzcode2007b.tar.gz and tzdata2007b.tar.gz
+Message-ID: <B410D30A78C6404C9DABEA31B54A2813997DC9@nihcesmlbx10.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2007b.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2007b.tar.gz
+...are now available. Tzcode2007b.tar.gz reflects Paul Eggert's proposed
+change to the quotation handling logic in zic.c.
+Tzdata2007b.tar.gz includes changes to the commentary in "leapseconds"
+reflecting the IERS announcement that there is to be no positive leap
+second at the end of June 2007.
+
+				--ado
+
+

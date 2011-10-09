@@ -1,0 +1,16 @@
+This is the new home for the tz mailing list.  It contains all the tz
+archives from the beginning to July, 2011.  It has all the new messages
+sent to the list.
+
+Web address: https://mm.icann.org/mailman/listinfo/tz
+
+The following commands should build a suitable tzarchive up to July 2011:
+
+  wget https://mm.icann.org/mailman/listinfo/tz
+  for f in $(grep txt.gz index.html | sed 's/.*="//;s/".*//'); do
+    wget http://mm.icann.org/pipermail/tz/$f
+  done
+  for f in $(grep txt.gz * | sed 's/.*="//;s/".*//' | tac); do
+    zcat $f
+  done > ../list/tzarchive
+

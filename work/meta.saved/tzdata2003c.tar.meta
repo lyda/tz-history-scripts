@@ -1,0 +1,16 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Tue, 16 Sep 2003 10:51:19 -0400
+tzcode2003c.tar.gz and tzdata2003c.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C740036@nihexchange2.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode2003c.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata2003c.tar.gz
+are now available; these fix bad returns in zic.c's inleap function.
+Thanks to Bradley White for catching the problem!
+
+				--ado
+
+

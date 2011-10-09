@@ -1,0 +1,21 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 22 Aug 2005 12:19:02 -0400
+Tzcode2005l.tar.gz and tzdata2005l.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C7404CD@nihexchange2.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2005l.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2005l.tar.gz
+...are now available. These incorporate the changes circulated last week on
+the time zone mailing list by Paul Eggert, plus the overflow/underflow
+checks circulated by yours truly, minus changes to the "Theory" file about
+the pending addition of 64-bit data (I grow less confident of the changes
+being accepted with each passing day, and the changes no longer increase the
+data files nine-fold--there's less than a doubling in size by my local Sun's
+reckoning).
+
+				--ado
+
+

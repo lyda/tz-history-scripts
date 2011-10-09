@@ -1,0 +1,20 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Tue, 4 Mar 97 10:11:20 -0500
+tzdata1997c.tar.gz
+Message-ID: <9703041511.AA02167@elsie.nci.nih.gov>
+
+The file
+	http://elsie.nci.nih.gov/pub/tzdata1997c.tar.gz
+is now available; it incorporates the recently circulated changes in Israel.
+
+I'm at work on the "zic -s" challenge. The cleanest way to deal with it seems
+to be to ignore the "-s" flag when running through the rules and zones, then
+eliminating "early" transition times when writing out the zone file; doing this
+provides a way of figuring out what time type should be in effect at the
+earliest instant to be represented in the file. Substantial regression work
+will be needed, so stay tuned.
+
+				--ado
+
+

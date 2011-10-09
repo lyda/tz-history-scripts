@@ -1,0 +1,2796 @@
+Path: mirror!adelie!necntc!husc6!seismo!munnari!sources-request
+From: sources-request@munnari.oz
+Newsgroups: mod.sources
+Subject: v08i086:  Public Domain (Table Driven) ``localtime'', Part02/03
+Message-ID: <1436@munnari.oz>
+Date: 28 Feb 87 11:51:22 GMT
+Sender: kre@munnari.oz
+Lines: 2786
+Approved: kre@munnari.oz.au
+
+Submitted by: Arthur David Olson <ado@elsie.UUCP>
+Mod.sources: Volume 8, Issue 86
+Archive-name: pd-localtime/Part02
+
+
+
+echo x - "tzfile.h" 2>&1
+sed "s/^X//" >"tzfile.h" <<'!The!End!'
+X#ifndef lint
+X#ifndef NOID
+Xstatic char	tzfilehid[] = "@(#)tzfile.h	3.1";
+X#endif /* !NOID */
+X#endif /* !lint */
+X
+X/*
+X** Information about time zone files.
+X*/
+X
+X#ifndef TZDIR
+X#define TZDIR		"/etc/zoneinfo"	/* Time zone object file directory */
+X#endif /* !TZDIR */
+X
+X#ifndef TZDEFAULT
+X#define TZDEFAULT	"localtime"
+X#endif /* !TZDEFAULT */
+X
+X/*
+X** Each file begins with. . .
+X*/
+X
+Xstruct tzhead {
+X	char	tzh_reserved[32];	/* reserved for future use */
+X	char	tzh_timecnt[4];		/* coded number of transition times */
+X	char	tzh_typecnt[4];		/* coded number of local time types */
+X	char	tzh_charcnt[4];		/* coded number of abbr. chars */
+X};
+X
+X/*
+X** . . .followed by. . .
+X**
+X**	tzh_timecnt (char [4])s		coded transition times a la time(2)
+X**	tzh_timecnt (unsigned char)s	types of local time starting at above
+X**	tzh_typecnt repetitions of
+X**		one (char [4])		coded GMT offset in seconds
+X**		one (unsigned char)	used to set tm_isdt
+X**		one (unsigned char)	that's an abbreviation list index
+X**	tzh_charcnt (char)s		'\0'-terminated zone abbreviaton strings
+X*/
+X
+X/*
+X** In the current implementation, "tzset()" refuses to deal with files that
+X** exceed any of the limits below.
+X*/
+X
+X#ifndef TZ_MAX_TIMES
+X/*
+X** The TZ_MAX_TIMES value below is enough to handle a bit more than a
+X** year's worth of solar time (corrected daily to the nearest second) or
+X** 138 years of Pacific Presidential Election time
+X** (where there are three time zone transitions every fourth year).
+X*/
+X#define TZ_MAX_TIMES	370
+X#endif /* !TZ_MAX_TIMES */
+X
+X#ifndef TZ_MAX_TYPES
+X#ifndef NOSOLAR
+X#define TZ_MAX_TYPES	256	/* Limited by what (unsigned char)'s can hold */
+X#else /* !NOSOLAR */
+X#define TZ_MAX_TYPES	10	/* Maximum number of local time types */
+X#endif /* !NOSOLAR */
+X#endif /* !TZ_MAX_TYPES */
+X
+X#ifndef TZ_MAX_CHARS
+X#define TZ_MAX_CHARS	50	/* Maximum number of abbreviation characters */
+X#endif /* !TZ_MAX_CHARS */
+X
+X#define SECS_PER_MIN	60
+X#define MINS_PER_HOUR	60
+X#define HOURS_PER_DAY	24
+X#define DAYS_PER_WEEK	7
+X#define DAYS_PER_NYEAR	365
+X#define DAYS_PER_LYEAR	366
+X#define SECS_PER_HOUR	(SECS_PER_MIN * MINS_PER_HOUR)
+X#define SECS_PER_DAY	((long) SECS_PER_HOUR * HOURS_PER_DAY)
+X#define MONS_PER_YEAR	12
+X
+X#define TM_SUNDAY	0
+X#define TM_MONDAY	1
+X#define TM_TUESDAY	2
+X#define TM_WEDNESDAY	3
+X#define TM_THURSDAY	4
+X#define TM_FRIDAY	5
+X#define TM_SATURDAY	6
+X
+X#define TM_JANUARY	0
+X#define TM_FEBRUARY	1
+X#define TM_MARCH	2
+X#define TM_APRIL	3
+X#define TM_MAY		4
+X#define TM_JUNE		5
+X#define TM_JULY		6
+X#define TM_AUGUST	7
+X#define TM_SEPTEMBER	8
+X#define TM_OCTOBER	9
+X#define TM_NOVEMBER	10
+X#define TM_DECEMBER	11
+X#define TM_SUNDAY	0
+X
+X#define TM_YEAR_BASE	1900
+X
+X#define EPOCH_YEAR	1970
+X#define EPOCH_WDAY	TM_THURSDAY
+X
+X/*
+X** Accurate only for the past couple of centuries;
+X** that will probably do.
+X*/
+X
+X#define isleap(y) (((y) % 4) == 0 && ((y) % 100) != 0 || ((y) % 400) == 0)
+!The!End!
+
+echo x - "zic.c" 2>&1
+sed "s/^X//" >"zic.c" <<'!The!End!'
+X#
+X
+X#include "stdio.h"
+X
+X#ifndef lint
+X#ifndef NOID
+Xstatic char	sccsid[] = "@(#)zic.c	3.1";
+X#endif /* !NOID */
+X#endif /* !lint */
+X
+X#include "tzfile.h"
+X#include "ctype.h"
+X#include "sys/types.h"
+X#include "sys/stat.h"
+X#include "time.h"
+X
+X#ifndef BUFSIZ
+X#define BUFSIZ	1024
+X#endif
+X
+X#ifndef TRUE
+X#define TRUE	1
+X#define FALSE	0
+X#endif
+X
+Xextern char *	icpyalloc();
+Xextern char *	imalloc();
+Xextern char *	irealloc();
+Xextern char *	optarg;
+Xextern int	optind;
+Xextern FILE *	popen();
+Xextern char *	scheck();
+X#ifndef USG
+Xextern char *	sprintf();
+X#endif /* !USG */
+Xextern char *	strcat();
+Xextern char *	strchr();
+Xextern char *	strcpy();
+X
+Xstatic		addtt();
+Xstatic		addtype();
+Xstatic		associate();
+Xstatic int	charcnt;
+Xstatic		ciequal();
+Xstatic long	eitol();
+Xstatic int	errors;
+Xstatic char *	filename;
+Xstatic char **	getfields();
+Xstatic long	gethms();
+Xstatic		infile();
+Xstatic		inlink();
+Xstatic		inrule();
+Xstatic		inzcont();
+Xstatic		inzone();
+Xstatic		inzsub();
+Xstatic int	linenum;
+Xstatic		lowerit();
+Xstatic time_t	max_time;
+Xstatic int	max_year;
+Xstatic time_t	min_time;
+Xstatic int	min_year;
+Xstatic		mkdirs();
+Xstatic		newabbr();
+Xstatic int	noise;
+Xstatic		nondunlink();
+Xstatic long	oadd();
+Xstatic		outzone();
+Xstatic char *	progname;
+Xstatic char *	rfilename;
+Xstatic int	rlinenum;
+Xstatic time_t	rpytime();
+Xstatic		rulesub();
+Xstatic		setboundaries();
+Xstatic time_t	tadd();
+Xstatic int	timecnt;
+Xstatic int	tt_signed;
+Xstatic int	typecnt;
+Xstatic		yearistype();
+X
+X/*
+X** Line codes.
+X*/
+X
+X#define LC_RULE		0
+X#define LC_ZONE		1
+X#define LC_LINK		2
+X
+X/*
+X** Which fields are which on a Zone line.
+X*/
+X
+X#define ZF_NAME		1
+X#define ZF_GMTOFF	2
+X#define ZF_RULE		3
+X#define ZF_FORMAT	4
+X#define ZF_UNTILYEAR	5
+X#define ZF_UNTILMONTH	6
+X#define ZF_UNTILDAY	7
+X#define ZF_UNTILTIME	8
+X#define ZONE_MINFIELDS	5
+X#define ZONE_MAXFIELDS	9
+X
+X/*
+X** Which fields are which on a Zone continuation line.
+X*/
+X
+X#define ZFC_GMTOFF	0
+X#define ZFC_RULE	1
+X#define ZFC_FORMAT	2
+X#define ZFC_UNTILYEAR	3
+X#define ZFC_UNTILMONTH	4
+X#define ZFC_UNTILDAY	5
+X#define ZFC_UNTILTIME	6
+X#define ZONEC_MINFIELDS	3
+X#define ZONEC_MAXFIELDS	7
+X
+X/*
+X** Which files are which on a Rule line.
+X*/
+X
+X#define RF_NAME		1
+X#define RF_LOYEAR	2
+X#define RF_HIYEAR	3
+X#define RF_COMMAND	4
+X#define RF_MONTH	5
+X#define RF_DAY		6
+X#define RF_TOD		7
+X#define RF_STDOFF	8
+X#define RF_ABBRVAR	9
+X#define RULE_FIELDS	10
+X
+X/*
+X** Which fields are which on a Link line.
+X*/
+X
+X#define LF_FROM		1
+X#define LF_TO		2
+X#define LINK_FIELDS	3
+X
+Xstruct rule {
+X	char *	r_filename;
+X	int	r_linenum;
+X	char *	r_name;
+X
+X	int	r_loyear;	/* for example, 1986 */
+X	int	r_hiyear;	/* for example, 1986 */
+X	char *	r_yrtype;
+X
+X	int	r_month;	/* 0..11 */
+X
+X	int	r_dycode;	/* see below */
+X	int	r_dayofmonth;
+X	int	r_wday;
+X
+X	long	r_tod;		/* time from midnight */
+X	int	r_todisstd;	/* above is standard time if TRUE */
+X				/* above is wall clock time if FALSE */
+X	long	r_stdoff;	/* offset from standard time */
+X	char *	r_abbrvar;	/* variable part of time zone abbreviation */
+X
+X	int	r_todo;		/* a rule to do (used in outzone) */
+X	time_t	r_temp;		/* used in outzone */
+X};
+X
+X/*
+X**	r_dycode		r_dayofmonth	r_wday
+X*/
+X#define DC_DOM		0	/* 1..31 */	/* unused */
+X#define DC_DOWGEQ	1	/* 1..31 */	/* 0..6 (Sun..Sat) */
+X#define DC_DOWLEQ	2	/* 1..31 */	/* 0..6 (Sun..Sat) */
+X
+X/*
+X** Year synonyms.
+X*/
+X
+X#define YR_MINIMUM	0
+X#define YR_MAXIMUM	1
+X#define YR_ONLY		2
+X
+Xstatic struct rule *	rules;
+Xstatic int		nrules;	/* number of rules */
+X
+Xstruct zone {
+X	char *		z_filename;
+X	int		z_linenum;
+X
+X	char *		z_name;
+X	long		z_gmtoff;
+X	char *		z_rule;
+X	char *		z_format;
+X
+X	long		z_stdoff;
+X
+X	struct rule *	z_rules;
+X	int		z_nrules;
+X
+X	struct rule	z_untilrule;
+X	time_t		z_untiltime;
+X};
+X
+Xstatic struct zone *	zones;
+Xstatic int		nzones;	/* number of zones */
+X
+Xstruct link {
+X	char *		l_filename;
+X	int		l_linenum;
+X	char *		l_from;
+X	char *		l_to;
+X};
+X
+Xstatic struct link *	links;
+Xstatic int		nlinks;
+X
+Xstruct lookup {
+X	char *		l_word;
+X	int		l_value;
+X};
+X
+Xstatic struct lookup *	byword();
+X
+Xstatic struct lookup	line_codes[] = {
+X	"Rule",		LC_RULE,
+X	"Zone",		LC_ZONE,
+X	"Link",		LC_LINK,
+X	NULL,		0
+X};
+X
+Xstatic struct lookup	mon_names[] = {
+X	"January",	TM_JANUARY,
+X	"February",	TM_FEBRUARY,
+X	"March",	TM_MARCH,
+X	"April",	TM_APRIL,
+X	"May",		TM_MAY,
+X	"June",		TM_JUNE,
+X	"July",		TM_JULY,
+X	"August",	TM_AUGUST,
+X	"September",	TM_SEPTEMBER,
+X	"October",	TM_OCTOBER,
+X	"November",	TM_NOVEMBER,
+X	"December",	TM_DECEMBER,
+X	NULL,		0
+X};
+X
+Xstatic struct lookup	wday_names[] = {
+X	"Sunday",	TM_SUNDAY,
+X	"Monday",	TM_MONDAY,
+X	"Tuesday",	TM_TUESDAY,
+X	"Wednesday",	TM_WEDNESDAY,
+X	"Thursday",	TM_THURSDAY,
+X	"Friday",	TM_FRIDAY,
+X	"Saturday",	TM_SATURDAY,
+X	NULL,		0
+X};
+X
+Xstatic struct lookup	lasts[] = {
+X	"last-Sunday",		TM_SUNDAY,
+X	"last-Monday",		TM_MONDAY,
+X	"last-Tuesday",		TM_TUESDAY,
+X	"last-Wednesday",	TM_WEDNESDAY,
+X	"last-Thursday",	TM_THURSDAY,
+X	"last-Friday",		TM_FRIDAY,
+X	"last-Saturday",	TM_SATURDAY,
+X	NULL,			0
+X};
+X
+Xstatic struct lookup	begin_years[] = {
+X	"minimum",		YR_MINIMUM,
+X	"maximum",		YR_MAXIMUM,
+X	NULL,			0
+X};
+X
+Xstatic struct lookup	end_years[] = {
+X	"minimum",		YR_MINIMUM,
+X	"maximum",		YR_MAXIMUM,
+X	"only",			YR_ONLY,
+X	NULL,			0
+X};
+X
+Xstatic int	len_months[2][MONS_PER_YEAR] = {
+X	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31,
+X	31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+X};
+X
+Xstatic int	len_years[2] = {
+X	DAYS_PER_NYEAR, DAYS_PER_LYEAR
+X};
+X
+Xstatic time_t		ats[TZ_MAX_TIMES];
+Xstatic unsigned char	types[TZ_MAX_TIMES];
+Xstatic long		gmtoffs[TZ_MAX_TYPES];
+Xstatic char		isdsts[TZ_MAX_TYPES];
+Xstatic char		abbrinds[TZ_MAX_TYPES];
+Xstatic char		chars[TZ_MAX_CHARS];
+X
+X/*
+X** Memory allocation.
+X*/
+X
+Xstatic char *
+Xmemcheck(ptr)
+Xchar *	ptr;
+X{
+X	if (ptr == NULL) {
+X		perror(progname);
+X		exit(1);
+X	}
+X	return ptr;
+X}
+X
+X#define emalloc(size)		memcheck(imalloc(size))
+X#define erealloc(ptr, size)	memcheck(irealloc(ptr, size))
+X#define ecpyalloc(ptr)		memcheck(icpyalloc(ptr))
+X
+X/*
+X** Error handling.
+X*/
+X
+Xstatic
+Xeats(name, num, rname, rnum)
+Xchar *	name;
+Xchar *	rname;
+X{
+X	filename = name;
+X	linenum = num;
+X	rfilename = rname;
+X	rlinenum = rnum;
+X}
+X
+Xstatic
+Xeat(name, num)
+Xchar *	name;
+X{
+X	eats(name, num, (char *) NULL, -1);
+X}
+X
+Xstatic
+Xerror(string)
+Xchar *	string;
+X{
+X	/*
+X	** Match the format of "cc" to allow sh users to
+X	** 	zic ... 2>&1 | error -t "*" -v
+X	** on BSD systems.
+X	*/
+X	(void) fprintf(stderr, "\"%s\", line %d: %s",
+X		filename, linenum, string);
+X	if (rfilename != NULL)
+X		(void) fprintf(stderr, " (rule from \"%s\", line %d)",
+X			rfilename, rlinenum);
+X	(void) fprintf(stderr, "\n");
+X	++errors;
+X}
+X
+Xstatic
+Xusage()
+X{
+X	(void) fprintf(stderr,
+X"%s: usage is %s [ -v ] [ -l localtime ] [ -d directory ] [ filename ... ]\n",
+X		progname, progname);
+X	exit(1);
+X}
+X
+Xstatic char *	lcltime = NULL;
+Xstatic char *	directory = NULL;
+X
+Xmain(argc, argv)
+Xint	argc;
+Xchar *	argv[];
+X{
+X	register int	i, j;
+X	register int	c;
+X
+X#ifdef unix
+X	umask(umask(022) | 022);
+X#endif
+X	progname = argv[0];
+X	while ((c = getopt(argc, argv, "d:l:v")) != EOF)
+X		switch (c) {
+X			default:
+X				usage();
+X			case 'd':
+X				if (directory == NULL)
+X					directory = optarg;
+X				else {
+X					(void) fprintf(stderr,
+X"%s: More than one -d option specified\n",
+X						progname);
+X					exit(1);
+X				}
+X				break;
+X			case 'l':
+X				if (lcltime == NULL)
+X					lcltime = optarg;
+X				else {
+X					(void) fprintf(stderr,
+X"%s: More than one -l option specified\n",
+X						progname);
+X					exit(1);
+X				}
+X				break;
+X			case 'v':
+X				noise = TRUE;
+X				break;
+X		}
+X	if (optind == argc - 1 && strcmp(argv[optind], "=") == 0)
+X		usage();	/* usage message by request */
+X	if (directory == NULL)
+X		directory = TZDIR;
+X
+X	setboundaries();
+X
+X	zones = (struct zone *) emalloc(0);
+X	rules = (struct rule *) emalloc(0);
+X	links = (struct link *) emalloc(0);
+X	for (i = optind; i < argc; ++i)
+X		infile(argv[i]);
+X	if (errors)
+X		exit(1);
+X	associate();
+X	for (i = 0; i < nzones; i = j) {
+X		/*
+X		 * Find the next non-continuation zone entry.
+X		 */
+X		for (j = i + 1; j < nzones && zones[j].z_name == NULL; ++j)
+X			;
+X		outzone(&zones[i], j - i);
+X	}
+X	/*
+X	** We'll take the easy way out on this last part.
+X	*/
+X	if (chdir(directory) != 0) {
+X		(void) fprintf(stderr, "%s: Can't chdir to ", progname);
+X		perror(directory);
+X		exit(1);
+X	}
+X	for (i = 0; i < nlinks; ++i) {
+X		nondunlink(links[i].l_to);
+X		if (link(links[i].l_from, links[i].l_to) != 0) {
+X			(void) fprintf(stderr, "%s: Can't link %s to ",
+X				progname, links[i].l_from);
+X			perror(links[i].l_to);
+X			exit(1);
+X		}
+X	}
+X	if (lcltime != NULL) {
+X		nondunlink(TZDEFAULT);
+X		if (link(lcltime, TZDEFAULT) != 0) {
+X			(void) fprintf(stderr, "%s: Can't link %s to ",
+X				progname, lcltime);
+X			perror(TZDEFAULT);
+X			exit(1);
+X		}
+X	}
+X	exit((errors == 0) ? 0 : 1);
+X}
+X
+Xstatic
+Xsetboundaries()
+X{
+X	register time_t 	bit;
+X
+X	for (bit = 1; bit > 0; bit <<= 1)
+X		;
+X	if (bit == 0) {		/* time_t is an unsigned type */
+X		tt_signed = FALSE;
+X		min_time = 0;
+X		max_time = ~(time_t) 0;
+X	} else {
+X		tt_signed = TRUE;
+X		min_time = bit;
+X		max_time = bit;
+X		++max_time;
+X		max_time = -max_time;
+X	}
+X	min_year = TM_YEAR_BASE + gmtime(&min_time)->tm_year;
+X	max_year = TM_YEAR_BASE + gmtime(&max_time)->tm_year;
+X}
+X
+X/*
+X** We get to be careful here since there's a fair chance of root running us.
+X*/
+X
+Xstatic
+Xnondunlink(name)
+Xchar *	name;
+X{
+X	struct stat	s;
+X
+X	if (stat(name, &s) != 0)
+X		return;
+X	if ((s.st_mode & S_IFMT) == S_IFDIR)
+X		return;
+X	(void) unlink(name);
+X}
+X
+X/*
+X** Associate sets of rules with zones.
+X*/
+X
+X/*
+X** Sort by rule name.
+X*/
+X
+Xstatic
+Xrcomp(cp1, cp2)
+Xchar *	cp1;
+Xchar *	cp2;
+X{
+X	return strcmp(((struct rule *) cp1)->r_name,
+X		((struct rule *) cp2)->r_name);
+X}
+X
+Xstatic
+Xassociate()
+X{
+X	register struct zone *	zp;
+X	register struct rule *	rp;
+X	register int		base, out;
+X	register int		i;
+X
+X	if (nrules != 0)
+X		(void) qsort((char *) rules, nrules, sizeof *rules, rcomp);
+X	for (i = 0; i < nzones; ++i) {
+X		zp = &zones[i];
+X		zp->z_rules = NULL;
+X		zp->z_nrules = 0;
+X	}
+X	for (base = 0; base < nrules; base = out) {
+X		rp = &rules[base];
+X		for (out = base + 1; out < nrules; ++out)
+X			if (strcmp(rp->r_name, rules[out].r_name) != 0)
+X				break;
+X		for (i = 0; i < nzones; ++i) {
+X			zp = &zones[i];
+X			if (strcmp(zp->z_rule, rp->r_name) != 0)
+X				continue;
+X			zp->z_rules = rp;
+X			zp->z_nrules = out - base;
+X		}
+X	}
+X	for (i = 0; i < nzones; ++i) {
+X		zp = &zones[i];
+X		if (zp->z_nrules == 0) {
+X			/*
+X			** Maybe we have a local standard time offset.
+X			*/
+X			eat(zp->z_filename, zp->z_linenum);
+X			zp->z_stdoff = gethms(zp->z_rule, "unruly zone", TRUE);
+X			/*
+X			** Note, though, that if there's no rule,
+X			** a '%s' in the format is a bad thing.
+X			*/
+X			if (strchr(zp->z_format, '%') != 0)
+X				error("%s in ruleless zone");
+X		}
+X	}
+X	if (errors)
+X		exit(1);
+X}
+X
+Xstatic
+Xinfile(name)
+Xchar *	name;
+X{
+X	register FILE *			fp;
+X	register char **		fields;
+X	register char *			cp;
+X	register struct lookup *	lp;
+X	register int			nfields;
+X	register int			wantcont;
+X	register int			num;
+X	char				buf[BUFSIZ];
+X
+X	if (strcmp(name, "-") == 0) {
+X		name = "standard input";
+X		fp = stdin;
+X	} else if ((fp = fopen(name, "r")) == NULL) {
+X		(void) fprintf(stderr, "%s: Can't open ", progname);
+X		perror(name);
+X		exit(1);
+X	}
+X	wantcont = FALSE;
+X	for (num = 1; ; ++num) {
+X		eat(name, num);
+X		if (fgets(buf, sizeof buf, fp) != buf)
+X			break;
+X		cp = strchr(buf, '\n');
+X		if (cp == NULL) {
+X			error("line too long");
+X			exit(1);
+X		}
+X		*cp = '\0';
+X		fields = getfields(buf);
+X		nfields = 0;
+X		while (fields[nfields] != NULL) {
+X			if (ciequal(fields[nfields], "-"))
+X				fields[nfields] = "";
+X			++nfields;
+X		}
+X		if (nfields == 0) {
+X			/* nothing to do */
+X		} else if (wantcont) {
+X			wantcont = inzcont(fields, nfields);
+X		} else {
+X			lp = byword(fields[0], line_codes);
+X			if (lp == NULL)
+X				error("input line of unknown type");
+X			else switch ((int) (lp->l_value)) {
+X				case LC_RULE:
+X					inrule(fields, nfields);
+X					wantcont = FALSE;
+X					break;
+X				case LC_ZONE:
+X					wantcont = inzone(fields, nfields);
+X					break;
+X				case LC_LINK:
+X					inlink(fields, nfields);
+X					wantcont = FALSE;
+X					break;
+X				default:	/* "cannot happen" */
+X					(void) fprintf(stderr,
+X"%s: panic: Invalid l_value %d\n",
+X						progname, lp->l_value);
+X					exit(1);
+X			}
+X		}
+X		free((char *) fields);
+X	}
+X	if (ferror(fp)) {
+X		(void) fprintf(stderr, "%s: Error reading ", progname);
+X		perror(filename);
+X		exit(1);
+X	}
+X	if (fp != stdin && fclose(fp)) {
+X		(void) fprintf(stderr, "%s: Error closing ", progname);
+X		perror(filename);
+X		exit(1);
+X	}
+X	if (wantcont)
+X		error("expected continuation line not found");
+X}
+X
+X/*
+X** Convert a string of one of the forms
+X**	h	-h 	hh:mm	-hh:mm	hh:mm:ss	-hh:mm:ss
+X** into a number of seconds.
+X** A null string maps to zero.
+X** Call error with errstring and return zero on errors.
+X*/
+X
+Xstatic long
+Xgethms(string, errstring, signable)
+Xchar *	string;
+Xchar *	errstring;
+X{
+X	int	hh, mm, ss, sign;
+X
+X	if (string == NULL || *string == '\0')
+X		return 0;
+X	if (!signable)
+X		sign = 1;
+X	else if (*string == '-') {
+X		sign = -1;
+X		++string;
+X	} else	sign = 1;
+X	if (sscanf(string, scheck(string, "%d"), &hh) == 1)
+X		mm = ss = 0;
+X	else if (sscanf(string, scheck(string, "%d:%d"), &hh, &mm) == 2)
+X		ss = 0;
+X	else if (sscanf(string, scheck(string, "%d:%d:%d"),
+X		&hh, &mm, &ss) != 3) {
+X			error(errstring);
+X			return 0;
+X	}
+X	if (hh < 0 || hh >= HOURS_PER_DAY ||
+X		mm < 0 || mm >= MINS_PER_HOUR ||
+X		ss < 0 || ss >= SECS_PER_MIN) {
+X			error(errstring);
+X			return 0;
+X	}
+X	return eitol(sign) *
+X		(eitol(hh * MINS_PER_HOUR + mm) *
+X		eitol(SECS_PER_MIN) + eitol(ss));
+X}
+X
+Xstatic
+Xinrule(fields, nfields)
+Xregister char **	fields;
+X{
+X	struct rule	r;
+X
+X	if (nfields != RULE_FIELDS) {
+X		error("wrong number of fields on Rule line");
+X		return;
+X	}
+X	if (*fields[RF_NAME] == '\0') {
+X		error("nameless rule");
+X		return;
+X	}
+X	r.r_filename = filename;
+X	r.r_linenum = linenum;
+X	r.r_stdoff = gethms(fields[RF_STDOFF], "invalid saved time", TRUE);
+X	rulesub(&r, fields[RF_LOYEAR], fields[RF_HIYEAR], fields[RF_COMMAND],
+X		fields[RF_MONTH], fields[RF_DAY], fields[RF_TOD]);
+X	r.r_name = ecpyalloc(fields[RF_NAME]);
+X	r.r_abbrvar = ecpyalloc(fields[RF_ABBRVAR]);
+X	rules = (struct rule *) erealloc((char *) rules,
+X		(nrules + 1) * sizeof *rules);
+X	rules[nrules++] = r;
+X}
+X
+Xstatic
+Xinzone(fields, nfields)
+Xregister char **	fields;
+X{
+X	register int	i;
+X	char		buf[132];
+X
+X	if (nfields < ZONE_MINFIELDS || nfields > ZONE_MAXFIELDS) {
+X		error("wrong number of fields on Zone line");
+X		return FALSE;
+X	}
+X	if (strcmp(fields[ZF_NAME], TZDEFAULT) == 0 && lcltime != NULL) {
+X		(void) sprintf(buf,
+X			"\"Zone %s\" line and -l option are mutually exclusive",
+X			TZDEFAULT);
+X		error(buf);
+X		return FALSE;
+X	}
+X	for (i = 0; i < nzones; ++i)
+X		if (zones[i].z_name != NULL &&
+X			strcmp(zones[i].z_name, fields[ZF_NAME]) == 0) {
+X				(void) sprintf(buf,
+X"duplicate zone name %s (file \"%s\", line %d)",
+X					fields[ZF_NAME],
+X					zones[i].z_filename,
+X					zones[i].z_linenum);
+X				error(buf);
+X				return FALSE;
+X		}
+X	return inzsub(fields, nfields, FALSE);
+X}
+X
+Xstatic
+Xinzcont(fields, nfields)
+Xregister char **	fields;
+X{
+X	if (nfields < ZONEC_MINFIELDS || nfields > ZONEC_MAXFIELDS) {
+X		error("wrong number of fields on Zone continuation line");
+X		return FALSE;
+X	}
+X	return inzsub(fields, nfields, TRUE);
+X}
+X
+Xstatic
+Xinzsub(fields, nfields, iscont)
+Xregister char **	fields;
+X{
+X	register char *	cp;
+X	struct zone	z;
+X	register int	i_gmtoff, i_rule, i_format;
+X	register int	i_untilyear, i_untilmonth;
+X	register int	i_untilday, i_untiltime;
+X	register int	hasuntil;
+X
+X	if (iscont) {
+X		i_gmtoff = ZFC_GMTOFF;
+X		i_rule = ZFC_RULE;
+X		i_format = ZFC_FORMAT;
+X		i_untilyear = ZFC_UNTILYEAR;
+X		i_untilmonth = ZFC_UNTILMONTH;
+X		i_untilday = ZFC_UNTILDAY;
+X		i_untiltime = ZFC_UNTILTIME;
+X		z.z_name = NULL;
+X	} else {
+X		i_gmtoff = ZF_GMTOFF;
+X		i_rule = ZF_RULE;
+X		i_format = ZF_FORMAT;
+X		i_untilyear = ZF_UNTILYEAR;
+X		i_untilmonth = ZF_UNTILMONTH;
+X		i_untilday = ZF_UNTILDAY;
+X		i_untiltime = ZF_UNTILTIME;
+X		z.z_name = ecpyalloc(fields[ZF_NAME]);
+X	}
+X	z.z_filename = filename;
+X	z.z_linenum = linenum;
+X	z.z_gmtoff = gethms(fields[i_gmtoff], "invalid GMT offset", TRUE);
+X	if ((cp = strchr(fields[i_format], '%')) != 0) {
+X		if (*++cp != 's' || strchr(cp, '%') != 0) {
+X			error("invalid abbreviation format");
+X			return FALSE;
+X		}
+X	}
+X	z.z_rule = ecpyalloc(fields[i_rule]);
+X	z.z_format = ecpyalloc(fields[i_format]);
+X	hasuntil = nfields > i_untilyear;
+X	if (hasuntil) {
+X		z.z_untilrule.r_filename = filename;
+X		z.z_untilrule.r_linenum = linenum;
+X		rulesub(&z.z_untilrule,
+X			fields[i_untilyear],
+X			"only",
+X			"",
+X			(nfields > i_untilmonth) ? fields[i_untilmonth] : "Jan",
+X			(nfields > i_untilday) ? fields[i_untilday] : "1",
+X			(nfields > i_untiltime) ? fields[i_untiltime] : "0");
+X		z.z_untiltime = rpytime(&z.z_untilrule, z.z_untilrule.r_loyear);
+X		if (iscont && nzones > 0 && z.z_untiltime < max_time &&
+X			z.z_untiltime > min_time &&
+X			zones[nzones - 1].z_untiltime >= z.z_untiltime) {
+Xerror("Zone continuation line end time is not after end time of previous line");
+X			return FALSE;
+X		}
+X	}
+X	zones = (struct zone *) erealloc((char *) zones,
+X		(nzones + 1) * sizeof *zones);
+X	zones[nzones++] = z;
+X	/*
+X	** If there was an UNTIL field on this line,
+X	** there's more information about the zone on the next line.
+X	*/
+X	return hasuntil;
+X}
+X
+Xstatic
+Xinlink(fields, nfields)
+Xregister char **	fields;
+X{
+X	struct link	l;
+X
+X	if (nfields != LINK_FIELDS) {
+X		error("wrong number of fields on Link line");
+X		return;
+X	}
+X	if (*fields[LF_FROM] == '\0') {
+X		error("blank FROM field on Link line");
+X		return;
+X	}
+X	if (*fields[LF_TO] == '\0') {
+X		error("blank TO field on Link line");
+X		return;
+X	}
+X	l.l_filename = filename;
+X	l.l_linenum = linenum;
+X	l.l_from = ecpyalloc(fields[LF_FROM]);
+X	l.l_to = ecpyalloc(fields[LF_TO]);
+X	links = (struct link *) erealloc((char *) links,
+X		(nlinks + 1) * sizeof *links);
+X	links[nlinks++] = l;
+X}
+X
+Xstatic
+Xrulesub(rp, loyearp, hiyearp, typep, monthp, dayp, timep)
+Xregister struct rule *	rp;
+Xchar *			loyearp;
+Xchar *			hiyearp;
+Xchar *			typep;
+Xchar *			monthp;
+Xchar *			dayp;
+Xchar *			timep;
+X{
+X	register struct lookup *	lp;
+X	register char *			cp;
+X
+X	if ((lp = byword(monthp, mon_names)) == NULL) {
+X		error("invalid month name");
+X		return;
+X	}
+X	rp->r_month = lp->l_value;
+X	rp->r_todisstd = FALSE;
+X	cp = timep;
+X	if (*cp != '\0') {
+X		cp += strlen(cp) - 1;
+X		switch (lowerit(*cp)) {
+X			case 's':
+X				rp->r_todisstd = TRUE;
+X				*cp = '\0';
+X				break;
+X			case 'w':
+X				rp->r_todisstd = FALSE;
+X				*cp = '\0';
+X				break;
+X		}
+X	}
+X	rp->r_tod = gethms(timep, "invalid time of day", FALSE);
+X	/*
+X	** Year work.
+X	*/
+X	cp = loyearp;
+X	if ((lp = byword(cp, begin_years)) != NULL) switch ((int) lp->l_value) {
+X		case YR_MINIMUM:
+X			rp->r_loyear = min_year;
+X			break;
+X		case YR_MAXIMUM:
+X			rp->r_loyear = max_year;
+X			break;
+X		default:	/* "cannot happen" */
+X			(void) fprintf(stderr,
+X				"%s: panic: Invalid l_value %d\n",
+X				progname, lp->l_value);
+X			exit(1);
+X	} else if (sscanf(cp, scheck(cp, "%d"), &rp->r_loyear) != 1 ||
+X		rp->r_loyear < min_year || rp->r_loyear > max_year) {
+X			if (noise)
+X				error("invalid starting year");
+X			if (rp->r_loyear > max_year)
+X				return;
+X	}
+X	cp = hiyearp;
+X	if ((lp = byword(cp, end_years)) != NULL) switch ((int) lp->l_value) {
+X		case YR_MINIMUM:
+X			rp->r_hiyear = min_year;
+X			break;
+X		case YR_MAXIMUM:
+X			rp->r_hiyear = max_year;
+X			break;
+X		case YR_ONLY:
+X			rp->r_hiyear = rp->r_loyear;
+X			break;
+X		default:	/* "cannot happen" */
+X			(void) fprintf(stderr,
+X				"%s: panic: Invalid l_value %d\n",
+X				progname, lp->l_value);
+X			exit(1);
+X	} else if (sscanf(cp, scheck(cp, "%d"), &rp->r_hiyear) != 1 ||
+X		rp->r_hiyear < min_year || rp->r_hiyear > max_year) {
+X			if (noise)
+X				error("invalid ending year");
+X			if (rp->r_hiyear < min_year)
+X				return;
+X	}
+X	if (rp->r_hiyear < min_year)
+X 		return;
+X 	if (rp->r_loyear < min_year)
+X 		rp->r_loyear = min_year;
+X 	if (rp->r_hiyear > max_year)
+X 		rp->r_hiyear = max_year;
+X	if (rp->r_loyear > rp->r_hiyear) {
+X		error("starting year greater than ending year");
+X		return;
+X	}
+X	if (*typep == '\0')
+X		rp->r_yrtype = NULL;
+X	else {
+X		if (rp->r_loyear == rp->r_hiyear) {
+X			error("typed single year");
+X			return;
+X		}
+X		rp->r_yrtype = ecpyalloc(typep);
+X	}
+X	/*
+X	** Day work.
+X	** Accept things such as:
+X	**	1
+X	**	last-Sunday
+X	**	Sun<=20
+X	**	Sun>=7
+X	*/
+X	if ((lp = byword(dayp, lasts)) != NULL) {
+X		rp->r_dycode = DC_DOWLEQ;
+X		rp->r_wday = lp->l_value;
+X		rp->r_dayofmonth = len_months[1][rp->r_month];
+X	} else {
+X		if ((cp = strchr(dayp, '<')) != 0)
+X			rp->r_dycode = DC_DOWLEQ;
+X		else if ((cp = strchr(dayp, '>')) != 0)
+X			rp->r_dycode = DC_DOWGEQ;
+X		else {
+X			cp = dayp;
+X			rp->r_dycode = DC_DOM;
+X		}
+X		if (rp->r_dycode != DC_DOM) {
+X			*cp++ = 0;
+X			if (*cp++ != '=') {
+X				error("invalid day of month");
+X				return;
+X			}
+X			if ((lp = byword(dayp, wday_names)) == NULL) {
+X				error("invalid weekday name");
+X				return;
+X			}
+X			rp->r_wday = lp->l_value;
+X		}
+X		if (sscanf(cp, scheck(cp, "%d"), &rp->r_dayofmonth) != 1 ||
+X			rp->r_dayofmonth <= 0 ||
+X			(rp->r_dayofmonth > len_months[1][rp->r_month])) {
+X				error("invalid day of month");
+X				return;
+X		}
+X	}
+X}
+X
+Xstatic
+Xputtzcode(val, fp)
+Xlong	val;
+XFILE *	fp;
+X{
+X	register int	c;
+X	register int	shift;
+X
+X	for (shift = 24; shift >= 0; shift -= 8) {
+X		c = val >> shift;
+X		(void) putc(c, fp);
+X	}
+X}
+X
+Xstatic
+Xwritezone(name)
+Xchar *	name;
+X{
+X	register FILE *		fp;
+X	register int		i;
+X	char			fullname[BUFSIZ];
+X
+X	if (strlen(directory) + 1 + strlen(name) >= sizeof fullname) {
+X		(void) fprintf(stderr,
+X			"%s: File name %s/%s too long\n", progname,
+X			directory, name);
+X		exit(1);
+X	}
+X	(void) sprintf(fullname, "%s/%s", directory, name);
+X	if ((fp = fopen(fullname, "w")) == NULL) {
+X		if (mkdirs(fullname) != 0)
+X			exit(1);
+X		if ((fp = fopen(fullname, "w")) == NULL) {
+X			(void) fprintf(stderr, "%s: Can't create ", progname);
+X			perror(fullname);
+X			exit(1);
+X		}
+X	}
+X	(void) fseek(fp, (long) sizeof ((struct tzhead *) 0)->tzh_reserved, 0);
+X	puttzcode(eitol(timecnt), fp);
+X	puttzcode(eitol(typecnt), fp);
+X	puttzcode(eitol(charcnt), fp);
+X	for (i = 0; i < timecnt; ++i)
+X		puttzcode((long) ats[i], fp);
+X	if (timecnt > 0)
+X		(void) fwrite((char *) types, sizeof types[0],
+X			(int) timecnt, fp);
+X	for (i = 0; i < typecnt; ++i) {
+X		puttzcode((long) gmtoffs[i], fp);
+X		(void) putc(isdsts[i], fp);
+X		(void) putc(abbrinds[i], fp);
+X	}
+X	if (charcnt != 0)
+X		(void) fwrite(chars, sizeof chars[0], (int) charcnt, fp);
+X	if (ferror(fp) || fclose(fp)) {
+X		(void) fprintf(stderr, "%s: Write error on ", progname);
+X		perror(fullname);
+X		exit(1);
+X	}
+X}
+X
+Xstatic
+Xoutzone(zpfirst, zonecount)
+Xstruct zone *	zpfirst;
+X{
+X	register struct zone *		zp;
+X	register struct rule *		rp;
+X	register int			i, j;
+X	register int			usestart, useuntil;
+X	register time_t			starttime, untiltime;
+X	register long			gmtoff;
+X	register long			stdoff;
+X	register int			year;
+X	register long			startoff;
+X	register int			startisdst;
+X	register int			type;
+X	char				startbuf[BUFSIZ];
+X
+X	/*
+X	** Now. . .finally. . .generate some useful data!
+X	*/
+X	timecnt = 0;
+X	typecnt = 0;
+X	charcnt = 0;
+X	/*
+X	** Two guesses. . .the second may well be corrected later.
+X	*/
+X	gmtoff = zpfirst->z_gmtoff;
+X	stdoff = 0;
+X	for (i = 0; i < zonecount; ++i) {
+X		usestart = i > 0;
+X		useuntil = i < (zonecount - 1);
+X		zp = &zpfirst[i];
+X		eat(zp->z_filename, zp->z_linenum);
+X		startisdst = -1;
+X		if (zp->z_nrules == 0) {
+X			type = addtype(oadd(zp->z_gmtoff, zp->z_stdoff),
+X				zp->z_format, zp->z_stdoff != 0);
+X			if (usestart)
+X				addtt(starttime, type);
+X			gmtoff = zp->z_gmtoff;
+X			stdoff = zp->z_stdoff;
+X		} else for (year = min_year; year <= max_year; ++year) {
+X			if (useuntil && year > zp->z_untilrule.r_hiyear)
+X				break;
+X			/*
+X			** Mark which rules to do in the current year.
+X			** For those to do, calculate rpytime(rp, year);
+X			*/
+X			for (j = 0; j < zp->z_nrules; ++j) {
+X				rp = &zp->z_rules[j];
+X				eats(zp->z_filename, zp->z_linenum,
+X					rp->r_filename, rp->r_linenum);
+X				rp->r_todo = year >= rp->r_loyear &&
+X						year <= rp->r_hiyear &&
+X						yearistype(year, rp->r_yrtype);
+X				if (rp->r_todo)
+X					rp->r_temp = rpytime(rp, year);
+X			}
+X			for ( ; ; ) {
+X				register int	k;
+X				register time_t	jtime, ktime;
+X				register long	offset;
+X				char		buf[BUFSIZ];
+X
+X				if (useuntil) {
+X					/*
+X					** Turn untiltime into GMT
+X					** assuming the current gmtoff and
+X					** stdoff values.
+X					*/
+X					offset = gmtoff;
+X					if (!zp->z_untilrule.r_todisstd)
+X						offset = oadd(offset, stdoff);
+X					untiltime = tadd(zp->z_untiltime,
+X						-offset);
+X				}
+X				/*
+X				** Find the rule (of those to do, if any)
+X				** that takes effect earliest in the year.
+X				*/
+X				k = -1;
+X				for (j = 0; j < zp->z_nrules; ++j) {
+X					rp = &zp->z_rules[j];
+X					if (!rp->r_todo)
+X						continue;
+X					eats(zp->z_filename, zp->z_linenum,
+X						rp->r_filename, rp->r_linenum);
+X					offset = gmtoff;
+X					if (!rp->r_todisstd)
+X						offset = oadd(offset, stdoff);
+X					jtime = rp->r_temp;
+X					if (jtime == min_time ||
+X						jtime == max_time)
+X							continue;
+X					jtime = tadd(jtime, -offset);
+X					if (k < 0 || jtime < ktime) {
+X						k = j;
+X						ktime = jtime;
+X					}
+X				}
+X				if (k < 0)
+X					break;	/* go on to next year */
+X				rp = &zp->z_rules[k];
+X				rp->r_todo = FALSE;
+X				if (useuntil && ktime >= untiltime)
+X					break;
+X				if (usestart) {
+X					if (ktime < starttime) {
+X						stdoff = rp->r_stdoff;
+X						startoff = oadd(zp->z_gmtoff,
+X							rp->r_stdoff);
+X						(void) sprintf(startbuf,
+X							zp->z_format,
+X							rp->r_abbrvar);
+X						startisdst =
+X							rp->r_stdoff != 0;
+X						continue;
+X					}
+X					if (ktime != starttime &&
+X						startisdst >= 0)
+Xaddtt(starttime, addtype(startoff, startbuf, startisdst));
+X					usestart = FALSE;
+X				}
+X				eats(zp->z_filename, zp->z_linenum,
+X					rp->r_filename, rp->r_linenum);
+X				(void) sprintf(buf, zp->z_format,
+X					rp->r_abbrvar);
+X				offset = oadd(zp->z_gmtoff, rp->r_stdoff);
+X				type = addtype(offset, buf, rp->r_stdoff != 0);
+X				if (timecnt != 0 || rp->r_stdoff != 0)
+X					addtt(ktime, type);
+X				gmtoff = zp->z_gmtoff;
+X				stdoff = rp->r_stdoff;
+X			}
+X		}
+X		/*
+X		** Now we may get to set starttime for the next zone line.
+X		*/
+X		if (useuntil)
+X			starttime = tadd(zp->z_untiltime,
+X				-gmtoffs[types[timecnt - 1]]);
+X	}
+X	writezone(zpfirst->z_name);
+X}
+X
+Xstatic
+Xaddtt(starttime, type)
+Xtime_t	starttime;
+X{
+X	if (timecnt != 0 && type == types[timecnt - 1])
+X		return;	/* easy enough! */
+X	if (timecnt >= TZ_MAX_TIMES) {
+X		error("too many transitions?!");
+X		exit(1);
+X	}
+X	ats[timecnt] = starttime;
+X	types[timecnt] = type;
+X	++timecnt;
+X}
+X
+Xstatic
+Xaddtype(gmtoff, abbr, isdst)
+Xlong	gmtoff;
+Xchar *	abbr;
+X{
+X	register int	i, j;
+X
+X	/*
+X	** See if there's already an entry for this zone type.
+X	** If so, just return its index.
+X	*/
+X	for (i = 0; i < typecnt; ++i) {
+X		if (gmtoff == gmtoffs[i] && isdst == isdsts[i] &&
+X			strcmp(abbr, &chars[abbrinds[i]]) == 0)
+X				return i;
+X	}
+X	/*
+X	** There isn't one; add a new one, unless there are already too
+X	** many.
+X	*/
+X	if (typecnt >= TZ_MAX_TYPES) {
+X		error("too many local time types");
+X		exit(1);
+X	}
+X	gmtoffs[i] = gmtoff;
+X	isdsts[i] = isdst;
+X
+X	for (j = 0; j < charcnt; ++j)
+X		if (strcmp(&chars[j], abbr) == 0)
+X			break;
+X	if (j == charcnt)
+X		newabbr(abbr);
+X	abbrinds[i] = j;
+X	++typecnt;
+X	return i;
+X}
+X
+Xstatic
+Xyearistype(year, type)
+Xchar *	type;
+X{
+X	char	buf[BUFSIZ];
+X	int	result;
+X
+X	if (type == NULL || *type == '\0')
+X		return TRUE;
+X	if (strcmp(type, "uspres") == 0)
+X		return (year % 4) == 0;
+X	if (strcmp(type, "nonpres") == 0)
+X		return (year % 4) != 0;
+X	(void) sprintf(buf, "yearistype %d %s", year, type);
+X	result = system(buf);
+X	if (result == 0)
+X		return TRUE;
+X	if (result == 1 << 8)
+X		return FALSE;
+X	error("Wild result from command execution");
+X	(void) fprintf(stderr, "%s: command was '%s', result was %d\n",
+X		progname, buf, result);
+X	for ( ; ; )
+X		exit(1);
+X}
+X
+Xstatic
+Xlowerit(a)
+X{
+X	return (isascii(a) && isupper(a)) ? tolower(a) : a;
+X}
+X
+Xstatic
+Xciequal(ap, bp)		/* case-insensitive equality */
+Xregister char *	ap;
+Xregister char *	bp;
+X{
+X	while (lowerit(*ap) == lowerit(*bp++))
+X		if (*ap++ == '\0')
+X			return TRUE;
+X	return FALSE;
+X}
+X
+Xstatic
+Xisabbr(abbr, word)
+Xregister char *	abbr;
+Xregister char *	word;
+X{
+X	if (lowerit(*abbr) != lowerit(*word))
+X		return FALSE;
+X	++word;
+X	while (*++abbr != '\0')
+X		do if (*word == '\0')
+X			return FALSE;
+X				while (lowerit(*word++) != lowerit(*abbr));
+X	return TRUE;
+X}
+X
+Xstatic struct lookup *
+Xbyword(word, table)
+Xregister char *			word;
+Xregister struct lookup *	table;
+X{
+X	register struct lookup *	foundlp;
+X	register struct lookup *	lp;
+X
+X	if (word == NULL || table == NULL)
+X		return NULL;
+X	/*
+X	** Look for exact match.
+X	*/
+X	for (lp = table; lp->l_word != NULL; ++lp)
+X		if (ciequal(word, lp->l_word))
+X			return lp;
+X	/*
+X	** Look for inexact match.
+X	*/
+X	foundlp = NULL;
+X	for (lp = table; lp->l_word != NULL; ++lp)
+X		if (isabbr(word, lp->l_word))
+X			if (foundlp == NULL)
+X				foundlp = lp;
+X			else	return NULL;	/* multiple inexact matches */
+X	return foundlp;
+X}
+X
+Xstatic char **
+Xgetfields(cp)
+Xregister char *	cp;
+X{
+X	register char *		dp;
+X	register char **	array;
+X	register int		nsubs;
+X
+X	if (cp == NULL)
+X		return NULL;
+X	array = (char **) emalloc((strlen(cp) + 1) * sizeof *array);
+X	nsubs = 0;
+X	for ( ; ; ) {
+X		while (isascii(*cp) && isspace(*cp))
+X			++cp;
+X		if (*cp == '\0' || *cp == '#')
+X			break;
+X		array[nsubs++] = dp = cp;
+X		do {
+X			if ((*dp = *cp++) != '"')
+X				++dp;
+X			else while ((*dp = *cp++) != '"')
+X				if (*dp != '\0')
+X					++dp;
+X				else	error("Odd number of quotation marks");
+X		} while (*cp != '\0' && *cp != '#' &&
+X			(!isascii(*cp) || !isspace(*cp)));
+X		if (isascii(*cp) && isspace(*cp))
+X			++cp;
+X		*dp = '\0';
+X	}
+X	array[nsubs] = NULL;
+X	return array;
+X}
+X
+Xstatic long
+Xoadd(t1, t2)
+Xlong	t1;
+Xlong	t2;
+X{
+X	register long	t;
+X
+X	t = t1 + t2;
+X	if (t2 > 0 && t <= t1 || t2 < 0 && t >= t1) {
+X		error("time overflow");
+X		exit(1);
+X	}
+X	return t;
+X}
+X
+Xstatic time_t
+Xtadd(t1, t2)
+Xtime_t	t1;
+Xlong	t2;
+X{
+X	register time_t	t;
+X
+X	if (t1 == max_time && t2 > 0)
+X		return max_time;
+X	if (t1 == min_time && t2 < 0)
+X		return min_time;
+X	t = t1 + t2;
+X	if (t2 > 0 && t <= t1 || t2 < 0 && t >= t1) {
+X		error("time overflow");
+X		exit(1);
+X	}
+X	return t;
+X}
+X
+X/*
+X** Given a rule, and a year, compute the date - in seconds since January 1,
+X** 1970, 00:00 LOCAL time - in that year that the rule refers to.
+X*/
+X
+Xstatic time_t
+Xrpytime(rp, wantedy)
+Xregister struct rule *	rp;
+Xregister int		wantedy;
+X{
+X	register int	y, m, i;
+X	register long	dayoff;			/* with a nod to Margaret O. */
+X	register time_t	t;
+X
+X	dayoff = 0;
+X	m = TM_JANUARY;
+X	y = EPOCH_YEAR;
+X	while (wantedy != y) {
+X		if (wantedy > y) {
+X			i = len_years[isleap(y)];
+X			++y;
+X		} else {
+X			--y;
+X			i = -len_years[isleap(y)];
+X		}
+X		dayoff = oadd(dayoff, eitol(i));
+X	}
+X	while (m != rp->r_month) {
+X		i = len_months[isleap(y)][m];
+X		dayoff = oadd(dayoff, eitol(i));
+X		++m;
+X	}
+X	i = rp->r_dayofmonth;
+X	if (m == TM_FEBRUARY && i == 29 && !isleap(y)) {
+X		if (rp->r_dycode == DC_DOWLEQ)
+X			--i;
+X		else {
+X			error("use of 2/29 in non leap-year");
+X			exit(1);
+X		}
+X	}
+X	--i;
+X	dayoff = oadd(dayoff, eitol(i));
+X	if (rp->r_dycode == DC_DOWGEQ || rp->r_dycode == DC_DOWLEQ) {
+X		register long	wday;
+X
+X#define LDAYS_PER_WEEK	((long) DAYS_PER_WEEK)
+X		wday = eitol(EPOCH_WDAY);
+X		/*
+X		** Don't trust mod of negative numbers.
+X		*/
+X		if (dayoff >= 0)
+X			wday = (wday + dayoff) % LDAYS_PER_WEEK;
+X		else {
+X			wday -= ((-dayoff) % LDAYS_PER_WEEK);
+X			if (wday < 0)
+X				wday += LDAYS_PER_WEEK;
+X		}
+X		while (wday != eitol(rp->r_wday))
+X			if (rp->r_dycode == DC_DOWGEQ) {
+X				dayoff = oadd(dayoff, (long) 1);
+X				if (++wday >= LDAYS_PER_WEEK)
+X					wday = 0;
+X				++i;
+X			} else {
+X				dayoff = oadd(dayoff, (long) -1);
+X				if (--wday < 0)
+X					wday = LDAYS_PER_WEEK;
+X				--i;
+X			}
+X		if (i < 0 || i >= len_months[isleap(y)][m]) {
+X			error("no day in month matches rule");
+X			exit(1);
+X		}
+X	}
+X	if (dayoff < 0 && !tt_signed) {
+X		if (wantedy == rp->r_loyear)
+X			return min_time;
+X		error("time before zero");
+X		exit(1);
+X	}
+X	t = (time_t) dayoff * SECS_PER_DAY;
+X	/*
+X	** Cheap overflow check.
+X	*/
+X	if (t / SECS_PER_DAY != dayoff) {
+X		if (wantedy == rp->r_hiyear)
+X			return max_time;
+X		if (wantedy == rp->r_loyear)
+X			return min_time;
+X		error("time overflow");
+X		exit(1);
+X	}
+X	return tadd(t, rp->r_tod);
+X}
+X
+Xstatic
+Xnewabbr(string)
+Xchar *	string;
+X{
+X	register int	i;
+X
+X	i = strlen(string) + 1;
+X	if (charcnt + i >= TZ_MAX_CHARS) {
+X		error("too many, or too long, time zone abbreviations");
+X		exit(1);
+X	}
+X	(void) strcpy(&chars[charcnt], string);
+X	charcnt += eitol(i);
+X}
+X
+Xstatic
+Xmkdirs(name)
+Xchar *	name;
+X{
+X	register char *	cp;
+X
+X	if ((cp = name) == NULL || *cp == '\0')
+X		return 0;
+X	while ((cp = strchr(cp + 1, '/')) != 0) {
+X		*cp = '\0';
+X		if (access(name, 0) != 0) {
+X			/*
+X			 * It doesn't seem to exist, so we try to create it.
+X			 */
+X			if (mkdir(name, 0755) != 0) {
+X				(void) fprintf(stderr,
+X					"%s: Can't create directory ",
+X					progname);
+X				perror(name);
+X				return -1;
+X			}
+X		}
+X		*cp = '/';
+X	}
+X	return 0;
+X}
+X
+Xstatic long
+Xeitol(i)
+X{
+X	long	l;
+X
+X	l = i;
+X	if (i < 0 && l >= 0 || i == 0 && l != 0 || i > 0 && l <= 0) {
+X		(void) fprintf(stderr, "%s: %d did not sign extend correctly\n",
+X			progname, i);
+X		exit(1);
+X	}
+X	return l;
+X}
+X
+X/*
+X** UNIX is a registered trademark of AT&T.
+X*/
+!The!End!
+
+echo x - "zdump.c" 2>&1
+sed "s/^X//" >"zdump.c" <<'!The!End!'
+X#
+X
+X#include "stdio.h"
+X
+X#ifndef lint
+X#ifndef NOID
+Xstatic char	sccsid[] = "@(#)zdump.c	3.1";
+X#endif /* !NOID */
+X#endif /* !lint */
+X
+X#include "sys/types.h"
+X#include "time.h"
+X#include "tzfile.h"
+X
+X#ifndef TRUE
+X#define TRUE		1
+X#define FALSE		0
+X#endif
+X
+Xextern char *		asctime();
+Xextern char **		environ;
+Xextern struct tm *	gmtime();
+Xextern char *		imalloc();
+Xextern char *		optarg;
+Xextern int		optind;
+X#ifndef USG
+Xextern char *		sprintf();
+X#endif /* !USG */
+Xextern long		time();
+Xextern char *		tzname[2];
+Xextern void		tzset();
+X
+X/*
+X** For the benefit of cyntax...
+X*/
+X
+Xstatic long		tzdecode();
+Xstatic			readerr();
+Xstatic			show();
+X
+Xstatic int		longest;
+X
+Xstatic long
+Xtzdecode(codep)
+Xchar *	codep;
+X{
+X	register int	i;
+X	register long	result;
+X
+X	result = 0;
+X	for (i = 0; i < 4; ++i)
+X		result = (result << 8) | (codep[i] & 0xff);
+X	return result;
+X}
+X
+Xmain(argc, argv)
+Xint	argc;
+Xchar *	argv[];
+X{
+X	register FILE *	fp;
+X	register int	i, j, c;
+X	register int	vflag;
+X	register char *	cutoff;
+X	register int	cutyear;
+X	register long	cuttime;
+X	time_t		now;
+X	time_t		t;
+X	long		timecnt;
+X	char		buf[BUFSIZ];
+X
+X	vflag = 0;
+X	cutoff = NULL;
+X	while ((c = getopt(argc, argv, "c:v")) == 'c' || c == 'v')
+X		if (c == 'v')
+X			vflag = 1;
+X		else	cutoff = optarg;
+X	if (c != EOF || optind == argc - 1 && strcmp(argv[optind], "=") == 0) {
+X		(void) fprintf(stderr, "%s: usage is %s [ -v ] zonename ...\n",
+X			argv[0], argv[0]);
+X		exit(1);
+X	}
+X	if (cutoff != NULL)
+X		cutyear = atoi(cutoff);
+X	/*
+X	** VERY approximate.
+X	*/
+X	cuttime = (long) (cutyear - EPOCH_YEAR) *
+X		SECS_PER_HOUR * HOURS_PER_DAY * DAYS_PER_NYEAR;
+X	(void) time(&now);
+X	longest = 0;
+X	for (i = optind; i < argc; ++i)
+X		if (strlen(argv[i]) > longest)
+X			longest = strlen(argv[i]);
+X	for (i = optind; i < argc; ++i) {
+X		register char **	saveenv;
+X		char *			tzequals;
+X		char *			fakeenv[2];
+X
+X		tzequals = imalloc(strlen(argv[i]) + 4);
+X		if (tzequals == NULL) {
+X			(void) fprintf(stderr, "%s: can't allocate memory\n",
+X				argv[0]);
+X			exit(1);
+X		}
+X		(void) sprintf(tzequals, "TZ=%s", argv[i]);
+X		fakeenv[0] = tzequals;
+X		fakeenv[1] = NULL;
+X		saveenv = environ;
+X		environ = fakeenv;
+X		(void) tzset();
+X		environ = saveenv;
+X		show(argv[i], now, FALSE);
+X		if (!vflag)
+X			continue;
+X		if (argv[i][0] == '/')
+X			fp = fopen(argv[i], "r");
+X		else {
+X			j = strlen(TZDIR) + 1 + strlen(argv[i]) + 1;
+X			if (j > sizeof buf) {
+X				(void) fprintf(stderr,
+X					"%s: timezone name %s/%s is too long\n",
+X					argv[0], TZDIR, argv[i]);
+X				exit(1);
+X			}
+X			(void) sprintf(buf, "%s/%s", TZDIR, argv[i]);
+X			fp = fopen(buf, "r");
+X		}
+X		if (fp == NULL) {
+X			(void) fprintf(stderr, "%s: Can't open ", argv[0]);
+X			perror(argv[i]);
+X			exit(1);
+X		}
+X		{
+X			char		code[4];
+X
+X(void) fseek(fp, (long) sizeof ((struct tzhead *) 0)->tzh_reserved, 0);
+X			if (fread((char *) code, sizeof code, 1, fp) != 1)
+X				readerr(fp, argv[0], argv[i]);
+X			timecnt = tzdecode(code);
+X			(void) fseek(fp, (long) (2 * sizeof code), 1);
+X		}
+X		t = 0x80000000;
+X		if (t > 0)		/* time_t is unsigned */
+X			t = 0;
+X		show(argv[i], t, TRUE);
+X		t += SECS_PER_HOUR * HOURS_PER_DAY;
+X		show(argv[i], t, TRUE);
+X		while (timecnt-- > 0) {
+X			char	code[4];
+X
+X			if (fread((char *) code, sizeof code, 1, fp) != 1)
+X				readerr(fp, argv[0], argv[i]);
+X			t = tzdecode(code);
+X			if (cutoff != NULL && t > cuttime)
+X				break;
+X			show(argv[i], t - 1, TRUE);
+X			show(argv[i], t, TRUE);
+X		}
+X		if (fclose(fp)) {
+X			(void) fprintf(stderr, "%s: Error closing ", argv[0]);
+X			perror(argv[i]);
+X			exit(1);
+X		}
+X		t = 0xffffffff;
+X		if (t < 0)		/* time_t is signed */
+X			t = 0x7fffffff ;
+X		t -= SECS_PER_HOUR * HOURS_PER_DAY;
+X		show(argv[i], t, TRUE);
+X		t += SECS_PER_HOUR * HOURS_PER_DAY;
+X		show(argv[i], t, TRUE);
+X		free(tzequals);
+X	}
+X	if (fflush(stdout) || ferror(stdout)) {
+X		(void) fprintf(stderr, "%s: Error writing standard output ",
+X			argv[0]);
+X		perror("standard output");
+X		exit(1);
+X	}
+X	return 0;
+X}
+X
+Xstatic
+Xshow(zone, t, v)
+Xchar *	zone;
+Xtime_t	t;
+X{
+X	struct tm *		tmp;
+X	extern struct tm *	localtime();
+X
+X	(void) printf("%-*s  ", longest, zone);
+X	if (v)
+X		(void) printf("%.24s GMT = ", asctime(gmtime(&t)));
+X	tmp = localtime(&t);
+X	(void) printf("%.24s", asctime(tmp));
+X	if (*tzname[tmp->tm_isdst] != '\0')
+X		(void) printf(" %s", tzname[tmp->tm_isdst]);
+X	if (v) {
+X		(void) printf(" isdst=%d", tmp->tm_isdst);
+X#ifdef KRE_COMPAT
+X		(void) printf(" gmtoff=%ld", tmp->tm_gmtoff);
+X#endif /* KRE_COMPAT */
+X	}
+X	(void) printf("\n");
+X}
+X
+Xstatic
+Xreaderr(fp, progname, filename)
+XFILE *	fp;
+Xchar *	progname;
+Xchar *	filename;
+X{
+X	(void) fprintf(stderr, "%s: Error reading ", progname);
+X	if (ferror(fp))
+X		perror(filename);
+X	else	(void) fprintf(stderr, "%s: Premature EOF\n", filename);
+X	exit(1);
+X}
+!The!End!
+
+echo x - "localtime.c" 2>&1
+sed "s/^X//" >"localtime.c" <<'!The!End!'
+X#
+X
+X/*LINTLIBRARY*/
+X
+X/*
+X** sys/types.h is included to get time_t.
+X*/
+X
+X#include "sys/types.h"
+X#include "tzfile.h"
+X#include "time.h"
+X
+X#ifndef MAXPATHLEN
+X#include "sys/param.h"
+X#ifndef MAXPATHLEN
+X#define MAXPATHLEN	1024
+X#endif /* !MAXPATHLEN */
+X#endif /* !MAXPATHLEN */
+X
+X#ifndef lint
+X#ifndef NOID
+Xstatic char	sccsid[] = "@(#)localtime.c	3.1";
+X#endif /* !NOID */
+X#endif /* !lint */
+X
+X#ifndef TRUE
+X#define TRUE		1
+X#define FALSE		0
+X#endif /* !TRUE */
+X
+Xextern char *		getenv();
+Xextern char *		strcpy();
+Xextern char *		strcat();
+X#ifdef STD_INSPIRED
+Xstruct tm *		offtime();
+X#else /* !STD_INSPIRED */
+Xstatic struct tm *	offtime();
+X#endif /* !STD_INSPIRED */
+X
+Xstruct ttinfo {				/* time type information */
+X	long		tt_gmtoff;	/* GMT offset in seconds */
+X	int		tt_isdst;	/* used to set tm_isdst */
+X	int		tt_abbrind;	/* abbreviation list index */
+X};
+X
+Xstruct state {
+X	int		timecnt;
+X	int		typecnt;
+X	int		charcnt;
+X	time_t		ats[TZ_MAX_TIMES];
+X	unsigned char	types[TZ_MAX_TIMES];
+X	struct ttinfo	ttis[TZ_MAX_TYPES];
+X	char		chars[TZ_MAX_CHARS + 1];
+X};
+X
+Xstatic struct state	s;
+X
+Xstatic int		tz_is_set;
+X
+Xchar *			tzname[2] = {
+X	"GMT",
+X	"GMT"
+X};
+X
+X#ifdef USG_COMPAT
+Xtime_t			timezone = 0;
+Xint			daylight = 0;
+X#endif /* USG_COMPAT */
+X
+X#ifdef TZA_COMPAT
+Xchar *			tz_abbr;	/* compatibility w/older versions */
+X#endif /* TZA_COMPAT */
+X
+Xstatic long
+Xdetzcode(codep)
+Xchar *	codep;
+X{
+X	register long	result;
+X	register int	i;
+X
+X	result = 0;
+X	for (i = 0; i < 4; ++i)
+X		result = (result << 8) | (codep[i] & 0xff);
+X	return result;
+X}
+X
+Xstatic
+Xtzload(name)
+Xregister char *	name;
+X{
+X	register int	i;
+X	register int	fid;
+X
+X	if (name == 0 && (name = TZDEFAULT) == 0)
+X		return -1;
+X	{
+X		register char *	p;
+X		register int	doaccess;
+X		char		fullname[MAXPATHLEN];
+X
+X		doaccess = name[0] == '/';
+X		if (!doaccess) {
+X			if ((p = TZDIR) == 0)
+X				return -1;
+X			if ((strlen(p) + strlen(name) + 1) >= sizeof fullname)
+X				return -1;
+X			(void) strcpy(fullname, p);
+X			(void) strcat(fullname, "/");
+X			(void) strcat(fullname, name);
+X			/*
+X			** Set doaccess if '.' (as in "../") shows up in name.
+X			*/
+X			while (*name != '\0')
+X				if (*name++ == '.')
+X					doaccess = TRUE;
+X			name = fullname;
+X		}
+X		if (doaccess && access(name, 4) != 0)
+X			return -1;
+X		if ((fid = open(name, 0)) == -1)
+X			return -1;
+X	}
+X	{
+X		register char *			p;
+X		register struct tzhead *	tzhp;
+X		char				buf[sizeof s];
+X
+X		i = read(fid, buf, sizeof buf);
+X		if (close(fid) != 0 || i < sizeof *tzhp)
+X			return -1;
+X		tzhp = (struct tzhead *) buf;
+X		s.timecnt = (int) detzcode(tzhp->tzh_timecnt);
+X		s.typecnt = (int) detzcode(tzhp->tzh_typecnt);
+X		s.charcnt = (int) detzcode(tzhp->tzh_charcnt);
+X		if (s.timecnt > TZ_MAX_TIMES ||
+X			s.typecnt == 0 ||
+X			s.typecnt > TZ_MAX_TYPES ||
+X			s.charcnt > TZ_MAX_CHARS)
+X				return -1;
+X		if (i < sizeof *tzhp +
+X			s.timecnt * (4 + sizeof (char)) +
+X			s.typecnt * (4 + 2 * sizeof (char)) +
+X			s.charcnt * sizeof (char))
+X				return -1;
+X		p = buf + sizeof *tzhp;
+X		for (i = 0; i < s.timecnt; ++i) {
+X			s.ats[i] = detzcode(p);
+X			p += 4;
+X		}
+X		for (i = 0; i < s.timecnt; ++i)
+X			s.types[i] = (unsigned char) *p++;
+X		for (i = 0; i < s.typecnt; ++i) {
+X			register struct ttinfo *	ttisp;
+X
+X			ttisp = &s.ttis[i];
+X			ttisp->tt_gmtoff = detzcode(p);
+X			p += 4;
+X			ttisp->tt_isdst = (unsigned char) *p++;
+X			ttisp->tt_abbrind = (unsigned char) *p++;
+X		}
+X		for (i = 0; i < s.charcnt; ++i)
+X			s.chars[i] = *p++;
+X		s.chars[i] = '\0';	/* ensure '\0' at end */
+X	}
+X	/*
+X	** Check that all the local time type indices are valid.
+X	*/
+X	for (i = 0; i < s.timecnt; ++i)
+X		if (s.types[i] >= s.typecnt)
+X			return -1;
+X	/*
+X	** Check that all abbreviation indices are valid.
+X	*/
+X	for (i = 0; i < s.typecnt; ++i)
+X		if (s.ttis[i].tt_abbrind >= s.charcnt)
+X			return -1;
+X	/*
+X	** Set tzname elements to initial values.
+X	*/
+X	tzname[0] = tzname[1] = &s.chars[0];
+X#ifdef USG_COMPAT
+X	timezone = s.ttis[0].tt_gmtoff;
+X	daylight = 0;
+X#endif /* USG_COMPAT */
+X	for (i = 1; i < s.typecnt; ++i) {
+X		register struct ttinfo *	ttisp;
+X
+X		ttisp = &s.ttis[i];
+X		if (ttisp->tt_isdst) {
+X			tzname[1] = &s.chars[ttisp->tt_abbrind];
+X#ifdef USG_COMPAT
+X			daylight = 1;
+X#endif /* USG_COMPAT */ 
+X		} else {
+X			tzname[0] = &s.chars[ttisp->tt_abbrind];
+X#ifdef USG_COMPAT
+X			timezone = ttisp->tt_gmtoff;
+X#endif /* USG_COMPAT */ 
+X		}
+X	}
+X	return 0;
+X}
+X
+Xstatic
+Xtzsetgmt()
+X{
+X	s.timecnt = 0;
+X	s.ttis[0].tt_gmtoff = 0;
+X	s.ttis[0].tt_abbrind = 0;
+X	(void) strcpy(s.chars, "GMT");
+X	tzname[0] = tzname[1] = s.chars;
+X#ifdef USG_COMPAT
+X	timezone = 0;
+X	daylight = 0;
+X#endif /* USG_COMPAT */
+X}
+X
+Xvoid
+Xtzset()
+X{
+X	register char *	name;
+X
+X	tz_is_set = TRUE;
+X	name = getenv("TZ");
+X	if (name != 0 && *name == '\0')
+X		tzsetgmt();		/* GMT by request */
+X	else if (tzload(name) != 0)
+X		tzsetgmt();
+X}
+X
+Xvoid
+Xtzsetwall()
+X{
+X	tz_is_set = TRUE;
+X	if (tzload((char *) 0) != 0)
+X		tzsetgmt();
+X}
+X
+Xstruct tm *
+Xlocaltime(timep)
+Xtime_t *	timep;
+X{
+X	register struct ttinfo *	ttisp;
+X	register struct tm *		tmp;
+X	register int			i;
+X	time_t				t;
+X
+X	if (!tz_is_set)
+X		(void) tzset();
+X	t = *timep;
+X	if (s.timecnt == 0 || t < s.ats[0]) {
+X		i = 0;
+X		while (s.ttis[i].tt_isdst)
+X			if (++i >= s.timecnt) {
+X				i = 0;
+X				break;
+X			}
+X	} else {
+X		for (i = 1; i < s.timecnt; ++i)
+X			if (t < s.ats[i])
+X				break;
+X		i = s.types[i - 1];
+X	}
+X	ttisp = &s.ttis[i];
+X	/*
+X	** To get (wrong) behavior that's compatible with System V Release 2.0
+X	** you'd replace the statement below with
+X	**	tmp = offtime((time_t) (t + ttisp->tt_gmtoff), 0L);
+X	*/
+X	tmp = offtime(&t, ttisp->tt_gmtoff);
+X	tmp->tm_isdst = ttisp->tt_isdst;
+X	tzname[tmp->tm_isdst] = &s.chars[ttisp->tt_abbrind];
+X#ifdef KRE_COMPAT
+X	tmp->tm_zone = &s.chars[ttisp->tt_abbrind];
+X#endif /* KRE_COMPAT */
+X#ifdef TZA_COMPAT
+X	tz_abbr = &s.chars[ttisp->tt_abbrind];
+X#endif /* TZA_COMPAT */
+X	return tmp;
+X}
+X
+Xstruct tm *
+Xgmtime(clock)
+Xtime_t *	clock;
+X{
+X	register struct tm *	tmp;
+X
+X	tmp = offtime(clock, 0L);
+X	tzname[0] = "GMT";
+X#ifdef KRE_COMPAT
+X	tmp->tm_zone = "GMT";		/* UCT ? */
+X#endif /* KRE_COMPAT */
+X	return tmp;
+X}
+X
+Xstatic int	mon_lengths[2][MONS_PER_YEAR] = {
+X	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31,
+X	31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+X};
+X
+Xstatic int	year_lengths[2] = {
+X	DAYS_PER_NYEAR, DAYS_PER_LYEAR
+X};
+X
+X#ifdef STD_INSPIRED
+Xstruct tm *
+X#else /* !STD_INSPIRED */
+Xstatic struct tm *
+X#endif /* !STD_INSPIRED */
+Xofftime(clock, offset)
+Xtime_t *	clock;
+Xlong		offset;
+X{
+X	register struct tm *	tmp;
+X	register long		days;
+X	register long		rem;
+X	register int		y;
+X	register int		yleap;
+X	register int *		ip;
+X	static struct tm	tm;
+X
+X	tmp = &tm;
+X	days = *clock / SECS_PER_DAY;
+X	rem = *clock % SECS_PER_DAY;
+X	rem += offset;
+X	while (rem < 0) {
+X		rem += SECS_PER_DAY;
+X		--days;
+X	}
+X	while (rem >= SECS_PER_DAY) {
+X		rem -= SECS_PER_DAY;
+X		++days;
+X	}
+X	tmp->tm_hour = (int) (rem / SECS_PER_HOUR);
+X	rem = rem % SECS_PER_HOUR;
+X	tmp->tm_min = (int) (rem / SECS_PER_MIN);
+X	tmp->tm_sec = (int) (rem % SECS_PER_MIN);
+X	tmp->tm_wday = (int) ((EPOCH_WDAY + days) % DAYS_PER_WEEK);
+X	if (tmp->tm_wday < 0)
+X		tmp->tm_wday += DAYS_PER_WEEK;
+X	y = EPOCH_YEAR;
+X	if (days >= 0)
+X		for ( ; ; ) {
+X			yleap = isleap(y);
+X			if (days < (long) year_lengths[yleap])
+X				break;
+X			++y;
+X			days = days - (long) year_lengths[yleap];
+X		}
+X	else do {
+X		--y;
+X		yleap = isleap(y);
+X		days = days + (long) year_lengths[yleap];
+X	} while (days < 0);
+X	tmp->tm_year = y - TM_YEAR_BASE;
+X	tmp->tm_yday = (int) days;
+X	ip = mon_lengths[yleap];
+X	for (tmp->tm_mon = 0; days >= (long) ip[tmp->tm_mon]; ++(tmp->tm_mon))
+X		days = days - (long) ip[tmp->tm_mon];
+X	tmp->tm_mday = (int) (days + 1);
+X	tmp->tm_isdst = 0;
+X#ifdef KRE_COMPAT
+X	tmp->tm_zone = "";
+X	tmp->tm_gmtoff = offset;
+X#endif /* KRE_COMPAT */
+X	return tmp;
+X}
+X
+X#ifdef BSD_COMPAT
+X
+X/*
+X** If ctime and localtime aren't in the same file on 4.3BSD systems,
+X** you can run into compilation problems--take
+X**	cc date.c -lz
+X** (please).
+X*/
+X
+Xchar *
+Xctime(timep)
+Xtime_t *	timep;
+X{
+X	return asctime(localtime(timep));
+X}
+X
+X#endif /* BSD_COMPAT */
+!The!End!
+
+echo x - "asctime.c" 2>&1
+sed "s/^X//" >"asctime.c" <<'!The!End!'
+X#
+X
+X/*LINTLIBRARY*/
+X
+X#include "stdio.h"
+X
+X#ifndef lint
+X#ifndef NOID
+Xstatic char	sccsid[] = "@(#)asctime.c	3.1";
+X#endif /* !NOID */
+X#endif /* !lint */
+X
+X#include "time.h"
+X#include "tzfile.h"
+X
+X#ifndef USG
+Xextern char *	sprintf();
+X#endif /* !USG */
+X
+X/*
+X** A la X3J11
+X*/
+X
+Xchar *
+Xasctime(timeptr)
+Xregister struct tm *	timeptr;
+X{
+X	static char	wday_name[DAYS_PER_WEEK][3] = {
+X		"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+X	};
+X	static char	mon_name[MONS_PER_YEAR][3] = {
+X		"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+X		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+X	};
+X	static char	result[26];
+X
+X	(void) sprintf(result, "%.3s %.3s%3d %.2d:%.2d:%.2d %d\n",
+X		wday_name[timeptr->tm_wday],
+X		mon_name[timeptr->tm_mon],
+X		timeptr->tm_mday, timeptr->tm_hour,
+X		timeptr->tm_min, timeptr->tm_sec,
+X		TM_YEAR_BASE + timeptr->tm_year);
+X	return result;
+X}
+!The!End!
+
+echo x - "ctime.c" 2>&1
+sed "s/^X//" >"ctime.c" <<'!The!End!'
+X#
+X
+X/*LINTLIBRARY*/
+X
+X#ifndef lint
+X#ifndef NOID
+Xstatic char	sccsid[] = "@(#)ctime.c	3.1";
+X#endif /* !NOID */
+X#endif /* !lint */
+X
+X#ifndef BSD_COMPAT
+X
+X/*
+X** On non-BSD systems, this can be a separate function (as is proper).
+X*/
+X
+X#include "sys/types.h"
+X#include "time.h"
+X
+Xextern char *		asctime();
+Xextern struct tm *	localtime();
+X
+Xchar *
+Xctime(timep)
+Xtime_t *	timep;
+X{
+X	return asctime(localtime(timep));
+X}
+X
+X#endif /* !BSD_COMPAT */
+!The!End!
+
+echo x - "dysize.c" 2>&1
+sed "s/^X//" >"dysize.c" <<'!The!End!'
+X#
+X
+X/*LINTLIBRARY*/
+X
+X#ifndef lint
+X#ifndef NOID
+Xstatic char	sccsid[] = "@(#)dysize.c	3.1";
+X#endif /* !NOID */
+X#endif /* !lint */
+X
+X#ifdef BSD_COMPAT
+X
+X#include "tzfile.h"
+X
+Xdysize(y)
+X{
+X	/*
+X	** The 4.[0123]BSD version of dysize behaves as if the return statement
+X	** below read
+X	**	return ((y % 4) == 0) ? DAYS_PER_LYEAR : DAYS_PER_NYEAR;
+X	** but since we'd rather be right than (strictly) compatible. . .
+X	*/
+X	return isleap(y) ? DAYS_PER_LYEAR : DAYS_PER_NYEAR;
+X}
+X
+X#endif /* BSD_COMPAT */
+!The!End!
+
+echo x - "timemk.c" 2>&1
+sed "s/^X//" >"timemk.c" <<'!The!End!'
+X#
+X
+X/*LINTLIBRARY*/
+X
+X#ifndef lint
+X#ifndef NOID
+Xstatic char	sccsid[] = "@(#)timemk.c	3.1";
+X#endif /* !NOID */
+X#endif /* !lint */
+X
+X#ifdef STD_INSPIRED
+X
+X/*
+X** Code provided by Robert Elz, who writes:
+X**	The "best" way to do mktime I think is based on an idea of Bob
+X**	Kridle's (so its said...) from a long time ago. (mtxinu!kridle now).
+X**	It does a binary search of the time_t space.  Since time_t's are
+X**	just 32 bits, its a max of 32 iterations (even at 64 bits it
+X**	would still be very reasonable).
+X**
+X** This code does handle "out of bounds" values in the way described
+X** for "mktime" in the October, 1986 draft of the proposed ANSI C Standard;
+X** though this is an accident of the implementation and *cannot* be made to
+X** work correctly for the purposes there described.
+X**
+X** A warning applies if you try to use these functions with a version of
+X** "localtime" that has overflow problems (such as System V Release 2.0
+X** or 4.3 BSD localtime).
+X** If you're not using GMT and feed a value to localtime
+X** that's near the minimum (or maximum) possible time_t value, localtime
+X** may return a struct that represents a time near the maximum (or minimum)
+X** possible time_t value (because of overflow).  If such a returned struct tm
+X** is fed to timelocal, it will not return the value originally feed to
+X** localtime.
+X*/
+X
+X#include "time.h"
+X#include "tzfile.h"
+X#include "sys/types.h"
+X
+X#ifndef WRONG
+X#define WRONG	(-1)
+X#endif /* !WRONG */
+X
+Xextern struct tm *	localtime();
+Xextern struct tm *	gmtime();
+Xextern struct tm *	offtime();
+X
+Xstatic time_t
+Xtimemk(timeptr, funcp, offset)
+Xstruct tm *	timeptr;
+Xstruct tm * (*	funcp)();
+Xlong		offset;
+X{
+X	register int	direction;
+X	register int	bits;
+X	time_t		t;
+X	struct tm	yourtm, mytm;
+X
+X	yourtm = *timeptr;
+X	/*
+X	** Correct the tm supplied, in case some of its values are
+X	** out of range.
+X	*/
+X	while (yourtm.tm_sec >= SECS_PER_MIN)
+X		++yourtm.tm_min, yourtm.tm_sec -= SECS_PER_MIN;
+X	while (yourtm.tm_sec < 0)
+X		--yourtm.tm_min, yourtm.tm_sec += SECS_PER_MIN;
+X	while (yourtm.tm_min >= MINS_PER_HOUR)
+X		++yourtm.tm_hour, yourtm.tm_min -= MINS_PER_HOUR;
+X	while (yourtm.tm_min < 0)
+X		--yourtm.tm_hour, yourtm.tm_min += MINS_PER_HOUR;
+X	while (yourtm.tm_hour >= HOURS_PER_DAY)
+X		++yourtm.tm_mday, yourtm.tm_hour -= HOURS_PER_DAY;
+X	while (yourtm.tm_hour < 0)
+X		--yourtm.tm_mday, yourtm.tm_hour += HOURS_PER_DAY;
+X	while (yourtm.tm_mday > 31)		/* trust me [kre] */
+X		++yourtm.tm_mon, yourtm.tm_mday -= 31;
+X	while (yourtm.tm_mday <= 0)
+X		--yourtm.tm_mon, yourtm.tm_mday += 31;
+X	while (yourtm.tm_mon >= MONS_PER_YEAR)
+X		++yourtm.tm_year, yourtm.tm_mon -= MONS_PER_YEAR;
+X	while (yourtm.tm_mon < 0)
+X		--yourtm.tm_year, yourtm.tm_mon += MONS_PER_YEAR;
+X	/*
+X	** Calcluate the number of magnitude bits in a time_t
+X	** (this works regardless of whether time_t is
+X	** signed or unsigned, though lint complains if unsigned).
+X	*/
+X	for (bits = 0, t = 1; t > 0; ++bits, t <<= 1)
+X		;
+X	/*
+X	** If time_t is signed, then 0 is the median value,
+X	** if time_t is unsigned, then 1 << bits is median.
+X	*/
+X	t = (t < 0) ? 0 : ((time_t) 1 << bits);
+X	for ( ; ; ) {
+X		mytm = (funcp == offtime) ?
+X			*((*funcp)(&t, offset)) : *((*funcp)(&t));
+X		if ((direction = (mytm.tm_year - yourtm.tm_year)) == 0 &&
+X			(direction = (mytm.tm_mon - yourtm.tm_mon)) == 0 &&
+X			(direction = (mytm.tm_mday - yourtm.tm_mday)) == 0 &&
+X			(direction = (mytm.tm_hour - yourtm.tm_hour)) == 0 &&
+X			(direction = (mytm.tm_min - yourtm.tm_min)) == 0)
+X				direction = mytm.tm_sec - yourtm.tm_sec;
+X		if (direction == 0) {
+X			*timeptr = mytm;
+X			return t;
+X		}
+X		if (bits-- < 0) {
+X			*timeptr = yourtm;	/* restore "original" value */
+X			if (yourtm.tm_mday == 31) {
+X				timeptr->tm_mday = 1;
+X				++(timeptr->tm_mon);
+X				t = timemk(timeptr, funcp);
+X				if (t != WRONG)
+X					return t;
+X				*timeptr = yourtm;
+X			} else if (yourtm.tm_mon == TM_FEBRUARY &&
+X				yourtm.tm_mday > 28) {
+X					timeptr->tm_mday -= 28;
+X					++(timeptr->tm_mon);
+X					t = timemk(timeptr, funcp);
+X					if (t != WRONG)
+X						return t;
+X					*timeptr = yourtm;
+X			}
+X			return WRONG;
+X		}
+X		if (bits < 0)
+X			--t;
+X		else if (direction > 0)
+X			t -= (time_t) 1 << bits;
+X		else	t += (time_t) 1 << bits;
+X	}
+X}
+X
+Xtime_t
+Xtimelocal(timeptr)
+Xstruct tm *	timeptr;
+X{
+X	return timemk(timeptr, localtime, 0L);
+X}
+X
+Xtime_t
+Xtimegm(timeptr)
+Xstruct tm *	timeptr;
+X{
+X	return timemk(timeptr, gmtime, 0L);
+X}
+X
+Xtime_t
+Xtimeoff(timeptr, offset)
+Xstruct tm *	timeptr;
+Xlong		offset;
+X{
+X	return timemk(timeptr, offtime, offset);
+X}
+X
+X#endif /* STD_INSPIRED */
+!The!End!
+
+echo x - "scheck.c" 2>&1
+sed "s/^X//" >"scheck.c" <<'!The!End!'
+X#
+X
+X/*LINTLIBRARY*/
+X
+X#include "stdio.h"
+X
+X#ifndef lint
+X#ifndef NOID
+Xstatic char	sccsid[] = "@(#)scheck.c	7.15";
+X#endif /* !NOID */
+X#endif /* !lint */
+X
+X#include "ctype.h"
+X
+Xextern char *	imalloc();
+X
+Xchar *
+Xscheck(string, format)
+Xchar *	string;
+Xchar *	format;
+X{
+X	register char *	fbuf;
+X	register char *	fp;
+X	register char *	tp;
+X	register int	c;
+X	register char *	result;
+X	char		dummy;
+X
+X	result = "";
+X	if (string == NULL || format == NULL)
+X		return result;
+X	fbuf = imalloc(2 * strlen(format) + 4);
+X	if (fbuf == NULL)
+X		return result;
+X	fp = format;
+X	tp = fbuf;
+X	while ((*tp++ = c = *fp++) != '\0') {
+X		if (c != '%')
+X			continue;
+X		if (*fp == '%') {
+X			*tp++ = *fp++;
+X			continue;
+X		}
+X		*tp++ = '*';
+X		if (*fp == '*')
+X			++fp;
+X		while (isascii(*fp) && isdigit(*fp))
+X			*tp++ = *fp++;
+X		if (*fp == 'l' || *fp == 'h')
+X			*tp++ = *fp++;
+X		else if (*fp == '[')
+X			do *tp++ = *fp++;
+X				while (*fp != '\0' && *fp != ']');
+X		if ((*tp++ = *fp++) == '\0')
+X			break;
+X	}
+X	*(tp - 1) = '%';
+X	*tp++ = 'c';
+X	*tp = '\0';
+X	if (sscanf(string, fbuf, &dummy) != 1)
+X		result = format;
+X	free(fbuf);
+X	return result;
+X}
+!The!End!
+
+echo x - "ialloc.c" 2>&1
+sed "s/^X//" >"ialloc.c" <<'!The!End!'
+X#
+X
+X/*LINTLIBRARY*/
+X
+X#include "stdio.h"
+X
+X#ifndef lint
+X#ifndef NOID
+Xstatic char	sccsid[] = "@(#)ialloc.c	7.13";
+X#endif /* !NOID */
+X#endif /* !lint */
+X
+X#ifndef alloc_t
+X#define alloc_t	unsigned
+X#endif /* !alloc_t */
+X
+X#ifdef MAL
+X#define NULLMAL(x)	((x) == NULL || (x) == MAL)
+X#else /* !MAL */
+X#define NULLMAL(x)	((x) == NULL)
+X#endif /* !MAL */
+X
+Xextern char *	calloc();
+Xextern char *	malloc();
+Xextern char *	realloc();
+Xextern char *	strcpy();
+X
+Xchar *
+Ximalloc(n)
+X{
+X#ifdef MAL
+X	register char *	result;
+X
+X	if (n == 0)
+X		n = 1;
+X	result = malloc((alloc_t) n);
+X	return (result == MAL) ? NULL : result;
+X#else /* !MAL */
+X	if (n == 0)
+X		n = 1;
+X	return malloc((alloc_t) n);
+X#endif /* !MAL */
+X}
+X
+Xchar *
+Xicalloc(nelem, elsize)
+X{
+X	if (nelem == 0 || elsize == 0)
+X		nelem = elsize = 1;
+X	return calloc((alloc_t) nelem, (alloc_t) elsize);
+X}
+X
+Xchar *
+Xirealloc(pointer, size)
+Xchar *	pointer;
+X{
+X	if (NULLMAL(pointer))
+X		return imalloc(size);
+X	if (size == 0)
+X		size = 1;
+X	return realloc(pointer, (alloc_t) size);
+X}
+X
+Xchar *
+Xicatalloc(old, new)
+Xchar *	old;
+Xchar *	new;
+X{
+X	register char *	result;
+X	register	oldsize, newsize;
+X
+X	oldsize = NULLMAL(old) ? 0 : strlen(old);
+X	newsize = NULLMAL(new) ? 0 : strlen(new);
+X	if ((result = irealloc(old, oldsize + newsize + 1)) != NULL)
+X		if (!NULLMAL(new))
+X			(void) strcpy(result + oldsize, new);
+X	return result;
+X}
+X
+Xchar *
+Xicpyalloc(string)
+Xchar *	string;
+X{
+X	return icatalloc((char *) NULL, string);
+X}
+X
+Xifree(p)
+Xchar *	p;
+X{
+X	if (!NULLMAL(p))
+X		free(p);
+X}
+!The!End!
+
+echo x - "mkdir.c" 2>&1
+sed "s/^X//" >"mkdir.c" <<'!The!End!'
+X#
+X
+X/*LINTLIBRARY*/
+X
+X#include "stdio.h"
+X
+X#ifndef lint
+X#ifndef NOID
+Xstatic char	sccsid[] = "@(#)mkdir.c	7.5";
+X#endif /* !NOID */
+X#endif /* !lint */
+X
+Xextern FILE *	popen();
+X
+Xstatic
+Xquote(name, fp)
+Xregister char *	name;
+Xregister FILE *	fp;
+X{
+X	register int	c;
+X
+X	(void) fputc('\'', fp);
+X	if (name != NULL)
+X		while ((c = *name++) != '\0')
+X			if (c == '\'')
+X				(void) fprintf(fp, "'\\''");
+X			else	(void) fputc(c, fp);
+X	(void) fputc('\'', fp);
+X}
+X
+Xmkdir(name, mode)
+Xchar *	name;
+X{
+X	register FILE *	fp;
+X	register int	oops;
+X
+X	if ((fp = popen("sh", "w")) == NULL)
+X		return -1;
+X	(void) fprintf(fp, "mkdir 2>&- ");
+X	quote(name, fp);
+X	(void) fprintf(fp, " && chmod 2>&- %o ", mode);
+X	quote(name, fp);
+X	(void) fputc('\n', fp);
+X	(void) fflush(fp);
+X	oops = ferror(fp);
+X	return (pclose(fp) == 0 && !oops) ? 0 : -1;
+X}
+!The!End!
+exit

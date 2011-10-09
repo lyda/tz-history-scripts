@@ -1,0 +1,15 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Tue, 14 Mar 2000 09:51:04 -0500
+tzdata2000d.tar.gz
+Message-ID: <43E124CC389ED111B18D00805FEA1E63067E1391@nihexchange2.nih.gov>
+
+The file
+	ftp://elsie.nci.nih.gov/pub/tzdata2000d.tar.gz
+is now available; this incorporates the Latvia-related changes circulated last
+week on the time zone mailing list by Paul Eggert.
+There is no change to tzcode2000c.tar.gz
+
+				--ado
+
+

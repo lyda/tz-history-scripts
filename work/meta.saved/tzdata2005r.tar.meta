@@ -1,0 +1,23 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Tue, 27 Dec 2005 09:32:24 -0500
+Tzcode2005r.tar.gz and tzdata2005r.tar.gz
+Message-ID: <B410D30A78C6404C9DABEA31B54A2813066568@nihcesmlbx10.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2005r.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2005r.tar.gz
+...are now available. Most importantly, these reflect the Canadian
+changes circulated last week on the time zone mailing list by Paul
+Eggert.
+They also add "<pre>" directives to time zone data files and reflect
+changes to warning message logic in "zdump.c" (but with calls to
+"gettext" kept unbundled at the suggestion of Ken Pizzini).
+
+With providence, that's it for 2005!
+
+				--ado
+
+
+

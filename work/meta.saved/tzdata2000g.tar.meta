@@ -1,0 +1,19 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Tue, 10 Oct 2000 11:42:23 -0400
+tzcode2000g.tar.gz and tzdata2000g.tar.gz
+Message-ID: <4E0F9DDCA724D411B2120008C75DB71DD0F49F@nihexchange2.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode2000g.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata2000g.tar.gz
+are now available. These include the changes circulated by Paul Eggert last
+week on the time zone mailing list,
+the correction of John Mackin's name submitted by Robert Elz, and Garry
+Shandling's Daylight Saving Time joke (!?!) from the recent Emmy Awards
+broadcast.
+
+				--ado
+
+

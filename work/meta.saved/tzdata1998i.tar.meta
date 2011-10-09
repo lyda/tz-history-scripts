@@ -1,0 +1,17 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 1 Oct 1998 10:04:25 -0400 
+tzcode1998h.tar.gz and tzdata1998i.tar.gz
+Message-ID: <43E124CC389ED111B18D00805FEA1E63BC4BFA@nihexchange2.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode1998h.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata1998h.tar.gz
+are now available. These incorporate the changes for Brazil, Chile, and Germany
+circulated on the time zone mailing list earlier this week; also included is
+support for use of "24:00" in the input files for the time zone compiler.
+
+				--ado
+
+

@@ -1,0 +1,18 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Tue, 19 Jan 1999 16:26:44 -0500
+tzcode1999a.tar.gz and tzdata1999a.tar.gz
+Message-ID: <43E124CC389ED111B18D00805FEA1E63BC4C7A@nihexchange2.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode1999a.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata1999a.tar.gz
+are now available. These include error message internationalizations and
+corrections in zic.c and zdump.c (as suggested by Vladimir Michl,
+vladimir.michl at upol.cz, to whom thanks!)
+
+					--ado
+
+
+

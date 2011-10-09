@@ -1,0 +1,17 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 15 Nov 1999 19:02:09 -0500
+New tzcode and tzdata files
+Message-ID: <43E124CC389ED111B18D00805FEA1E63067E12C7@nihexchange2.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode1999i.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata1999j.tar.gz
+are now available. These incorporate Paul Eggert's changes circulated in the
+last week on the time zone mailing list, as well as additions to the "zic"
+manual page and the "Arts.htm" file.
+
+				--ado
+
+

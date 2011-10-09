@@ -1,0 +1,20 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 27 May 2004 12:13:09 -0400
+Now ready: tzcode2004a.tar.gz and tzdata2004a.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C7401FA@nihexchange2.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2004a.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2004a.tar.gz
+...are now available. In addition to the proposed changes circulated on the
+time zone mailing list by Paul Eggert, these include the changes to handle
+DST transitions that occur at the end of a month in some years but at the
+start of the following month in other years (these changes were circulated
+back in March). I've also added a copy of the correspondence that's the
+basis for claims about DST in the Navajo Nation.
+
+				--ado
+
+

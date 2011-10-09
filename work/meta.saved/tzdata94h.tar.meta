@@ -1,0 +1,234 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Sat, 10 Dec 94 13:11:50 -0500
+tzcode94h.tar.gz and tzdata94h.tar.gz
+Message-ID: <9412101811.AA00919@elsie.nci.nih.gov>
+
+The files tzcode94h.tar.gz and tzdata94h.tar.gz are now available for
+anonymous ftp from the "pub" directory on elsie.nci.nih.gov (165.112.73.1).
+The files:
+
+*	incorporate the changes to "zdump" and "date" to make changes to
+	the "TZ" environment variable permanent; 
+
+*	incorporate the table changes that Paul Eggert sent in earlier this
+	week;
+
+*	include (and document) support for universal time specifications in
+	data files--but do not (yet) include use of this feature in the
+	data files.
+
+Think of this as "TZ Classic"--the software has been set up not to break if
+universal time shows up in its input, and the data has been left as is so as
+not to break existing implementations.
+
+What I'd like to do is get any other important functional changes rolled in to
+the code by the end of the year, then keep whatever version we've arrived
+at by then available on elsie.  With that insurance in hand, the hope would be
+that in early 1995 the Europe data could be simplified by using the universal
+time support, and that (long deferred) code cleanup could be accomplished
+(perhaps with some removal of support for non-POSIX C compilers).  Any insights
+folks have on these notions are welcome.
+
+Note that the Europe cleanup will require some care, since there are some
+places that use the "W-Eur", "M-Eur", and "E-Eur" rules but do not switch
+at 1:00 universal time.  To get a sense of the issues involved, save the
+existing "europe" file as "europe-old", copy it to "europe-new", edit it
+to use the universal time support, unshar the attached file, then use the
+command
+	sh regress europe-old europe-new
+and ponder the results.
+
+Also attached are the changes to "zic.c" (and "zic.8") for universal time
+support.
+
+				--ado
+
+#! /bin/sh
+: To unbundle, sh this file
+echo file 'regress' >&2
+cat >'regress' <<'End of regress'
+#! /bin/sh
+
+T1=,reg-$$a
+T2=,reg-$$b
+
+trap 'rm -f -r $T1 $T2; exit' 0 1 2 3 15
+
+case $# in
+	2)	;;
+	*)	echo "$O: usage is $O filename filename" 1>&2
+		exit 1 ;;
+esac
+
+zic -d $T1 $1
+zic -d $T2 $2
+diff -r $T1 $T2
+End of regress
+exit
+===============================================================================
+SCCS/s.zic.c: 7.27 vs. 7.28
+*** 7.27/zic.c	Sat Dec 10 13:09:20 1994
+--- 7.28/zic.c	Sat Dec 10 13:09:21 1994
+***************
+*** 1,6 ****
+  #ifndef lint
+  #ifndef NOID
+! static char	elsieid[] = "@(#)zic.c	7.27";
+  #endif /* !defined NOID */
+  #endif /* !defined lint */
+  
+--- 1,6 ----
+  #ifndef lint
+  #ifndef NOID
+! static char	elsieid[] = "@(#)zic.c	7.28";
+  #endif /* !defined NOID */
+  #endif /* !defined lint */
+  
+***************
+*** 25,30 ****
+--- 25,32 ----
+  	long		r_tod;		/* time from midnight */
+  	int		r_todisstd;	/* above is standard time if TRUE */
+  					/* or wall clock time if FALSE */
++ 	int		r_todisuniv;	/* above is universal time if TRUE */
++ 					/* or local time if FALSE */
+  	long		r_stdoff;	/* offset from standard time */
+  	const char *	r_abbrvar;	/* variable part of abbreviation */
+  
+***************
+*** 1113,1129 ****
+  	}
+  	rp->r_month = lp->l_value;
+  	rp->r_todisstd = FALSE;
+  	dp = ecpyalloc(timep);
+  	if (*dp != '\0') {
+  		ep = dp + strlen(dp) - 1;
+  		switch (lowerit(*ep)) {
+! 			case 's':
+  				rp->r_todisstd = TRUE;
+  				*ep = '\0';
+  				break;
+! 			case 'w':
+  				rp->r_todisstd = FALSE;
+  				*ep = '\0';
+  				break;
+  		}
+  	}
+--- 1115,1140 ----
+  	}
+  	rp->r_month = lp->l_value;
+  	rp->r_todisstd = FALSE;
++ 	rp->r_todisuniv = FALSE;
+  	dp = ecpyalloc(timep);
+  	if (*dp != '\0') {
+  		ep = dp + strlen(dp) - 1;
+  		switch (lowerit(*ep)) {
+! 			case 's':	/* Standard */
+  				rp->r_todisstd = TRUE;
++ 				rp->r_todisuniv = FALSE;
+  				*ep = '\0';
+  				break;
+! 			case 'w':	/* Wall */
+  				rp->r_todisstd = FALSE;
++ 				rp->r_todisuniv = FALSE;
+  				*ep = '\0';
++ 			case 'g':	/* Greenwich */
++ 			case 'u':	/* Universal */
++ 			case 'z':	/* Zulu */
++ 				rp->r_todisstd = TRUE;
++ 				rp->r_todisuniv = TRUE;
++ 				*ep = '\0';
+  				break;
+  		}
+  	}
+***************
+*** 1421,1428 ****
+  					** assuming the current gmtoff and
+  					** stdoff values.
+  					*/
+! 					untiltime = tadd(zp->z_untiltime,
+! 						-gmtoff);
+  					if (!zp->z_untilrule.r_todisstd)
+  						untiltime = tadd(untiltime,
+  							-stdoff);
+--- 1432,1441 ----
+  					** assuming the current gmtoff and
+  					** stdoff values.
+  					*/
+! 					untiltime = zp->z_untiltime;
+! 					if (!zp->z_untilrule.r_todisuniv)
+! 						untiltime = tadd(untiltime,
+! 							-gmtoff);
+  					if (!zp->z_untilrule.r_todisstd)
+  						untiltime = tadd(untiltime,
+  							-stdoff);
+***************
+*** 1441,1447 ****
+  						continue;
+  					eats(zp->z_filename, zp->z_linenum,
+  						rp->r_filename, rp->r_linenum);
+! 					offset = gmtoff;
+  					if (!rp->r_todisstd)
+  						offset = oadd(offset, stdoff);
+  					jtime = rp->r_temp;
+--- 1454,1460 ----
+  						continue;
+  					eats(zp->z_filename, zp->z_linenum,
+  						rp->r_filename, rp->r_linenum);
+! 					offset = rp->r_todisuniv ? 0 : gmtoff;
+  					if (!rp->r_todisstd)
+  						offset = oadd(offset, stdoff);
+  					jtime = rp->r_temp;
+===============================================================================
+SCCS/s.zic.8: 7.8 vs. 7.10
+*** 7.8/zic.8	Sat Dec 10 13:09:37 1994
+--- 7.10/zic.8	Sat Dec 10 13:09:38 1994
+***************
+*** 209,222 ****
+  .B w
+  if the given time is local
+  .q "wall clock"
+! time or
+  .B s
+  if the given time is local
+  .q standard
+! time; in the absence of
+! .B w
+  or
+! .BR s ,
+  wall clock time is assumed.
+  .TP
+  .B SAVE
+--- 209,226 ----
+  .B w
+  if the given time is local
+  .q "wall clock"
+! time,
+  .B s
+  if the given time is local
+  .q standard
+! time, or
+! .B u
+! (or
+! .B g
+  or
+! .BR z )
+! if the given time is universal time;
+! in the absence of an indicator,
+  wall clock time is assumed.
+  .TP
+  .B SAVE
+***************
+*** 399,402 ****
+  /usr/local/etc/zoneinfo	standard directory used for created files
+  .SH "SEE ALSO"
+  newctime(3), tzfile(5), zdump(8)
+! .\" @(#)zic.8	7.8
+--- 403,406 ----
+  /usr/local/etc/zoneinfo	standard directory used for created files
+  .SH "SEE ALSO"
+  newctime(3), tzfile(5), zdump(8)
+! .\" @(#)zic.8	7.10
+
+

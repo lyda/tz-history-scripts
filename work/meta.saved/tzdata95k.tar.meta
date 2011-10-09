@@ -1,0 +1,16 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 30 Oct 95 10:46:51 -0500
+tz 8-bit-clean proposed patch
+Message-ID: <9510301546.AA02632@elsie.nci.nih.gov>
+
+The (slightly reformatted) "8-bit-clean proposed patch" and the
+"tz minor patch: US/Eastern -> America/New_York" have been incorporated into...
+	-rw-r--r--  1 ado         69206 Oct 30 10:40 tzcode95g.tar.gz
+	-rw-r--r--  1 ado         69838 Oct 30 10:40 tzdata95k.tar.gz
+in elsie.nci.nih.gov's ~ftp/pub directory, along with a snapshot of the
+USNO's latest data ("usno1995") and some other minor cleanups.
+
+				--ado
+
+

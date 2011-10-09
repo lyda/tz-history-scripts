@@ -1,0 +1,18 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 2 Apr 2007 10:16:22 -0400
+tzcode2007e.tar.gz and tzdata2007e.tar.gz
+Message-ID: <B410D30A78C6404C9DABEA31B54A2813016CE425@nihcesmlbx10.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2007e.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2007e.tar.gz
+...are now available; these reflect the Syria and Honduras changes
+circulated last week on the time zone mailing list by Paul Eggert, as
+well as zic.c variable renaming changes circulated by yours truly.
+
+					--ado
+
+
+

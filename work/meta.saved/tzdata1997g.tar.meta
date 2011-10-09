@@ -1,0 +1,18 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Sat, 19 Jul 97 13:26:50 -0400
+tzcode1997f.tar.gz and tadata1997g.tar.gz
+Message-ID: <9707191726.AA10249@elsie.nci.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode1997f.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata1997g.tar.gz
+are now available. These incorporate Paul Eggert's updates circulated on the
+time zone list earlier this week; there's also a small change to a function
+prototype; "Music" has been renamed "Arts.htm", htmlified, and augmented to
+include information on Around the World in Eighty Days.
+
+				--ado
+
+

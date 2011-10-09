@@ -1,0 +1,17 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Tue, 5 Nov 96 14:06:17 -0500
+tzcode1996m.tar.gz and tzdata1996l.tar.gz
+Message-ID: <9611051906.AA12533@elsie.nci.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode1996m.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata1996l.tar.gz
+are now available. No functional changes here; the files have simply been
+changed to make more use of ISO style dates in comments. The names of the
+above files now include the year in full.
+
+				--ado
+
+

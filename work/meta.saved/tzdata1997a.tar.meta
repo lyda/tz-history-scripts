@@ -1,0 +1,18 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Tue, 21 Jan 1997 09:23:09 -0500
+tzcode1997a.tar.gz and tzdata1997a.tar.gz
+Message-ID: <199701211423.JAA28715@flower.nci.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode1997a.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata1997a.tar.gz
+are now available. These include Paul Eggert's Antarctica (and other changes).
+I've finessed the "getopt" issue by checking against both -1 and EOF
+(regardless of POSIX, SunOS 4.1.1's manual says -1 is returned while
+SunOS 5.5's manual says EOF is returned).
+
+				--ado
+
+

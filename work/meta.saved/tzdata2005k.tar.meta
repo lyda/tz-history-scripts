@@ -1,0 +1,22 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 14 Jul 2005 14:19:57 -0400
+Tzcode2005k.tar.gz and tzdata2005k.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C740462@nihexchange2.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2005k.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2005k.tar.gz
+...are now available. The "leapseconds" file has been edited to reflect the
+recently announced leap second at the end of 2005.
+I've also deleted electronic mail addresses from the files as an anti-spam
+measure.
+
+I'm waiting to hear from the heavyweights before incorporating the recent
+64-bit stuff (the new version that tacks both 64-bit data and a POSIX TZ
+string on to the end of traditional timezone data files).
+
+				--ado
+
+

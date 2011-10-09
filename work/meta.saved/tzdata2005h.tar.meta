@@ -1,0 +1,22 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 4 Apr 2005 11:30:24 -0400 
+Tzcode2005h.tar.gz and tzdata2005h.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C7403CD@nihexchange2.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2005h.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2005h.tar.gz
+...are now available.
+These reflect the changes circulated last week on the time zone mailing list
+by Paul Eggert.
+They also contain the minor changes to Makefile and zdump.c to produce more
+useful output when doing a "make typecheck".
+With only some technical fixes to the proposed 64-bit changes in hand, I'll
+hold off on distributing these;
+I welcome insights on whether the general approach is sound.
+
+				--ado
+
+

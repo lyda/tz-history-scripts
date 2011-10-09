@@ -1,0 +1,19 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Sat, 29 Mar 97 12:59:19 -0500
+tzcode1997d.tar.gz and tzdata1997e.tar.gz
+Message-ID: <9703291759.AA04666@elsie.nci.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode1997d.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata1997e.tar.gz
+are now available; these incorporate Paul Eggert's latest suggestions.
+
+Remember that many United States locales change clocks within the next 24
+hours; if you're affected, be sure to keep your time zone expertise credentials
+in order.
+
+				--ado
+
+

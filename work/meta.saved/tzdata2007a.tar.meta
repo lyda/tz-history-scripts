@@ -1,0 +1,20 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 8 Jan 2007 12:33:50 -0500
+Tzcode2007a.tar.gz and tzdata2007a.tar.gz
+Message-ID: <B410D30A78C6404C9DABEA31B54A2813997D42@nihcesmlbx10.nih.gov>
+
+The files...
+	ftp://elsie.nci.nih.gov/pub/tzcode2007a.tar.gz
+...and...
+	ftp://elsie.nci.nih.gov/pub/tzdata2007a.tar.gz
+...are now available. These reflect the changes circulated last week on
+the time zone mailing list by Paul Eggert
+(as well as Derick Rethan's Asmara change and Oscar van Vlijmen's Easter
+Island local mean time change).
+These also reflect the symbolic link changes circulated in December.
+
+				--ado
+
+
+

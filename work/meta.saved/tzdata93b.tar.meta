@@ -1,0 +1,173 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Tue, 2 Feb 93 15:03:24 -0500
+Leap second announcement; updated "leapsecond" file
+Message-ID: <9302022003.AA03009@elsie.nci.nih.gov>
+
+A leap second announcement from the USNO is attached;
+as well as a shar-format version of an updated "leapseconds" file.
+
+You'll now find "tzdata93b.tar.Z" on elsie.nci.nih.gov; the only change to it
+from "tzdata93.tar.Z" is the updated "leapseconds" file.
+
+				--ado
+
+> From ntp-relay at ni.umd.edu Tue Feb  2 14:49:18 1993
+> Return-Path: <ntp-relay at ni.umd.edu>
+> Received: from ni.umd.edu by elsie.nci.nih.gov (4.1/SMI-4.1)
+> 	id AA02852; Tue, 2 Feb 93 14:49:14 EST
+> Received: by ni.umd.edu id AA06039
+>   (5.65c/IDA-1.4.4 for ntp-list); Tue, 2 Feb 1993 14:21:15 -0500
+> Received: from unbmvs1.csd.unb.ca by ni.umd.edu with SMTP id AA06030
+>   (5.65c/IDA-1.4.4 for <NTP at NI.UMD.EDU>); Tue, 2 Feb 1993 14:20:50 -0500
+> Received: from unbmvs1.csd.unb.ca by UNBMVS1.csd.unb.ca (IBM MVS SMTP V2R1)
+>    with BSMTP id 3951; Tue, 02 Feb 93 15:20:05 AST
+> Received: by UNBMVS1 (Mailer 15.14) id 5634; Tue, 02 Feb 93 15:18:57 AST
+> Date:        Tue, 02 Feb 93 15:18:57 AST
+> From: LANG at unb.ca
+> To: "NTP List" <NTP at NI.UMD.EDU>
+> Subject:     Leap Second Announcement from USNO
+> Message-Id:  <ID3951.D930202.T151859.LANG at unb.ca>
+> Status: R
+> 
+> 
+> -------------------- Start of forwarded message --------------------
+> Received: from UNBMVS1(MAILER) by UNBMVS1(Mailer 15.14) id 3871
+>           for LANG at UNBMVS1; Tue, 02 Feb 93 15:11:45 AST
+> Received: by UNBMVS1 (Mailer 15.14) id 2636; Tue, 02 Feb 93 15:09:43 AST
+> Date:        Tue, 02 Feb 93 15:09:43 AST
+> From:        <CANSPACE at UNB.CA>
+> To:          <lang at UNBMVS1>
+> Received: from unb.ca by UNBMVS1.csd.unb.ca (IBM MVS SMTP V2R1) with TCP;
+>    Tue, 02 Feb 93 15:08:16 AST
+> Received: from  by unb.ca (4.1/SMI-4.1-921218.08:05)
+> 	id AZ01277; Tue, 2 Feb 93 15:08:27 AST
+> Received: from NEPTUNE.CSD.UNB.CA by NEPTUNE.CSD.UNB.CA (IBM VM SMTP V2R1)
+>    with BSMTP id 5064; Tue, 02 Feb 93 15:03:20 AST
+> Received: from UNBVM1.BITNET (NJE origin LISTSERV at UNBVM1) by NEPTUNE.CSD.UNB.CA
+>  (LMail V1.1b/1.7e) with BSMTP id 5057; Tue, 2 Feb 1993 14:58:41 -0400
+> Comments:    Original-Date:         Tue, 2 Feb 1993 14:54:47 AST
+> X-Reply-To: Richard Langley <lang at JUPITER.SUN.CSD.UNB.CA>
+> X-Sender: Canadian Space Geodesy Forum <CANSPACE at UNBVM1.BITNET>
+> X-From: Richard Langley <lang at JUPITER.SUN.CSD.UNB.CA>
+> Subject:      Leap Second Announcement from USNO
+> X-To:         CANSPACE at unb.ca
+> X-To: Multiple recipients of list CANSPACE <CANSPACE at UNBVM1.BITNET>
+> Sender:      <CANSPACE at UNB.CA>
+> Message-ID:  <ID3871.D930202.T150943.CANSPACE at UNB.CA>
+> 
+> File SER14 -- <930201.1735>
+> 
+> 
+> 
+>                            U.S. NAVAL OBSERVATORY
+>                          WASHINGTON, DC 20392-5420
+> 
+>                                                         February 1, 1993
+>                                                         No. 55
+> 
+> TIME SERVICE ANNOUNCEMENT SERIES 14
+> 
+>                                UTC TIME STEP
+> 
+> 1. The  International  Earth  Rotation  Service (IERS) has announced the
+> Introduction of a time step to occur at the end of June 1993.
+> 
+> 2. Coordinated Universal Time (UTC) will be retarded by 1.0s so that the
+> sequence of dates of the UTC markers will be:
+> 
+>        1993 June 30     23h   59m   59s
+>        1993 June 30     23h   59m   60s
+>        1993 July 01      0h    0m    0s
+> 
+> 3. The difference between UTC and International Atomic Time TAI is:
+> 
+>    from 1992 Jul 1,  0h UTC, to 1993 Jul.1, 0h UTC: TAI-UTC = +27s
+>    from 1993 Jul 1,  0h UTC, until further notice:  TAI-UTC = +28s
+> 
+> 4. The insertion  of one  leap second  will be  evident by the change of
+> sign of  the DUT1 correction  which will  become positive.  Extrapolated
+> values of  DUT1 are  distributed  weekly in  the  IERS Bulletin A  (Time
+> Service Announcement Series 7).
+> 
+> 5. All coordinated  time scales  will be  affected by  this  adjustment.
+> However,  the  Loran-C,  GPS  and  OMEGA  systems will  not be  adjusted
+> physically.  Tables of  Coincidence (Time Service Announcement Series 9)
+> will be  issued for  Loran-C.   For  GPS,  the  leap  second  correction
+> contained within  the UTC  data of subframe 4, page 18 of the navigation
+> message transmitted by the satellite will change.
+> 
+>    Before the leap second
+> 
+>      GPS-UTC = +8s    (i.e., GPS is ahead of UTC by eight seconds).
+> 
+>    After the leap second
+> 
+>      GPS-UTC = +9s    (i.e., GPS will be ahead of UTC by nine seconds).
+> 
+>    The  OMEGA  Reference Ephoch (ORE) will change - that is, from 1 July
+> 1993  (after the leap second)  the  OMEGA  system will  operate with the
+> the beginning  of segment  one on seconds  42, 52, 02, 12, 22, and 32 of
+> each minute.
+> 
+>                                     GERNOT M. R. WINKLER
+>                                     Director
+>                                     Time Service Department
+> 
+> via:
+> ==============================================================================
+>  Richard B. Langley                        Internet: LANG at UNB.CA or SE at UNB.CA
+>  Geodetic Research Laboratory              BITnet:   LANG at UNB or SE at UNB
+>  Dept. of Surveying Engineering            Phone:    (506) 453-5142
+>  University of New Brunswick               FAX:      (506) 453-4943
+>  Fredericton, N.B., Canada  E3B 5A3        Telex:    014-46202
+> ==============================================================================
+> --------------------- End of forwarded message ---------------------
+
+: To unbundle, sh this file
+echo file 'leapseconds' >&2
+cat >'leapseconds' <<'End of leapseconds'
+# @(#)leapseconds	7.6
+
+# Allowance for leapseconds added to each timezone file.
+
+# The International Earth Rotation Service periodically uses leap seconds
+# to keep UTC to within 0.9 s of TAI (atomic time); see
+# Terry J Quinn, The BIPM and the accurate measure of time,
+# Proc IEEE 79, 7 (July 1991), 894-905.
+# There were no leap seconds before 1972, because the official mechanism
+# accounting for the discrepancy between atomic time and the earth's rotation
+# did not exist until the early 1970s.
+
+# The correction (+ or -) is made at the given time, so lines
+# will typically look like:
+#	Leap	YEAR	MON	DAY	23:59:60	+	R/S
+# or
+#	Leap	YEAR	MON	DAY	23:59:59	-	R/S
+
+# If the leapsecond is Rolling (R) the given time is local time
+# If the leapsecond is Stationary (S) the given time is GMT
+
+# Leap	YEAR	MONTH	DAY	HH:MM:SS	CORR	R/S
+Leap	1972	Jun	30	23:59:60	+	S
+Leap	1972	Dec	31	23:59:60	+	S
+Leap	1973	Dec	31	23:59:60	+	S
+Leap	1974	Dec	31	23:59:60	+	S
+Leap	1975	Dec	31	23:59:60	+	S
+Leap	1976	Dec	31	23:59:60	+	S
+Leap	1977	Dec	31	23:59:60	+	S
+Leap	1978	Dec	31	23:59:60	+	S
+Leap	1979	Dec	31	23:59:60	+	S
+Leap	1981	Jun	30	23:59:60	+	S
+Leap	1982	Jun	30	23:59:60	+	S
+Leap	1983	Jun	30	23:59:60	+	S
+Leap	1985	Jun	30	23:59:60	+	S
+Leap	1987	Dec	31	23:59:60	+	S
+Leap	1989	Dec	31	23:59:60	+	S
+Leap	1990	Dec	31	23:59:60	+	S
+Leap	1992	Jun	30	23:59:60	+	S
+Leap	1993	Jun	30	23:59:60	+	S
+End of leapseconds
+exit
+
+

@@ -1,0 +1,18 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 28 Jan 2002 13:08:39 -0500
+2002b
+Message-ID: <A4EC106C46EDF94A8D60B03E984183979BB634@nihexchange2.nih.gov>
+
+Correct (as far as I've been able to test) versions of the new time zone
+stuff are now available as
+	ftp://elsie.nci.nih.gov/pub/tzcode2002b.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata2002b.tar.gz
+
+(I still need to track down how the original versions got corrupted, but
+have transferred the above by way of another path.)
+
+				--ado
+
+

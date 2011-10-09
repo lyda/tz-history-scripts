@@ -1,0 +1,21 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Tue, 13 Mar 2001 13:13:16 -0500
+tzcode2001a.tar.gz and tzdata2001a.tar.gz
+Message-ID: <4E0F9DDCA724D411B2120008C75DB71DD0F5DF@nihexchange2.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode2001a.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata2001a.tar.gz
+are now available. These incorporate the changes circulated last week on the
+time zone mailing list by Paul Eggert.
+There's also an addition to the "leapseconds" file: comments with the text
+of the latest IERS leap second notice.
+Trailing white space has been removed from data file lines, and repeated
+spaces in "Rule Jordan" lines in the "asia" file have been converted to
+tabs.
+
+				--ado
+
+
