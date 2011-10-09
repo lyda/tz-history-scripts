@@ -1,0 +1,3 @@
+#!/bin/bash
+
+cp -a ../work-usenet/git.settz git.tz
