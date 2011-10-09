@@ -1,5 +1,7 @@
 #!/bin/bash
 
+genscript=$1
+
 # These are the files as they exist in the ../work-usenet/git.settz
 old_tzdata="africa antarctica asia australasia etcetera europe factory
             leapseconds northamerica pacificnew solar87 solar88 solar89
@@ -37,11 +39,13 @@ for f in $(cat ../index); do
   esac
 
   # Remove existing $mkfile.
-  if [[ -f $mkfile ]]; then
-    git config --unset user.name
-    git config --unset user.email
-    git rm $mkfile
-    git commit -m "Removing $mkfile for new version."
+  if [[ $genscript == yes ]]; then
+    if [[ -f $mkfile ]]; then
+      git config --unset user.name
+      git config --unset user.email
+      git rm $mkfile
+      git commit -m "Removing $mkfile for new version."
+    fi
   fi
 
   # Add the new version.
@@ -55,16 +59,18 @@ for f in $(cat ../index); do
   git tag -a -m 'Generated tag reflecting release on elsie' ${f%.tar}
 
   # Make and checkin script to build tarball.
-  cat > $mkfile << EOF
+  if [[ $genscript == yes ]]; then
+    cat > $mkfile << EOF
 #!/bin/bash
 
 tar zcf $f.gz $(echo $old_tzcode)
 EOF
-  chmod 755 $mkfile
-  git config --unset user.name
-  git config --unset user.email
-  git add $mkfile
-  git commit -m "Script to build $f.gz"
-  git tag -a -m "Script to build $f.gz" $f.gz
+    chmod 755 $mkfile
+    git config --unset user.name
+    git config --unset user.email
+    git add $mkfile
+    git commit -m "Script to build $f.gz"
+    git tag -a -m "Script to build $f.gz" $f.gz
+  fi
 
 done
