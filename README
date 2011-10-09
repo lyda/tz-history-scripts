@@ -1,4 +1,4 @@
-Contents: what, why, how, decisions
+Contents: what, why, how, decisions / issues
 
 == What? ==
 
@@ -27,7 +27,7 @@ want the history to be lost.
 * Continue on in the work/ directory (there's a script there to copy
   the git.settz repository.
 
-== Decisions ==
+== Decisions / Issues ==
 
 These scripts make a number of decisions people could debate.  I have
 listed them here so that others could review.
@@ -81,3 +81,11 @@ listed them here so that others could review.
 4)  Each commit message has the Message-Id header of the message it
     came from.  That can be used to find the messages and related threads
     in mailing list archives in the future.
+
+5)  For the Usenet files:
+
+      * It's possible there was a release prior to:
+        comp.sources.unix/volume4/settz
+      * It's possible (likely?) there were releases between:
+        comp.sources.unix/volume14/localtime3
+        comp.sources.unix/volume18/localtime3
