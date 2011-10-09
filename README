@@ -69,6 +69,8 @@ listed them here so that others could review.
     work/meta.saved/ directory for a list of the files that were included
     when these scripts were written.
 
+    Note: I haven't checked which tzcode files are missing.
+
 3)  The tzcode and tzdata files are in the same directory - that's
     how they initially started in 1986.  One could argue that starting
     with releases in 1993 that the code and data should be broken out
