@@ -1,47 +1,27 @@
-This is a work in progress.  It is entirely possible that I will blow
-it all away and start over.  I will detail the decisions I've made, explain
-what might be missing and what could be done differently.
+This is a collection of scripts and data which can be used to construct
+a metadata preserving git repository of all the zoneinfo releases
+since 1986.
 
-First let me say a huge thank you to the combined half a century of work
-that Paul and Arthur and everyone else has contributed here.  It is out
-of respect for the work everyone has done here that I've tried to create
-a faithful reproduction of the work you have all given to us.
+On that note let me say a huge thank you to the combined half a century
+of work that Paul and Arthur and everyone else has contributed here.
+It is out of respect for the work everyone has done here that I've tried
+to create a faithful reproduction of the work you have all given to us.
 
 Last year I read
 http://blog.jonudell.net/2009/10/23/a-literary-appreciation-of-the-olsonzoneinfotz-database/
 and was hugely impressed by the quiet work we all take for granted.
+So hearing about the current issues the maintainers are having I didn't
+want the history to be lost.
 
-Now to the problems:
+These scripts make a number of decisions people could debate.  I have
+listed them here so that others could review.
 
 1)  I date each commit based on the date of the message announcing the
     release.  It's possible to extract an arguably more accurate date from
     the files within the repository but since the commit message is based
     on the release message, it was my opinion that date was more correct.
 
-2)  [Update: redid this with --allow-empty for the git commit step.
-     But I'll leave it here to highlight the oddity of the files being the
-     same...]
-
-    The files in tzdata1998i.tar tzdata1999a.tar are the same.  Therefore
-    this commit message is missing (however the tag is there):
-
-      ado@elsie.nci.nih.gov
-      Arthur David Olson
-      Tue, 19 Jan 1999 16:26:44 -0500
-      tzcode1999a.tar.gz and tzdata1999a.tar.gz
-      Message-ID: <43E124CC389ED111B18D00805FEA1E63BC4C7A@nihexchange2.nih.gov>
-
-      The files
-              ftp://elsie.nci.nih.gov/pub/tzcode1999a.tar.gz
-      and
-              ftp://elsie.nci.nih.gov/pub/tzdata1999a.tar.gz
-      are now available. These include error message internationalizations and
-      corrections in zic.c and zdump.c (as suggested by Vladimir Michl,
-      vladimir.michl at upol.cz, to whom thanks!)
-
-                                              --ado
-
-3)  The following files are referred to in the tzarchive (thank you IANA
+2)  The following files are referred to in the tzarchive (thank you IANA
     for hosting the archive and to GMANE for filling in the blanks).
     I'm not sure if they actually existed and weren't copied to
     ftp://munnari.oz.au/pub/oldtz or if they were typos or people
@@ -69,20 +49,16 @@ Now to the problems:
       tzdata96f.tar.gz
       tzdata96g.tar.gz
 
-    If people have any leads on these I can rerun this.
+    A repository with those would be more complete.  See the
+    work/meta.saved/ directory for a list of the files that were included
+    when these scripts were written.
 
-4)  I chose a directory structure that would allow me to also add the
-    tzcode base to this repository.  So the tzdata files are not at the
-    base but in the tzdata subdirectory.
+3)  The tzcode and tzdata files are in the same directory - that's
+    how they initially started in 1986.  One could argue that starting
+    with releases in 1993 that the code and data should be broken out
+    into different directories.
 
-5)  Each commit message has the Message-Id header of the message it
-    came from.  I think that can be used to find the messages and related
-    threads in mailing list archives in the future.
-
-6)  I'm happy to release the data I used to create this.  A lot of the
-    data massaging had to be done by hand but I can write up the various
-    command lines I used.  It's kind of boring though really.
-
-I hope this doesn't annoy people.  I just want to help preserve the
-history of an incredible effort.
+4)  Each commit message has the Message-Id header of the message it
+    came from.  That can be used to find the messages and related threads
+    in mailing list archives in the future.
 
