@@ -17,7 +17,8 @@ Now the files in meta/ must be hand edited to remove duplacate messages.
 The easiest way to do this is:
 
   1) First look for empty files: ls -lS meta
-  2) Then $EDITOR $(grep -L 'From ' meta/*)
+  2) Then $EDITOR $(grep -l 'From ' meta/*) to look for files with multiple
+     email messages (you'll want to delete all but the release message).
   3) Then run your eye over all the files to make sure they follow the
      correct format.
 
