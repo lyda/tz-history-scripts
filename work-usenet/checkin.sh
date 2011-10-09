@@ -12,4 +12,4 @@ git config user.email "$email"
 git add $(find . -type f)
 ( echo "$subject"; sed -n '/^$/,$p' $f ) \
   | git commit --allow-empty -F- --date "$date"
-git tag "$tag"
+git tag -a -m 'Generated tag reflecting release on Usenet' "$tag"

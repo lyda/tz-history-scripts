@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# These are the files as they exist in the ../work-usenet/git.settz
 old_tzdata="africa antarctica asia australasia etcetera europe factory
             leapseconds northamerica pacificnew solar87 solar88 solar89
             southamerica systemv"
@@ -35,5 +36,5 @@ for f in $(cat ../index); do
   ( echo "$subject"; sed -n '/^$/,$p' ../meta/$f.meta; echo "$msgid" ) \
     | git commit --allow-empty -F- --date "$date"
   # TODO: annotated tag?
-  git tag ${f%.tar}
+  git tag -a -m 'Generated tag reflecting release on elsie' ${f%.tar}
 done
