@@ -19,13 +19,17 @@ for f in $(cat ../index); do
   date="$(sed -n 3p ../meta/$f.meta)"
   subject="$(sed -n 4p ../meta/$f.meta)"
   msgid="$(sed -n 5p ../meta/$f.meta)"
+  # Note the following rm commands assume the tarballs are all sane
+  # and don't contain sub-directories.  It does not hurt to check all
+  # the tarballs first:
+  #   for f in tarballs/*.tar; do tar tf $f; done | sort -u
   case "$f" in
     tzcode*)
-      rm $old_tzcode
+      rm -f $old_tzcode
       old_tzcode="$(tar tf ../tarballs/$f)"
       ;;
     tzdata*)
-      rm $old_tzcode
+      rm -f $old_tzcode
       old_tzcode="$(tar tf ../tarballs/$f)"
       ;;
   esac
