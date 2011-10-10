@@ -87,3 +87,8 @@ listed them here so that others could review.
       * It's possible (likely?) there were releases between:
         comp.sources.unix/volume14/localtime3
         comp.sources.unix/volume18/localtime3
+
+6)  Credits.  All the commits (except the last (currently) by kre)
+    are credited to ado.  However in his commit messages he will
+    frequently credit others - eggert primarily.  It's possible this
+    info is in SCCS but I doubt it.
