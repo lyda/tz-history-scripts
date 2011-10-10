@@ -1,0 +1,19 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 4 Sep 97 17:06:38 EDT
+new time zone code and data files
+Message-ID: <9709042106.AA01521@elsie.nci.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/~pub/tzcode1997g.tar.gz
+and
+	ftp://elsie.nci.nih.gov/~pub/tzdata1997h.tar.gz
+are now available. These files incorporate the corrections for Uruguay
+(and other locations) that were sent to the time zone mailing list last
+week; they also incorporate your correspondent's simple-minded fix
+allowing mktime to both correctly handle leap seconds and correctly
+handle tm_sec values upon which arithmetic has been performed. (A
+ponder of Tom Peterson's suggested optimizations to those changes is in
+my queue.)
+
+				--ado

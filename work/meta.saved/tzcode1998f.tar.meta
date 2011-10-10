@@ -1,0 +1,12 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Mon, 1 Jun 1998 10:27:42 -0400 
+tzcode1998f.tar.gz
+Message-ID: <9806011425.AA07536@elsie.nci.nih.gov>
+
+The file
+	ftp://elsie.nci.nih.gov/pub/tzcode1998f.tar.gz
+is now available; it incorporates the addition to localtime.c circulated on the
+mailing list by Guy Harris.
+
+				--ado

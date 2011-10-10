@@ -6,7 +6,7 @@ fi
 for f in $(cat index); do
   mboxgrep $f ../list/tzarchive-to-october-2011 \
     | sed 1d \
-    | sed 's/^From: \(ado|olsona|OLSONA\).*/ado@elsie.nci.nih.gov\nArthur David Olson/' \
+    | sed 's/^From: \(ado\|olsona\|OLSONA\).*/ado@elsie.nci.nih.gov\nArthur David Olson/' \
     | sed 's/^Subject: //' \
     | sed 's/^Date: //' \
     > meta/$f.meta

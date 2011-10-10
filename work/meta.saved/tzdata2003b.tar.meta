@@ -1,0 +1,21 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Tue, 16 Sep 2003 07:24:13 -0400
+tzcode2003b.tar.gz and tzdata2003b.tar.gz
+Message-ID: <75DDD376F2B6B546B722398AC161106C740034@nihexchange2.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcode2003b.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdata2003b.tar.gz
+are now available. These contain changes (previously circulated on the time
+zone mailing list)
+to add a "--version" option (and documentation) to the zic and zdump
+commands,
+changes to overflow/underflow checking in zic, and a localtime typo fix.
+There are also update to the leapseconds and tz-art.htm files.
+
+Since it's coming up on one of those times of year,
+we're likely to have data updates soon.
+
+				--ado

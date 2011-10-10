@@ -7,3 +7,18 @@ ls tarballs \
   | sort \
   | cut -d\  -f3 \
   > index
+
+# Now we need to tweak things.
+if [[ -f tarballs/tzdatabeta.tar ]]; then
+  # Move tzdatabeta.tar to just before the 1995 tarballs.
+  sed -i '/tzdatabeta.tar/d' index
+  ed index << EOF
+/tz.*95
+-
+a
+tzdatabeta.tar   
+.
+w
+q
+EOF
+fi

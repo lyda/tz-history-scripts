@@ -41,21 +41,19 @@ listed them here so that others could review.
     for hosting the archive and to GMANE for filling in the blanks).
     I'm pretty sure all of these existed.
 
-      tzcode1997g.tar.gz  tzcode1998f.tar.gz  tzcode1998.tar.gz
-      tzcode2002a.tar.gz  tzcode2003b.tar.gz  tzcode2004f.tar.gz
-      tzcode2005a.tar.gz  tzcode2006e.tar.gz  tzcode2008e.tar.tz
-      tzcode2010b.tar.gz  tzcode93g.tar.gz    tzcode94b.tar.gz
-      tzcode94c.tar.gz    tzcode94d.tar.gz    tzcode94e.tar.gz
-      tzcode94f.tar.gz    tzcode94g.tar.gz    tzcode94h.tar.gz
-      tzcode95a.tar.gz    tzcode95b.tar.gz    tzcode95c.tar.gz
-      tzcode95f.tar.gz    tzcode96e.tar.gz    tzcode96f.tar.gz
-      tzcode96k.tar.gz    tzdata1996m.tar.gz  tzdata1997h.tar.gz
+      tzcode1998.tar.gz   tzcode2002a.tar.gz  tzcode2006e.tar.gz
+      tzcode2008e.tar.tz  tzcode2010b.tar.gz  tzcode93g.tar.gz
+      tzcode94b.tar.gz    tzcode94c.tar.gz    tzcode94d.tar.gz
+      tzcode94e.tar.gz    tzcode94f.tar.gz    tzcode94g.tar.gz
+      tzcode94h.tar.gz    tzcode95a.tar.gz    tzcode95b.tar.gz
+      tzcode95c.tar.gz    tzcode95f.tar.gz    tzcode96e.tar.gz
+      tzcode96f.tar.gz    tzcode96k.tar.gz    tzdata1996m.tar.gz
       tzdata1998f.tar.gz  tzdata1998g.tar.gz  tzdata2002a.tar.gz
-      tzdata2003b.tar.gz  tzdata2005a.tar.gz  tzdata2006e.tar.gz
-      tzdata93g.tar.gz    tzdata94a.tar.gz    tzdata94b.tar.gz
-      tzdata94d.tar.gz    tzdata94e.tar.gz    tzdata94f.tar.gz
-      tzdata94h.tar.gz    tzdata95a.tar.gz    tzdata95b.tar.gz
-      tzdata95j.tar.gz    tzdata96f.tar.gz    tzdata96g.tar.gz
+      tzdata2006e.tar.gz  tzdata93g.tar.gz    tzdata94a.tar.gz
+      tzdata94b.tar.gz    tzdata94d.tar.gz    tzdata94e.tar.gz
+      tzdata94f.tar.gz    tzdata94h.tar.gz    tzdata95a.tar.gz
+      tzdata95b.tar.gz    tzdata95j.tar.gz    tzdata96f.tar.gz
+      tzdata96g.tar.gz
 
     Notes from reviewing the missing files:
 

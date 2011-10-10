@@ -1,0 +1,24 @@
+ado@elsie.nci.nih.gov
+Arthur David Olson
+Thu, 20 Nov 1997 17:58:55 -0500
+beta versions of time zone stuff
+Message-ID: <9711202259.AA25298@elsie.nci.nih.gov>
+
+The files
+	ftp://elsie.nci.nih.gov/pub/tzcodebeta.tar.gz
+and
+	ftp://elsie.nci.nih.gov/pub/tzdatabeta.tar.gz
+are now available.
+
+1. zic puts "TZif" at the start of each file it outputs.
+2. zic looks for lines of the form
+	#Updated Zone America/New_York 1997 Nov 19 17:58:00
+and
+	#Updated Rule NYC 1997 Nov 19 17:58:00
+and, when generating output for a zone, stamps the output
+with the greatest "Updated" time for the zone or any of the
+rules it uses.
+
+Comments heartily solicited!
+
+				--ado
