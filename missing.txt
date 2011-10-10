@@ -1,4 +1,3 @@
-tzcode1998.tar.gz
 tzcode2002a.tar.gz
 tzcode2006e.tar.gz
 tzcode2008e.tar.tz
