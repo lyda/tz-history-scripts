@@ -24,7 +24,7 @@ fi
 
 declare -a err_files
 echo "Checking that SCCS id numbers have incremented."
-for f in $(git diff --name-only --diff-filter=M HEAD); do
+for f in $(git diff-index --cached --name-only --diff-filter=M HEAD); do
   # Get the old version number - only support one line.
   ov=$(git show HEAD:$f \
          | sed -n "${el}s/.*@(#)$f\t\([0-9.]*\).*/\1/p" \
