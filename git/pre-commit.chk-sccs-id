@@ -1,0 +1,58 @@
+#!/bin/bash
+#
+# Make sure SCCS version numbers are updated.
+
+hook_success() {
+  [[ -n "$*" ]] && echo -e "$@"
+  exit 0
+}
+
+hook_fail() {
+  echo -e "$@"
+  exit 1
+}
+
+if ! git-rev-parse --verify HEAD >/dev/null 2>&1; then
+  # Initial commit: Succeed.
+  hook_success
+fi
+
+el=$(git config sccs.exclude-lines)
+if [[ -n "$el" ]]; then
+  el="/$el/!"
+fi
+
+declare -a err_files
+echo "Checking that SCCS id numbers have incremented."
+for f in $(git diff --name-only --diff-filter=M HEAD); do
+  # Get the old version number - only support one line.
+  ov=$(git show HEAD:$f \
+         | sed -n "${el}s/.*@(#)$f\t\([0-9.]*\).*/\1/p" \
+         | head -1)
+  if [[ -n "$ov" ]]; then
+    # SCCS id in old version of file.
+    nv=$(git cat-file blob $(git diff-index --cached HEAD $f \
+                               | cut -d\  -f4) \
+           | sed -n "${el}s/.*@(#)$f\t\([0-9.]*\).*/\1/p" \
+           | head -1)
+    if [[ -n "$nv" ]]; then
+      # SCCS id not removed from modified file.
+      nv_major=${nv%.*}
+      ov_major=${ov%.*}
+      nv_minor=${nv#*.}
+      ov_minor=${ov#*.}
+      if [[ $nv_major == $ov_major ]]; then
+        if [[ $nv_minor -le $ov_minor ]]; then
+          err_files=("${err_files[@]-}" "$f(was:$ov now:$nv)")
+        fi
+      elif [[ $nv_major < $ov_major ]]; then
+        err_files=("${err_files[@]-}" "$f(was:$ov now:$nv)")
+      fi
+    fi
+  fi
+done
+
+if [[ -n "${err_files[*]}" ]]; then
+  hook_fail "ERROR: SCCS id not incremented for\n  ${err_files[*]}"
+fi
+hook_success "SCCS id numbers have incremented."

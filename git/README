@@ -1,0 +1,21 @@
+pre-commit.chk-sccs-id:
+  This is a pre-commit hook to make sure any file with an expanded "%W%"
+  style SCCS id string is properly incrementing.
+
+  Only the first version number is compared.  Nothing else really makes
+  sense as lines can be moved around and it would be hard to know which
+  line:version tuple to compare between the file in HEAD and the file
+  in the index.
+
+  It has one configuration option: sccs.exclude-lines.  Lines with this
+  string are excluded from the search for the "@(#)filename\tversion"
+  string that the version number is found with in the current and
+  changed files.
+
+  For the zoneinfo project, one would run this command to exclude the
+  older Berkeley SCCS id number that a few files include:
+
+    git config sccs.exclude-lines Berkeley
+
+  To install the hook, just copy pre-commit.chk-sccs-id to
+  ../work/git.tz/.git/hook/pre-commit
