@@ -2,15 +2,15 @@
 
 # A library of vcs functions used in creating the zoneinfo repositories.
 
-dvcs_init() {
+vcs_init() {
   hg init
 }
 
-dvcs_rm() {
+vcs_rm() {
   hg rm "$@"
 }
 
-dvcs_commit() {
+vcs_commit() {
   name="$1"
   email="$2"
   date="$3"
@@ -23,7 +23,7 @@ dvcs_commit() {
   hg commit -u "$name <$email>" -l "$commit_text" -d "$(date --date "$date" -R)"
 }
 
-dvcs_tag() {
+vcs_tag() {
   name="$1"
   email="$2"
   tag_date="$3"

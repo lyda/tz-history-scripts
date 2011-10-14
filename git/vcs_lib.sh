@@ -1,14 +1,14 @@
 #!/bin/bash
 
-dvcs_init() {
+vcs_init() {
   git init
 }
 
-dvcs_rm() {
+vcs_rm() {
   git rm "$@"
 }
 
-dvcs_commit() {
+vcs_commit() {
   name="$1"
   email="$2"
   date="$3"
@@ -17,12 +17,16 @@ dvcs_commit() {
 
   git config user.name "$name"
   git config user.email "$email"
-  git add $(find . -type f)
-  git commit --allow-empty -F $commit_file --date "$date"
+  git add "$@"
+  git commit --allow-empty -F "$commit_text" --date "$date"
 }
 
-dvcs_tag() {
-  tag="$1"
-  tag_text="$2"
+vcs_tag() {
+  name="$1"
+  email="$2"
+  tag_date="$3"
+  tag="$4"
+  tag_text="$5"
+
   git tag -a -m "$tag_text" "$tag"
 }
