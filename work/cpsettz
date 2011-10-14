@@ -2,4 +2,8 @@
 
 VCS=${1-git}
 
+if [[ -d $VCS.tz ]]; then
+  echo "ERROR: $VCS.tz already exists."
+  exit 1
+fi
 cp -a ../work-usenet/$VCS.settz $VCS.tz

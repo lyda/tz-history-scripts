@@ -17,9 +17,10 @@ vcs_commit() {
   commit_text="$4"
   shift; shift; shift; shift;
 
-  hg add "$@"
-  # TODO: There's a problem here - hg does not allow empty commits.
-  #       Must detect them and create dummy files to allow them.
+  # This handles empty commits.
+  echo "Originally committed to SCCS on elsie at $data" > .hg-migrate.txt
+  echo "Migrated to hg on $(hostname) at $(date)" >> .hg-migrate.txt
+  hg add
   hg commit -u "$name <$email>" -l "$commit_text" -d "$(date --date "$date" -R)"
 }
 
