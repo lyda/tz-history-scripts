@@ -1,3 +1,5 @@
 #!/bin/bash
 
-cp -a ../work-usenet/git.settz git.tz
+VCS=${1-git}
+
+cp -a ../work-usenet/$VCS.settz $VCS.tz

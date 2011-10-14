@@ -1,8 +1,14 @@
 #!/bin/bash
 
-genscript=$1
 
-# These are the files as they exist in the ../work-usenet/git.settz
+
+export VCS=${1-git}
+base_dir=$(readlink -f ${0%/*})
+export VCS_LIB=${base_dir%/*}/$VCS/vcs_lib.sh
+export VCS_LIB_LOAD=${base_dir%}/vcs_lib_load.sh
+. $VCS_LIB_LOAD
+
+# These are the files which exist in ../work-usenet/$VCS.settz
 old_tzcode="Theory usno1988 usno1989 README asctime.c date.1 date.c
             difftime.c emkdir.c getopt.c ialloc.c localtime.c logwtmp.c
             Makefile newctime.3 Patchlevel.h private.h scheck.c strftime.c
@@ -11,14 +17,14 @@ old_tzdata="africa antarctica asia australasia etcetera europe factory
             leapseconds northamerica pacificnew solar87 solar88 solar89
             southamerica systemv"
 
-# Assumes git.tz has already been created - probably from
-# ../work-usenet/git.settz
-cd git.tz || exit
+# Assumes $VCS.tz has already been created - probably from
+# ../work-usenet/$VCS.settz
+cd $VCS.tz || exit
 
 rm_deleted() {
   local doomed=$(echo $* | tr ' ' '\n' | sort | uniq -u)
   if [[ -n "$doomed" ]]; then
-    git rm $doomed
+    vcs_rm $doomed
   fi
 }
 
@@ -49,39 +55,14 @@ for f in $(cat ../index); do
       ;;
   esac
 
-  # Remove existing $mkfile.
-  if [[ $genscript == yes ]]; then
-    if [[ -f $mkfile ]]; then
-      git config --unset user.name
-      git config --unset user.email
-      git rm $mkfile
-      git commit -m "Removing $mkfile for new version."
-    fi
-  fi
-
   # Add the new version.
   tar xf ../tarballs/$f
-  git config user.name "$name"
-  git config user.email "$email"
-  git add $(find . -type f | fgrep -v .git)
+  commit_text=$(mktemp)
   ( echo "$subject"; sed -n '/^$/,$p' ../meta/$f.meta; echo "$msgid" ) \
-    | git commit --allow-empty -F- --date "$date"
-  # TODO: annotated tag?
-  git tag -a -m 'Generated tag reflecting release on elsie' ${f%.tar}
-
-  # Make and checkin script to build tarball.
-  if [[ $genscript == yes ]]; then
-    cat > $mkfile << EOF
-#!/bin/bash
-
-tar zcf $f.gz $(echo $old_tzcode)
-EOF
-    chmod 755 $mkfile
-    git config --unset user.name
-    git config --unset user.email
-    git add $mkfile
-    git commit -m "Script to build $f.gz"
-    git tag -a -m "Script to build $f.gz" $f.gz
-  fi
+    > "$commit_text"
+  vcs_commit "$name" "$email" "$date" $commit_text *
+  rm -f $commit_text
+  vcs_tag "$name" "$email" "$date" "${f%.tar}" \
+          "Generated tag reflecting release on elsie"
 
 done
