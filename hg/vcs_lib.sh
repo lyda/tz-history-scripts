@@ -18,7 +18,7 @@ vcs_commit() {
   shift; shift; shift; shift;
 
   # This handles empty commits.
-  echo "Originally committed to SCCS on elsie at $data" > .hg-migrate.txt
+  echo "Originally committed to SCCS on elsie at $date" > .hg-migrate.txt
   echo "Migrated to hg on $(hostname) at $(date)" >> .hg-migrate.txt
   hg add
   hg commit -u "$name <$email>" -l "$commit_text" -d "$(date --date "$date" -R)"
