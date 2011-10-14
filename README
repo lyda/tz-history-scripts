@@ -3,7 +3,7 @@ Contents: what, why, how, decisions / issues
 == What? ==
 
 This is a collection of scripts and data which can be used to construct
-a metadata preserving git repository of all the zoneinfo releases
+a metadata preserving git or hg repository of all the zoneinfo releases
 since 1986.
 
 == Why? ==
@@ -22,10 +22,17 @@ want the history to be lost.
 == How? ==
 
 * See the */FETCH_DATA files and gather the required data.
-* See work-usenix/ directory for how to generate the original git.settz
-  repository.
-* Continue on in the work/ directory (there's a script there to copy
-  the git.settz repository.
+* Choose a VCS you want to use.  Currently git or hg are supported.
+  Set $VCS to the one you want - i.e. VCS=git
+* Go to the work-usenix/ directory and run: ./add.sh "$VCS"
+  This will then generate $VCS.settz - a repository that contains all
+  known usenet releases.
+* Go to the work/ directory.  If you want to copy over the repository
+  created in the first step, run: ./cpsettz "$VCS"
+* Now run the migration script: ./add "$VCS"
+* You will then have a $VCS.tz repository with all changes from 1986 to
+  the present (assuming you downloaded the tarballs as described in the
+  FETCH_DATA instructions).
 
 == Decisions / Issues ==
 
@@ -92,3 +99,8 @@ listed them here so that others could review.
     are credited to ado.  However in his commit messages he will
     frequently credit others - eggert primarily.  It's possible this
     info is in SCCS but I doubt it.
+
+7)  Since mercurial does not support empty commits, the hg.tz and hg.settz
+    created repos have a .hg-migrate.txt file which gives some information
+    about each revision in the repository.  For some releases it is the
+    only file that changes (obviously the commit text changes as well).
